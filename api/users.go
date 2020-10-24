@@ -93,8 +93,8 @@ func callbackHandler(c *gin.Context) (interface{}, error) {
 		user := models.User{
 			Name:  profile.DisplayName,
 			Email: profile.Mail,
-			// TODO: req on CRI
 		}
+
 		err = user.Insert()
 		if err != nil {
 			return nil, jwt.ErrFailedAuthentication
@@ -103,12 +103,7 @@ func callbackHandler(c *gin.Context) (interface{}, error) {
 		return user, nil
 	}
 
-	return models.User{
-		Email:     u.Email,
-		Name:      u.Name,
-		Class:     u.Class,
-		Promotion: u.Promotion,
-	}, nil
+	return u, nil
 }
 
 func getProfile(token string) (models.MicrosoftProfile, error) {

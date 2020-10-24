@@ -1,10 +1,7 @@
 package models
 
 import (
-	"fmt"
-
 	"github.com/aureleoules/epitaf/db"
-	"github.com/davecgh/go-spew/spew"
 )
 
 const (
@@ -43,6 +40,19 @@ const (
 		FROM users
 		WHERE email = ?;
 	`
+
+	getUserQuery = `
+		SELECT 
+			uuid, 
+			name, 
+			email, 
+			promotion,
+			class,
+			created_at,
+			updated_at
+		FROM users
+		WHERE uuid = ?;
+	`
 )
 
 // User struct
@@ -63,7 +73,6 @@ type MicrosoftProfile struct {
 
 // GetUserByEmail retrives user by email
 func GetUserByEmail(email string) (*User, error) {
-	fmt.Println("FETCHING BY EMAIL")
 	tx, err := db.DB.Beginx()
 	if err != nil {
 		return nil, err
@@ -79,7 +88,26 @@ func GetUserByEmail(email string) (*User, error) {
 
 	var user User
 	err = tx.Get(&user, getUserByEmailQuery, email)
-	spew.Dump(user)
+	return &user, err
+}
+
+// GetUser retrives user by uuid
+func GetUser(uuid UUID) (*User, error) {
+	tx, err := db.DB.Beginx()
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	var user User
+	err = tx.Get(&user, getUserQuery, uuid)
 	return &user, err
 }
 

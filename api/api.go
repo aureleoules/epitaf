@@ -25,7 +25,8 @@ func Serve() {
 
 	handleUsers()
 
-	// api.Use(auth.MiddlewareFunc())
+	api.Use(auth.MiddlewareFunc())
+	handleTasks()
 
 	r.Run()
 }
@@ -38,7 +39,7 @@ func authMiddleware() *jwt.GinJWTMiddleware {
 		Timeout:    time.Hour * 48,
 		MaxRefresh: time.Hour * 48,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
-			u := data.(models.User)
+			u := data.(*models.User)
 			return jwt.MapClaims{
 				"uuid":      u.UUID.String(),
 				"email":     u.Email,

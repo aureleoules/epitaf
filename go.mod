@@ -13,6 +13,7 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d
 	github.com/spf13/cobra v1.1.1
+	github.com/teris-io/shortid v0.0.0-20171029131806-771a37caa5cf
 	go.uber.org/zap v1.16.0
 	golang.org/x/crypto v0.0.0-20190605123033-f99c8df09eb5
 )

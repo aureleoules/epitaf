@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -11,7 +10,6 @@ import (
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/aureleoules/epitaf/models"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 )
 
@@ -77,8 +75,6 @@ func callbackHandler(c *gin.Context) (interface{}, error) {
 		return nil, jwt.ErrFailedAuthentication
 	}
 
-	fmt.Println(string(body))
-
 	var result map[string]string
 	json.Unmarshal([]byte(body), &result)
 
@@ -86,24 +82,32 @@ func callbackHandler(c *gin.Context) (interface{}, error) {
 	if token == "" {
 		return nil, jwt.ErrFailedAuthentication
 	}
-	fmt.Println("token", token)
-	fmt.Println(err)
 
 	profile, err := getProfile(token)
 	if err != nil {
 		return nil, jwt.ErrFailedAuthentication
 	}
 
-	spew.Dump(profile)
-
 	u, err := models.GetUserByEmail(profile.Mail)
 	if err != nil {
-		return nil, jwt.ErrFailedAuthentication
+		user := models.User{
+			Name:  profile.DisplayName,
+			Email: profile.Mail,
+			// TODO: req on CRI
+		}
+		err = user.Insert()
+		if err != nil {
+			return nil, jwt.ErrFailedAuthentication
+		}
+
+		return user, nil
 	}
 
 	return models.User{
-		Email: u.Email,
-		Name:  u.Name,
+		Email:     u.Email,
+		Name:      u.Name,
+		Class:     u.Class,
+		Promotion: u.Promotion,
 	}, nil
 }
 

@@ -8,7 +8,6 @@ import (
 	"github.com/aureleoules/epitaf/models"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
-	"github.com/gin-gonic/contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,13 +18,7 @@ var auth *jwt.GinJWTMiddleware
 func Serve() {
 	r := gin.Default()
 
-	r.Use(func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH")
-	})
-
-	r.Use(cors.Default())
+	r.Use(cors())
 
 	api = r.Group("/api")
 	auth = authMiddleware()
@@ -47,9 +40,11 @@ func authMiddleware() *jwt.GinJWTMiddleware {
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			u := data.(models.User)
 			return jwt.MapClaims{
-				"uuid":  u.UUID.String(),
-				"email": u.Email,
-				"name":  u.Name,
+				"uuid":      u.UUID.String(),
+				"email":     u.Email,
+				"name":      u.Name,
+				"promotion": u.Promotion,
+				"class":     u.Class,
 			}
 		},
 		Authenticator: callbackHandler,

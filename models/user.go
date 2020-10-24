@@ -1,5 +1,50 @@
 package models
 
+import (
+	"fmt"
+
+	"github.com/aureleoules/epitaf/db"
+	"github.com/davecgh/go-spew/spew"
+)
+
+const (
+	userSchema = `
+		CREATE TABLE users (
+			uuid BINARY(16) NOT NULL,
+			
+			name VARCHAR(256) NOT NULL,
+			email VARCHAR(256) NOT NULL UNIQUE,
+			promotion VARCHAR(256) NOT NULL,
+			class VARCHAR(256) NOT NULL,
+
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
+			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+			PRIMARY KEY (uuid),
+			UNIQUE INDEX (email)
+		);
+	`
+
+	insertUserQuery = `
+		INSERT INTO users 
+			(uuid, name, email, promotion, class) 
+		VALUES 
+			(:uuid, :name, :email, :promotion, :class);
+	`
+
+	getUserByEmailQuery = `
+		SELECT 
+			uuid, 
+			name, 
+			email, 
+			promotion,
+			class,
+			created_at,
+			updated_at
+		FROM users
+		WHERE email = ?;
+	`
+)
+
 // User struct
 type User struct {
 	base
@@ -16,11 +61,45 @@ type MicrosoftProfile struct {
 	Mail        string `json:"mail"`
 }
 
-func GetUserByEmail(email string) (User, error) {
-	return User{}, nil
+// GetUserByEmail retrives user by email
+func GetUserByEmail(email string) (*User, error) {
+	fmt.Println("FETCHING BY EMAIL")
+	tx, err := db.DB.Beginx()
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	var user User
+	err = tx.Get(&user, getUserByEmailQuery, email)
+	spew.Dump(user)
+	return &user, err
 }
 
-// Insert User in DB
-func (u *User) Insert() error {
-	return nil
+// Insert user in DB
+func (c *User) Insert() error {
+	c.UUID = NewUUID()
+
+	tx, err := db.DB.Beginx()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	_, err = tx.NamedExec(insertUserQuery, c)
+	return err
 }

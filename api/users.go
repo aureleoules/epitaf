@@ -100,7 +100,7 @@ func callbackHandler(c *gin.Context) (interface{}, error) {
 			return nil, jwt.ErrFailedAuthentication
 		}
 
-		return user, nil
+		return &user, nil
 	}
 
 	return u, nil

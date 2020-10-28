@@ -36,3 +36,15 @@ func Close() {
 	DB.Close()
 	zap.S().Info("Closed DB")
 }
+
+func Delete() {
+	if DB == nil {
+		return
+	}
+
+	zap.S().Info("Deleting epitaf...")
+	_, err := DB.Exec("DROP DATABASE epitaf;")
+	if err != nil {
+		zap.S().Fatal(err)
+	}
+}

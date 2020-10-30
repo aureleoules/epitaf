@@ -13,6 +13,8 @@ const (
 			email VARCHAR(256) NOT NULL UNIQUE,
 			promotion VARCHAR(256) NOT NULL,
 			class VARCHAR(256) NOT NULL,
+			region VARCHAR(256) NOT NULL,
+			semester VARCHAR(256) NOT NULL,
 
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
@@ -23,9 +25,9 @@ const (
 
 	insertUserQuery = `
 		INSERT INTO users 
-			(uuid, name, email, promotion, class) 
+			(uuid, name, email, promotion, class, region, semester) 
 		VALUES 
-			(:uuid, :name, :email, :promotion, :class);
+			(:uuid, :name, :email, :promotion, :class, :region, :semester);
 	`
 
 	getUserByEmailQuery = `
@@ -35,6 +37,8 @@ const (
 			email, 
 			promotion,
 			class,
+			region,
+			semester,
 			created_at,
 			updated_at
 		FROM users
@@ -48,6 +52,8 @@ const (
 			email, 
 			promotion,
 			class,
+			region,
+			semester,
 			created_at,
 			updated_at
 		FROM users
@@ -62,6 +68,8 @@ type User struct {
 	Name      string `json:"name" db:"name"`
 	Promotion int    `json:"promotion" db:"promotion"`
 	Class     string `json:"class" db:"class"`
+	Region    string `json:"region" db:"region"`
+	Semester  string `json:"semester" db:"semester"`
 	Email     string `json:"email" db:"email"`
 }
 

@@ -1,13 +1,11 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/aureleoules/epitaf/models"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -41,8 +39,6 @@ func getTasksHandler(c *gin.Context) {
 
 func createTaskHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
-	spew.Dump(claims)
-	fmt.Println("UUID", claims["uuid"].(string))
 	uuid, err := models.FromUUID(claims["uuid"].(string))
 	if err != nil {
 		zap.S().Error(err)

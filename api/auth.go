@@ -12,6 +12,7 @@ import (
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
+	"github.com/aureleoules/epitaf/lib/cri"
 	"github.com/aureleoules/epitaf/models"
 	"github.com/gin-gonic/gin"
 )
@@ -137,7 +138,8 @@ func callbackHandler(c *gin.Context) (interface{}, error) {
 		}
 
 		// CRI req
-		r, err := getCRIProfile(user.Email)
+		client := cri.NewClient(os.Getenv("CRI_USERNAME"), os.Getenv("CRI_PASSWORD"), nil)
+		r, err := client.SearchUser(user.Email)
 		if err != nil {
 			return nil, jwt.ErrFailedAuthentication
 		}
@@ -151,7 +153,7 @@ func callbackHandler(c *gin.Context) (interface{}, error) {
 			}
 		}
 
-		group, err := getCRIGroup(slug)
+		group, err := client.GetGroup(slug)
 		if err != nil {
 			return nil, jwt.ErrFailedAuthentication
 		}
@@ -170,48 +172,6 @@ func callbackHandler(c *gin.Context) (interface{}, error) {
 	}
 
 	return u, nil
-}
-
-func getCRIGroup(slug string) (models.CRIGroup, error) {
-	endpoint := "https://cri.epita.fr/api/v2/groups/" + slug
-	req, err := http.NewRequest("GET", endpoint, nil)
-	req.SetBasicAuth(os.Getenv("CRI_USERNAME"), os.Getenv("CRI_PASSWORD"))
-
-	client := http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return models.CRIGroup{}, err
-	}
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return models.CRIGroup{}, err
-	}
-
-	var result models.CRIGroup
-	json.Unmarshal([]byte(body), &result)
-
-	return result, nil
-}
-
-func getCRIProfile(email string) (models.CRIProfileSearchReq, error) {
-	endpoint := "https://cri.epita.fr/api/v2/users/search/?emails=" + email
-	req, err := http.NewRequest("GET", endpoint, nil)
-	req.SetBasicAuth(os.Getenv("CRI_USERNAME"), os.Getenv("CRI_PASSWORD"))
-
-	client := http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return models.CRIProfileSearchReq{}, err
-	}
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return models.CRIProfileSearchReq{}, err
-	}
-
-	var result []models.CRIProfileSearchReq
-	json.Unmarshal([]byte(body), &result)
-
-	return result[0], nil
 }
 
 func getProfile(token string) (models.MicrosoftProfile, error) {

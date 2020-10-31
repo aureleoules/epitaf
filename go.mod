@@ -18,4 +18,5 @@ require (
 	go.uber.org/zap v1.16.0
 	golang.org/x/crypto v0.0.0-20190605123033-f99c8df09eb5
 	gopkg.in/dgrijalva/jwt-go.v3 v3.2.0 // indirect
+	gopkg.in/resty.v1 v1.12.0
 )

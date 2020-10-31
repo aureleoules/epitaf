@@ -1,4 +1,4 @@
-package models
+package chronos
 
 import "time"
 

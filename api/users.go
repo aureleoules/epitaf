@@ -1,12 +1,11 @@
 package api
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"net/http"
 	"os"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
+	"github.com/aureleoules/epitaf/lib/chronos"
 	"github.com/aureleoules/epitaf/models"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -34,8 +33,9 @@ func getCalendarHandler(c *gin.Context) {
 		return
 	}
 
+	client := chronos.NewClient(os.Getenv("CHRONOS_TOKEN"), nil)
 	slug := "INFO" + u.Semester + u.Class
-	cal, err := getCalendar(slug)
+	cal, err := client.GetGroupPlanning(slug)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -43,28 +43,6 @@ func getCalendarHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, cal)
 }
-
-func getCalendar(class string) (models.ChronosCalendar, error) {
-	endpoint := "https://v2ssl.webservices.chronos.epita.net/api/v2/Planning/GetRangeWeekRecursive/" + class + "/0"
-	req, err := http.NewRequest("GET", endpoint, nil)
-	req.Header.Set("Auth-Token", os.Getenv("CHRONOS_TOKEN"))
-
-	client := http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return models.ChronosCalendar{}, err
-	}
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return models.ChronosCalendar{}, err
-	}
-
-	var result []models.ChronosCalendar
-	json.Unmarshal([]byte(body), &result)
-
-	return result[0], nil
-}
-
 func getUserHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	uuid, err := models.FromUUID(claims["uuid"].(string))

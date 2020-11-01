@@ -17,6 +17,7 @@ const (
 			promotion VARCHAR(256) NOT NULL,
 			global BOOLEAN NOT NULL DEFAULT 0,
 			class VARCHAR(256) NOT NULL,
+			region VARCHAR(256) NOT NULL,
 			title VARCHAR(256) NOT NULL,
 			subject VARCHAR(256) NOT NULL,
 			content TEXT NOT NULL DEFAULT "",
@@ -35,9 +36,9 @@ const (
 
 	insertTaskQuery = `
 		INSERT INTO tasks 
-			(uuid, short_id, promotion, global, class, title, subject, content, due_date, created_by_id, updated_by_id) 
+			(uuid, short_id, promotion, global, class, region, title, subject, content, due_date, created_by_id, updated_by_id) 
 		VALUES 
-			(:uuid, :short_id, :promotion, :global, :class, :title, :subject, :content, :due_date, :created_by_id, :updated_by_id) 
+			(:uuid, :short_id, :promotion, :global, :class, :region, :title, :subject, :content, :due_date, :created_by_id, :updated_by_id) 
 		`
 	getTaskQuery = `
 		SELECT 
@@ -46,6 +47,7 @@ const (
 			promotion,
 			global,
 			class,
+			region,
 			title,
 			subject,
 			content,
@@ -68,6 +70,7 @@ const (
 			tasks.title,
 			tasks.subject,
 			tasks.content,
+			tasks.region,
 			tasks.due_date,
 			users.name as created_by,
 			tasks.created_by_id,
@@ -76,8 +79,16 @@ const (
 			tasks.updated_at
 		FROM tasks
 		LEFT JOIN users
-		ON users.uuid = tasks.created_by_id
-		WHERE due_date > ? AND due_date < ?;
+		ON 
+			users.uuid = tasks.created_by_id
+		WHERE (
+			due_date > ? 
+			AND due_date < ? 
+			AND users.class = tasks.class
+			AND users.promotion = tasks.promotion
+			AND users.region = tasks.region)
+
+			OR (users.promotion = tasks.promotion AND tasks.global = 1);
 	`
 )
 
@@ -90,6 +101,7 @@ type Task struct {
 	Promotion int       `json:"promotion" db:"promotion"`
 	Global    bool      `json:"global" db:"global"`
 	Class     string    `json:"class" db:"class"`
+	Region    string    `json:"region" db:"region"`
 	Title     string    `json:"title" db:"title"`
 	Subject   string    `json:"subject" db:"subject"`
 	Content   string    `json:"content" db:"content"`

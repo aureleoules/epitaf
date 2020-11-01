@@ -63,10 +63,9 @@ func createTaskHandler(c *gin.Context) {
 
 	task.CreatedByID = u.UUID
 	task.UpdatedByID = u.UUID
+	task.Region = u.Region
 	task.Promotion = u.Promotion
-	if !task.Global {
-		task.Class = u.Class
-	}
+	task.Class = u.Class
 
 	err = task.Validate()
 	if err != nil {

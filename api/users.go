@@ -37,6 +37,7 @@ func getCalendarHandler(c *gin.Context) {
 	slug := "INFO" + u.Semester + u.Class
 	cal, err := client.GetGroupPlanning(slug)
 	if err != nil {
+		zap.S().Error(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}

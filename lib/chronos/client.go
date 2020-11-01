@@ -18,7 +18,7 @@ type Client struct {
 // GetGroupPlanning from Chronos
 func (c *Client) GetGroupPlanning(groupSlug string) (*ChronosCalendar, error) {
 	resp, err := c.httpClient.R().
-		Get("/Planning/GetRangeWeekRecursive/" + groupSlug + "/0")
+		Get("/Planning/GetRangeWeekRecursive/" + groupSlug + "/1")
 
 	if err != nil {
 		return nil, err
@@ -30,7 +30,12 @@ func (c *Client) GetGroupPlanning(groupSlug string) (*ChronosCalendar, error) {
 		return nil, err
 	}
 
-	return &result[0], err
+	var days ChronosCalendar
+	for _, r := range result {
+		days.DayList = append(days.DayList, r.DayList...)
+	}
+
+	return &days, err
 }
 
 // NewClient constructor

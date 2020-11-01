@@ -110,6 +110,7 @@ func getAccessToken(code string) (string, error) {
 	})
 
 	if err != nil {
+		zap.S().Error(err)
 		return "", jwt.ErrFailedAuthentication
 	}
 
@@ -117,6 +118,7 @@ func getAccessToken(code string) (string, error) {
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		zap.S().Error(err)
 		return "", jwt.ErrFailedAuthentication
 	}
 
@@ -126,6 +128,7 @@ func getAccessToken(code string) (string, error) {
 	// Return access token
 	token := result["access_token"]
 	if token == "" {
+		zap.S().Error("no access token")
 		return "", jwt.ErrFailedAuthentication
 	}
 	return token, nil
@@ -142,6 +145,7 @@ func callbackHandler(c *gin.Context) (interface{}, error) {
 	// Retrieve microsoft profile
 	profile, err := getProfile(token)
 	if err != nil {
+		zap.S().Error(err)
 		return nil, jwt.ErrFailedAuthentication
 	}
 
@@ -151,12 +155,14 @@ func callbackHandler(c *gin.Context) (interface{}, error) {
 		// If the user does not exists, we must create a new one using the CRI.
 		user, err := models.PrepareUser(profile.Mail)
 		if err != nil {
+			zap.S().Error(err)
 			return nil, err
 		}
 
 		// Insert new user and return user data
 		err = user.Insert()
 		if err != nil {
+			zap.S().Error(err)
 			return nil, jwt.ErrFailedAuthentication
 		}
 
@@ -177,10 +183,12 @@ func getProfile(token string) (models.MicrosoftProfile, error) {
 	client := http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
+		zap.S().Error(err)
 		return models.MicrosoftProfile{}, err
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		zap.S().Error(err)
 		return models.MicrosoftProfile{}, err
 	}
 

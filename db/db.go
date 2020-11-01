@@ -2,6 +2,7 @@ package db
 
 import (
 	"os"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -9,7 +10,8 @@ import (
 )
 
 var (
-	DB *sqlx.DB
+	DB    *sqlx.DB
+	tries = 0
 )
 
 // Connect to DB
@@ -18,11 +20,15 @@ func Connect() {
 }
 
 func connect(host, user, pass, database string) {
+	if tries > 3 {
+		zap.S().Fatal("could not connect to database.")
+	}
 	zap.S().Info("Connecting to database...")
 	var err error
 	DB, err = sqlx.Connect("mysql", user+":"+pass+"@("+host+")/"+database+"?charset=utf8mb4,utf8&parseTime=true")
 	if err != nil {
-		zap.S().Fatal(err)
+		time.Sleep(5 * time.Second)
+		connect(host, user, pass, database)
 	}
 	zap.S().Info("Connected to database.")
 }

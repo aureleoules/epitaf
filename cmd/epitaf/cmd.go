@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"go.uber.org/zap"
@@ -21,6 +22,8 @@ func init() {
 	zap.ReplaceGlobals(logger)
 
 	godotenv.Load()
+
+	fmt.Println(os.Environ())
 }
 
 var rootCmd = &cobra.Command{

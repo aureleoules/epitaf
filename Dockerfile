@@ -1,4 +1,4 @@
-FROM golang:alpine AS builder
+FROM golang AS builder
 
 WORKDIR /app
 COPY go.mod go.mod
@@ -6,9 +6,13 @@ COPY go.sum go.sum
 RUN go mod download
 
 COPY . /app
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o epitaf
+RUN make
 
 FROM scratch
-COPY --from=builder /app/epitaf /app/epitaf
+# Get SSL certificates
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /app/build/epitaf /app/epitaf
+
 WORKDIR /app
 ENTRYPOINT ["./epitaf"]
+CMD ["start"]

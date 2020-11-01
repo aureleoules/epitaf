@@ -27,7 +27,8 @@ func handleAuth() {
 	users.POST("/callback", auth.LoginHandler)
 }
 
-func authMiddleware() *jwt.GinJWTMiddleware {
+// AuthMiddleware handles JWT authentications
+func AuthMiddleware() *jwt.GinJWTMiddleware {
 	// the jwt middleware
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:      "epitaf",
@@ -91,6 +92,7 @@ func authenticateHandler(c *gin.Context) {
 }
 
 func getAccessToken(code string) (string, error) {
+
 	// Prepare microsoft query
 	var uri string
 	if os.Getenv("DEV") == "true" {

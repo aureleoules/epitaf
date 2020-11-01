@@ -19,7 +19,7 @@ func Serve() {
 	// Default API route
 	api = r.Group("/api")
 	// JWT middleware
-	auth = authMiddleware()
+	auth = AuthMiddleware()
 
 	// Do not apply auth middleware here
 	handleAuth()

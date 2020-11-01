@@ -108,7 +108,9 @@ func GetUserByEmail(email string) (*User, error) {
 
 	var user User
 	err = tx.Get(&user, getUserByEmailQuery, email)
-
+	if err != nil {
+		return nil, errors.New("not found")
+	}
 	zap.S().Info("Retrieved user by email.")
 	return &user, err
 }

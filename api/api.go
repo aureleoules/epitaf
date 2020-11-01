@@ -10,11 +10,15 @@ var auth *jwt.GinJWTMiddleware
 
 // Serve private api
 func Serve() {
+	// Create router
 	r := gin.Default()
 
+	// Use CORS
 	r.Use(cors())
 
+	// Default API route
 	api = r.Group("/api")
+	// JWT middleware
 	auth = authMiddleware()
 
 	// Do not apply auth middleware here
@@ -22,6 +26,7 @@ func Serve() {
 
 	// Apply auth middleware on these routes
 	api.Use(auth.MiddlewareFunc())
+
 	handleUsers()
 	handleTasks()
 

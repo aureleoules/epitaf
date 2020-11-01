@@ -18,6 +18,7 @@ const (
 			global BOOLEAN NOT NULL DEFAULT 0,
 			class VARCHAR(256) NOT NULL,
 			region VARCHAR(256) NOT NULL,
+			semester VARCHAR(256) NOT NULL,
 			title VARCHAR(256) NOT NULL,
 			subject VARCHAR(256) NOT NULL,
 			content TEXT NOT NULL DEFAULT "",
@@ -36,9 +37,9 @@ const (
 
 	insertTaskQuery = `
 		INSERT INTO tasks 
-			(uuid, short_id, promotion, global, class, region, title, subject, content, due_date, created_by_id, updated_by_id) 
+			(uuid, short_id, promotion, global, class, region, semester, title, subject, content, due_date, created_by_id, updated_by_id) 
 		VALUES 
-			(:uuid, :short_id, :promotion, :global, :class, :region, :title, :subject, :content, :due_date, :created_by_id, :updated_by_id) 
+			(:uuid, :short_id, :promotion, :global, :class, :region, :semester, :title, :subject, :content, :due_date, :created_by_id, :updated_by_id) 
 		`
 	getTaskQuery = `
 		SELECT 
@@ -48,6 +49,7 @@ const (
 			global,
 			class,
 			region,
+			semester,
 			title,
 			subject,
 			content,
@@ -69,6 +71,7 @@ const (
 			tasks.class,
 			tasks.title,
 			tasks.subject,
+			tasks.semester,
 			tasks.content,
 			tasks.region,
 			tasks.due_date,
@@ -81,14 +84,30 @@ const (
 		LEFT JOIN users
 		ON 
 			users.uuid = tasks.created_by_id
-		WHERE (
-			due_date > ? 
-			AND due_date < ? 
-			AND users.class = tasks.class
-			AND users.promotion = tasks.promotion
-			AND users.region = tasks.region)
+		WHERE 
+			(
+				tasks.promotion = ?
+				AND tasks.class = ?
+				AND tasks.region = ?
+				AND tasks.semester = ?
+				AND due_date > ? 
+				AND due_date < ?
+			) OR (tasks.promotion = ? AND tasks.global = 1);
+	`
 
-			OR (users.promotion = tasks.promotion AND tasks.global = 1);
+	updateTaskQuery = `
+		UPDATE tasks
+		SET
+			title=:title,
+			subject=:subject,
+			content=:content,
+			updated_by_id=:updated_by_id,
+			due_date=:due_date
+		WHERE short_id=:short_id
+	`
+
+	deleteTaskQuery = `
+		DELETE FROM tasks WHERE short_id=?
 	`
 )
 
@@ -102,6 +121,7 @@ type Task struct {
 	Global    bool      `json:"global" db:"global"`
 	Class     string    `json:"class" db:"class"`
 	Region    string    `json:"region" db:"region"`
+	Semester  string    `json:"semester" db:"semester"`
 	Title     string    `json:"title" db:"title"`
 	Subject   string    `json:"subject" db:"subject"`
 	Content   string    `json:"content" db:"content"`
@@ -150,6 +170,44 @@ func (t *Task) Insert() error {
 	return err
 }
 
+// DeleteTask from db
+func DeleteTask(id string) error {
+	tx, err := db.DB.Beginx()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	_, err = tx.Exec(deleteTaskQuery, id)
+	return err
+}
+
+// UpdateTask in DB
+func UpdateTask(task Task) error {
+	tx, err := db.DB.Beginx()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	_, err = tx.NamedExec(updateTaskQuery, task)
+	return err
+}
+
 // GetTask by shortID
 func GetTask(id string) (*Task, error) {
 	tx, err := db.DB.Beginx()
@@ -171,7 +229,7 @@ func GetTask(id string) (*Task, error) {
 }
 
 // GetTasksRange returns list of tasks in a time range based on due_date
-func GetTasksRange(start, end time.Time) ([]Task, error) {
+func GetTasksRange(promotion int, semester string, class string, region string, start, end time.Time) ([]Task, error) {
 	tx, err := db.DB.Beginx()
 	if err != nil {
 		return nil, err
@@ -186,6 +244,6 @@ func GetTasksRange(start, end time.Time) ([]Task, error) {
 	}()
 
 	var tasks []Task
-	err = tx.Select(&tasks, getTasksRangeQuery, start, end)
+	err = tx.Select(&tasks, getTasksRangeQuery, promotion, class, region, semester, start, end, promotion)
 	return tasks, err
 }

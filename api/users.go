@@ -18,7 +18,6 @@ func handleUsers() {
 }
 
 func getCalendarHandler(c *gin.Context) {
-
 	claims := jwt.ExtractClaims(c)
 	uuid, err := models.FromUUID(claims["uuid"].(string))
 	if err != nil {

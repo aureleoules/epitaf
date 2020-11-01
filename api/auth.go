@@ -3,18 +3,16 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
-	"strings"
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
-	"github.com/aureleoules/epitaf/lib/cri"
 	"github.com/aureleoules/epitaf/models"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 const (
@@ -38,6 +36,7 @@ func authMiddleware() *jwt.GinJWTMiddleware {
 		MaxRefresh: time.Hour * 48,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			u := data.(*models.User)
+			// What we put in the JWT claims
 			return jwt.MapClaims{
 				"uuid":      u.UUID.String(),
 				"email":     u.Email,
@@ -46,6 +45,7 @@ func authMiddleware() *jwt.GinJWTMiddleware {
 				"class":     u.Class,
 				"region":    u.Region,
 				"semester":  u.Semester,
+				"teacher":   u.Teacher,
 			}
 		},
 		Authenticator: callbackHandler,
@@ -60,6 +60,7 @@ func authMiddleware() *jwt.GinJWTMiddleware {
 		TimeFunc:      time.Now,
 	})
 
+	// Authmiddleware must be active
 	if err != nil {
 		panic(err)
 	}
@@ -68,6 +69,7 @@ func authMiddleware() *jwt.GinJWTMiddleware {
 }
 
 func authenticateHandler(c *gin.Context) {
+	// Prepare microsoft query
 	req, _ := http.NewRequest("GET", Endpoint+"/authorize", nil)
 	q := req.URL.Query()
 
@@ -84,12 +86,12 @@ func authenticateHandler(c *gin.Context) {
 	}
 
 	req.URL.RawQuery = q.Encode()
+	// Return URL that the user must go to
 	c.JSON(http.StatusOK, req.URL.String())
 }
 
-func callbackHandler(c *gin.Context) (interface{}, error) {
-	var m map[string]string
-	c.Bind(&m)
+func getAccessToken(code string) (string, error) {
+	// Prepare microsoft query
 	var uri string
 	if os.Getenv("DEV") == "true" {
 		uri = "http://localhost:3000/callback"
@@ -99,70 +101,58 @@ func callbackHandler(c *gin.Context) (interface{}, error) {
 
 	resp, err := http.PostForm(Endpoint+"/token", url.Values{
 		"grant_type":    {"authorization_code"},
-		"code":          {m["code"]},
+		"code":          {code},
 		"client_id":     {os.Getenv("CLIENT_ID")},
 		"client_secret": {os.Getenv("CLIENT_SECRET")},
 		"redirect_uri":  {uri},
 	})
 
 	if err != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return nil, jwt.ErrFailedAuthentication
+		return "", jwt.ErrFailedAuthentication
 	}
 
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, jwt.ErrFailedAuthentication
+		return "", jwt.ErrFailedAuthentication
 	}
 
 	var result map[string]string
 	json.Unmarshal([]byte(body), &result)
 
+	// Return access token
 	token := result["access_token"]
 	if token == "" {
-		return nil, jwt.ErrFailedAuthentication
+		return "", jwt.ErrFailedAuthentication
+	}
+	return token, nil
+}
+
+func callbackHandler(c *gin.Context) (interface{}, error) {
+	var m map[string]string
+	c.Bind(&m)
+	token, err := getAccessToken(m["code"])
+	if err != nil {
+		return nil, err
 	}
 
+	// Retrieve microsoft profile
 	profile, err := getProfile(token)
 	if err != nil {
 		return nil, jwt.ErrFailedAuthentication
 	}
 
+	// Check if user exists in database
 	u, err := models.GetUserByEmail(profile.Mail)
 	if err != nil {
-		user := models.User{
-			Name:  profile.DisplayName,
-			Email: profile.Mail,
-		}
-
-		// CRI req
-		client := cri.NewClient(os.Getenv("CRI_USERNAME"), os.Getenv("CRI_PASSWORD"), nil)
-		r, err := client.SearchUser(user.Email)
+		// If the user does not exists, we must create a new one using the CRI.
+		user, err := models.PrepareUser(profile.Mail)
 		if err != nil {
-			return nil, jwt.ErrFailedAuthentication
+			return nil, err
 		}
 
-		var slug string
-		for _, g := range r.GroupsHistory {
-			if g.IsCurrent {
-				slug = g.Group.Slug
-				user.Promotion = g.GraduationYear
-				break
-			}
-		}
-
-		group, err := client.GetGroup(slug)
-		if err != nil {
-			return nil, jwt.ErrFailedAuthentication
-		}
-
-		g := strings.Split(group.Name, " ")
-		user.Semester = g[0]
-		user.Region = g[1]
-		user.Class = g[2]
-
+		// Insert new user and return user data
 		err = user.Insert()
 		if err != nil {
 			return nil, jwt.ErrFailedAuthentication
@@ -171,10 +161,13 @@ func callbackHandler(c *gin.Context) (interface{}, error) {
 		return &user, nil
 	}
 
+	// User already exists, return user data
 	return u, nil
 }
 
 func getProfile(token string) (models.MicrosoftProfile, error) {
+	zap.S().Info("Fetching Microsoft profile...")
+	// Retrieve microsoft profile using access token
 	endpoint := "https://graph.microsoft.com/v1.0/me"
 	req, err := http.NewRequest("GET", endpoint, nil)
 	req.Header.Set("Authorization", "Bearer "+token)
@@ -190,12 +183,12 @@ func getProfile(token string) (models.MicrosoftProfile, error) {
 	}
 
 	var result models.MicrosoftProfile
-	fmt.Println(string(body))
 	json.Unmarshal([]byte(body), &result)
 
 	if result.Mail == "" {
 		return models.MicrosoftProfile{}, errors.New("invalid token")
 	}
 
+	zap.S().Info("Fetched Microsoft profile...")
 	return result, nil
 }

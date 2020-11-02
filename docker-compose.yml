@@ -19,7 +19,7 @@ services:
     links:
       - db:db
     environment:
-      - DB_HOST=X
+      - DB_HOST=db:3306
       - DB_USER=X
       - DB_PASS=X
       - DB_NAME=X
@@ -30,3 +30,4 @@ services:
       - CRI_USERNAME=X
       - CRI_PASSWORD=X
       - CHRONOS_TOKEN=X
+      - LOGS_PATH=X

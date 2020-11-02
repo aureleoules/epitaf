@@ -2,6 +2,7 @@ package chronos
 
 import (
 	"encoding/json"
+	"time"
 
 	"gopkg.in/resty.v1"
 )
@@ -32,7 +33,11 @@ func (c *Client) GetGroupPlanning(groupSlug string) (*ChronosCalendar, error) {
 
 	var days ChronosCalendar
 	for _, r := range result {
-		days.DayList = append(days.DayList, r.DayList...)
+		for _, d := range r.DayList {
+			if d.DateTime.After(time.Now().Add(-time.Hour * 24)) {
+				days.DayList = append(days.DayList, d)
+			}
+		}
 	}
 
 	return &days, err

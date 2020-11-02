@@ -15,7 +15,8 @@ func Init() {
 	zap.S().Info("Creating database...")
 	_, err := DB.Exec(`CREATE DATABASE ` + os.Getenv("DB_NAME"))
 	if err != nil {
-		zap.S().Fatal(err)
+		zap.S().Warn(err)
+		return
 	}
 	zap.S().Info("Created database: " + os.Getenv("DB_NAME"))
 

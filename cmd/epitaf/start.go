@@ -35,6 +35,7 @@ var startCmd = &cobra.Command{
 
 		zap.S().Info("Starting epitaf...")
 
+		db.Init()
 		db.Connect()
 		defer db.Close()
 

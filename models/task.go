@@ -44,21 +44,27 @@ const (
 	getTaskQuery = `
 		SELECT 
 			tasks.uuid,
-			short_id,
-			promotion,
-			global,
-			class,
-			region,
-			semester,
-			title,
-			subject,
-			content,
-			due_date,
-			created_by_id,
-			updated_by_id,
-			created_at,
-			updated_at
+			tasks.short_id,
+			tasks.promotion,
+			tasks.global,
+			tasks.class,
+			tasks.region,
+			tasks.semester,
+			tasks.title,
+			tasks.subject,
+			tasks.content,
+			tasks.due_date,
+			users.name as created_by,
+			updated_user.name as updated_by,
+			tasks.created_at,
+			tasks.updated_at
 		FROM tasks
+		LEFT JOIN users
+		ON 
+			users.uuid = tasks.created_by_id
+		LEFT JOIN users as updated_user
+		ON
+			updated_user.uuid = tasks.updated_by_id
 		WHERE short_id = ?;
 	`
 
@@ -76,6 +82,7 @@ const (
 			tasks.region,
 			tasks.due_date,
 			users.name as created_by,
+			updated_user.name as updated_by,
 			tasks.created_by_id,
 			tasks.updated_by_id,
 			tasks.created_at,
@@ -84,6 +91,9 @@ const (
 		LEFT JOIN users
 		ON 
 			users.uuid = tasks.created_by_id
+		LEFT JOIN users as updated_user
+		ON
+			updated_user.uuid = tasks.updated_by_id
 		WHERE 
 			(
 				tasks.promotion = ?

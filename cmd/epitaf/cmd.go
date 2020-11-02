@@ -17,7 +17,9 @@ func init() {
 		config = zap.NewDevelopmentConfig()
 	} else {
 		config = zap.NewProductionConfig()
-		config.OutputPaths = []string{os.Getenv("LOGS_PATH")}
+		if os.Getenv("LOGS_PATH") != "" {
+			config.OutputPaths = []string{os.Getenv("LOGS_PATH")}
+		}
 	}
 	config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 	logger, err := config.Build()

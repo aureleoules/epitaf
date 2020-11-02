@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
@@ -41,7 +42,7 @@ func editTaskHandler(c *gin.Context) {
 		return
 	}
 	// Check if user is authorized
-	if (task.Global && task.Promotion != u.Promotion) || (!task.Global && (u.Region != task.Region || u.Class != task.Class || u.Promotion != task.Promotion || u.Semester != task.Semester)) {
+	if !u.Teacher && ((task.Global && task.Promotion != u.Promotion) || (!task.Global && (u.Region != task.Region || u.Class != task.Class || u.Promotion != task.Promotion || u.Semester != task.Semester))) {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
@@ -54,6 +55,17 @@ func editTaskHandler(c *gin.Context) {
 		return
 	}
 	t.UpdatedByID = u.UUID
+
+	if !u.Teacher {
+		t.Class = task.Class
+		t.Semester = task.Semester
+		t.Promotion = task.Promotion
+		t.Region = task.Region
+	}
+
+	t.Semester = strings.ToUpper(t.Semester)
+	t.Class = strings.ToUpper(t.Class)
+	t.Region = strings.Title(strings.ToLower(t.Region))
 
 	err = models.UpdateTask(t)
 	if err != nil {
@@ -88,7 +100,7 @@ func deleteTaskHandler(c *gin.Context) {
 		return
 	}
 	// Check if user is authorized
-	if (task.Global && task.Promotion != u.Promotion) || (!task.Global && (u.Region != task.Region || u.Class != task.Class || u.Promotion != task.Promotion || u.Semester != task.Semester)) {
+	if !u.Teacher && ((task.Global && task.Promotion != u.Promotion) || (!task.Global && (u.Region != task.Region || u.Class != task.Class || u.Promotion != task.Promotion || u.Semester != task.Semester))) {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
@@ -126,7 +138,7 @@ func getTaskHandler(c *gin.Context) {
 	}
 
 	// Check if user is authorized
-	if (task.Global && task.Promotion != u.Promotion) || (!task.Global && (u.Region != task.Region || u.Class != task.Class || u.Promotion != task.Promotion || u.Semester != task.Semester)) {
+	if !u.Teacher && ((task.Global && task.Promotion != u.Promotion) || (!task.Global && (u.Region != task.Region || u.Class != task.Class || u.Promotion != task.Promotion || u.Semester != task.Semester))) {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
@@ -150,12 +162,22 @@ func getTasksHandler(c *gin.Context) {
 		return
 	}
 
-	tasks, err := models.GetTasksRange(u.Promotion, u.Semester, u.Class, u.Region, time.Now().Add(-time.Hour*24), time.Now().Add(time.Hour*24*7*2))
+	var tasks []models.Task
+
+	start := time.Now().Add(-time.Hour * 24)
+	end := time.Now().Add(time.Hour * 24 * 7 * 2)
+	if u.Teacher {
+		tasks, err = models.GetAllTasksRange(start, end)
+	} else {
+		tasks, err = models.GetTasksRange(u.Promotion, u.Semester, u.Class, u.Region, start, end)
+	}
+
 	if err != nil {
 		zap.S().Error(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
+
 	c.JSON(http.StatusOK, tasks)
 }
 
@@ -185,10 +207,17 @@ func createTaskHandler(c *gin.Context) {
 
 	task.CreatedByID = u.UUID
 	task.UpdatedByID = u.UUID
-	task.Region = u.Region
-	task.Promotion = u.Promotion
-	task.Class = u.Class
-	task.Semester = u.Semester
+
+	if !u.Teacher {
+		task.Region = u.Region
+		task.Promotion = u.Promotion
+		task.Class = u.Class
+		task.Semester = u.Semester
+	}
+
+	task.Semester = strings.ToUpper(task.Semester)
+	task.Class = strings.ToUpper(task.Class)
+	task.Region = strings.Title(strings.ToLower(task.Region))
 
 	err = task.Validate()
 	if err != nil {

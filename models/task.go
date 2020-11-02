@@ -105,6 +105,37 @@ const (
 			) OR (tasks.promotion = ? AND tasks.global = 1);
 	`
 
+	getAllTasksRangeQuery = `
+		SELECT
+			tasks.uuid,
+			tasks.short_id,
+			tasks.promotion,
+			tasks.global,
+			tasks.class,
+			tasks.title,
+			tasks.subject,
+			tasks.semester,
+			tasks.content,
+			tasks.region,
+			tasks.due_date,
+			users.name as created_by,
+			updated_user.name as updated_by,
+			tasks.created_by_id,
+			tasks.updated_by_id,
+			tasks.created_at,
+			tasks.updated_at
+		FROM tasks
+		LEFT JOIN users
+		ON 
+			users.uuid = tasks.created_by_id
+		LEFT JOIN users as updated_user
+		ON
+			updated_user.uuid = tasks.updated_by_id
+		WHERE 
+			due_date > ? 
+			AND due_date < ?;
+	`
+
 	updateTaskQuery = `
 		UPDATE tasks
 		SET
@@ -112,7 +143,11 @@ const (
 			subject=:subject,
 			content=:content,
 			updated_by_id=:updated_by_id,
-			due_date=:due_date
+			due_date=:due_date,
+			semester=:semester,
+			region=:region,
+			class=:class,
+			promotion=:promotion
 		WHERE short_id=:short_id
 	`
 
@@ -155,6 +190,19 @@ func (t Task) Validate() error {
 	if t.Content == "" {
 		return errors.New("content empty")
 	}
+	if t.Promotion == 0 {
+		return errors.New("no promotion")
+	}
+	if t.Semester == "" {
+		return errors.New("no semester")
+	}
+	if t.Region == "" {
+		return errors.New("no region")
+	}
+	if !t.Global && t.Class == "" {
+		return errors.New("no class")
+	}
+
 	return nil
 }
 
@@ -238,7 +286,7 @@ func GetTask(id string) (*Task, error) {
 	return &task, err
 }
 
-// GetTasksRange returns list of tasks in a time range based on due_date
+// GetTasksRange returns list of tasks in a time for a specific class promotion
 func GetTasksRange(promotion int, semester string, class string, region string, start, end time.Time) ([]Task, error) {
 	tx, err := db.DB.Beginx()
 	if err != nil {
@@ -255,5 +303,25 @@ func GetTasksRange(promotion int, semester string, class string, region string, 
 
 	var tasks []Task
 	err = tx.Select(&tasks, getTasksRangeQuery, promotion, class, region, semester, start, end, promotion)
+	return tasks, err
+}
+
+// GetAllTasksRange returns list of tasks in a time range (for teachers)
+func GetAllTasksRange(start, end time.Time) ([]Task, error) {
+	tx, err := db.DB.Beginx()
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	var tasks []Task
+	err = tx.Select(&tasks, getAllTasksRangeQuery, start, end)
 	return tasks, err
 }

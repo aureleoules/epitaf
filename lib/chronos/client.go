@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"go.uber.org/zap"
 	"gopkg.in/resty.v1"
 )
 
@@ -18,6 +19,8 @@ type Client struct {
 
 // GetGroupPlanning from Chronos
 func (c *Client) GetGroupPlanning(groupSlug string) (*ChronosCalendar, error) {
+	zap.S().Info("Fetching Chronos data...")
+
 	resp, err := c.httpClient.R().
 		Get("/Planning/GetRangeWeekRecursive/" + groupSlug + "/1")
 
@@ -39,6 +42,8 @@ func (c *Client) GetGroupPlanning(groupSlug string) (*ChronosCalendar, error) {
 			}
 		}
 	}
+
+	zap.S().Info("Fetched Chronos data.")
 
 	return &days, err
 }

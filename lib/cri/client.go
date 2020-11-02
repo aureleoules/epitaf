@@ -42,11 +42,14 @@ func (c *Client) SearchUser(email string) (*CRIProfileSearchReq, error) {
 
 // GetGroup from CRI
 func (c *Client) GetGroup(groupSlug string) (*CRIGroup, error) {
+	zap.S().Info("Fetching CRI group...")
+
 	zap.S().Info(groupSlug)
 	resp, err := c.httpClient.R().
 		Get(endpoint + "/groups/" + groupSlug + "/")
 
 	if err != nil {
+		zap.S().Error(err)
 		return nil, err
 	}
 	var result CRIGroup
@@ -55,6 +58,7 @@ func (c *Client) GetGroup(groupSlug string) (*CRIGroup, error) {
 		return nil, err
 	}
 
+	zap.S().Info("Fetched CRI group.")
 	return &result, err
 }
 

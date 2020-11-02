@@ -12,7 +12,13 @@ import (
 
 func init() {
 	// Initialize ZAP globally
-	config := zap.NewDevelopmentConfig()
+	var config zap.Config
+	if os.Getenv("DEV") == "true" {
+		config = zap.NewDevelopmentConfig()
+	} else {
+		config = zap.NewProductionConfig()
+		config.OutputPaths = []string{os.Getenv("LOGS_PATH")}
+	}
 	config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 	logger, err := config.Build()
 	if err != nil {

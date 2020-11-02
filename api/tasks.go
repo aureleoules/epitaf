@@ -62,6 +62,7 @@ func editTaskHandler(c *gin.Context) {
 		return
 	}
 
+	zap.S().Info("User ", u.Name, " updated task ", task.ShortID)
 	c.Status(http.StatusOK)
 }
 
@@ -98,6 +99,7 @@ func deleteTaskHandler(c *gin.Context) {
 		return
 	}
 
+	zap.S().Info("User ", u.Name, " deleted task ", task.ShortID)
 	c.Status(http.StatusOK)
 
 }
@@ -133,7 +135,6 @@ func getTaskHandler(c *gin.Context) {
 }
 
 func getTasksHandler(c *gin.Context) {
-
 	claims := jwt.ExtractClaims(c)
 	uuid, err := models.FromUUID(claims["uuid"].(string))
 	if err != nil {
@@ -202,6 +203,8 @@ func createTaskHandler(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
+
+	zap.S().Info("User ", u.Name, " created task ", task.ShortID)
 
 	c.JSON(http.StatusOK, task.ShortID)
 }

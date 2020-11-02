@@ -157,7 +157,13 @@ func (c *User) Insert() error {
 	}()
 
 	_, err = tx.NamedExec(insertUserQuery, c)
-	return err
+	if err != nil {
+		return err
+	}
+
+	zap.S().Info("User ", c.Name, " just created. ("+c.Email+")")
+	return nil
+
 }
 
 // PrepareUser data

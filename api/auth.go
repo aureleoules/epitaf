@@ -42,6 +42,7 @@ func AuthMiddleware() *jwt.GinJWTMiddleware {
 				"uuid":      u.UUID.String(),
 				"email":     u.Email,
 				"name":      u.Name,
+				"login":     u.Login,
 				"promotion": u.Promotion,
 				"class":     u.Class,
 				"region":    u.Region,

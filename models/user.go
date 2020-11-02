@@ -18,6 +18,7 @@ const (
 			
 			name VARCHAR(256) NOT NULL,
 			email VARCHAR(256) NOT NULL UNIQUE,
+			login VARCHAR(256) NOT NULL UNIQUE,
 			promotion VARCHAR(256) NOT NULL DEFAULT 0,
 			class VARCHAR(256) NOT NULL DEFAULT "",
 			region VARCHAR(256) NOT NULL DEFAULT "",
@@ -33,15 +34,16 @@ const (
 
 	insertUserQuery = `
 		INSERT INTO users 
-			(uuid, name, email, promotion, class, region, semester, teacher) 
+			(uuid, name, login, email, promotion, class, region, semester, teacher) 
 		VALUES 
-			(:uuid, :name, :email, :promotion, :class, :region, :semester, :teacher);
+			(:uuid, :name, :login, :email, :promotion, :class, :region, :semester, :teacher);
 	`
 
 	getUserByEmailQuery = `
 		SELECT 
 			uuid, 
 			name, 
+			login,
 			email, 
 			promotion,
 			class,
@@ -58,6 +60,7 @@ const (
 		SELECT 
 			uuid, 
 			name, 
+			login,
 			email, 
 			promotion,
 			class,
@@ -76,6 +79,7 @@ type User struct {
 	base
 
 	Name      string `json:"name" db:"name"`
+	Login     string `json:"login" db:"login"`
 	Promotion int    `json:"promotion" db:"promotion"`
 	Class     string `json:"class" db:"class"`
 	Region    string `json:"region" db:"region"`
@@ -170,6 +174,7 @@ func PrepareUser(email string) (User, error) {
 	}
 
 	user.Name = r.FirstName + " " + r.LastName
+	user.Login = r.Login
 
 	if r.PrimaryGroup.Slug == "teachers" {
 		user.Teacher = true

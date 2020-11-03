@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 	"os"
+	"strings"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/aureleoules/epitaf/lib/chronos"
@@ -35,7 +36,24 @@ func getCalendarHandler(c *gin.Context) {
 	}
 
 	client := chronos.NewClient(os.Getenv("CHRONOS_TOKEN"), nil)
-	slug := "INFO" + u.Semester + u.Class
+
+	// Class mapping
+	// TODO clean
+	var slug string
+	if u.Semester == "S1" || u.Semester == "S2" || u.Semester == "S3" || u.Semester == "S4" {
+		slug = "INFO" + u.Semester + u.Class
+	} else {
+		if u.Class == "BING" {
+			slug = "BING B"
+		} else if strings.HasPrefix(u.Class, "A") {
+			slug = "RIEMANN " + u.Class
+		} else if strings.HasPrefix(u.Class, "C") {
+			slug = "SHANNON " + u.Class
+		} else if strings.HasPrefix(u.Class, "D") {
+			slug = "TANENBAUM " + u.Class
+		}
+	}
+
 	cal, err := client.GetGroupPlanning(slug)
 	if err != nil {
 		zap.S().Error(err)

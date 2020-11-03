@@ -41,7 +41,12 @@ func getCalendarHandler(c *gin.Context) {
 	// TODO clean
 	var slug string
 	if strings.HasPrefix(u.Semester, "S1") || strings.HasPrefix(u.Semester, "S2") || strings.HasPrefix(u.Semester, "S3") || strings.HasPrefix(u.Semester, "S4") {
-		slug = "INFO" + u.Semester + u.Class
+		slug += "INFO" + u.Semester
+		if strings.Contains(u.Class, "#") {
+			slug += "#" + strings.Replace(u.Class, "#", "", -1)
+		} else {
+			slug = "INFO" + u.Semester + u.Class
+		}
 	} else {
 		if u.Class == "BING" {
 			slug = "BING B"

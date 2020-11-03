@@ -187,7 +187,8 @@ func PrepareUser(email string) (User, error) {
 	}
 
 	var slug string
-	for _, g := range r.GroupsHistory {
+	for i := len(r.GroupsHistory) - 1; i >= 0; i-- {
+		g := r.GroupsHistory[i]
 		if g.IsCurrent {
 			slug = g.Group.Slug
 			user.Promotion = g.GraduationYear

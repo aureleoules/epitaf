@@ -7,6 +7,7 @@ import (
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/aureleoules/epitaf/lib/chronos"
 	"github.com/aureleoules/epitaf/models"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -55,6 +56,7 @@ func getUserHandler(c *gin.Context) {
 
 	u, err := models.GetUser(uuid)
 	if err != nil {
+		spew.Dump(claims)
 		zap.S().Error(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return

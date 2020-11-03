@@ -193,14 +193,17 @@ func (t Task) Validate() error {
 	if t.Promotion == 0 {
 		return errors.New("no promotion")
 	}
-	if t.Semester == "" {
-		return errors.New("no semester")
-	}
-	if t.Region == "" {
-		return errors.New("no region")
-	}
-	if !t.Global && t.Class == "" {
-		return errors.New("no class")
+
+	if !t.Global {
+		if t.Semester == "" {
+			return errors.New("no semester")
+		}
+		if t.Region == "" {
+			return errors.New("no region")
+		}
+		if t.Class == "" {
+			return errors.New("no class")
+		}
 	}
 
 	return nil

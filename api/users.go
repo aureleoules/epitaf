@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -41,12 +42,7 @@ func getCalendarHandler(c *gin.Context) {
 	// TODO clean
 	var slug string
 	if strings.HasPrefix(u.Semester, "S1") || strings.HasPrefix(u.Semester, "S2") || strings.HasPrefix(u.Semester, "S3") || strings.HasPrefix(u.Semester, "S4") {
-		slug += "INFO" + u.Semester
-		if strings.Contains(u.Class, "#") {
-			slug += "#" + strings.Replace(u.Class, "#", "", -1)
-		} else {
-			slug = "INFO" + u.Semester + u.Class
-		}
+		slug = "INFO" + strings.ReplaceAll(u.Semester, "#", "%23") + u.Class
 	} else {
 		if u.Class == "BING" {
 			slug = "BING B"
@@ -58,6 +54,8 @@ func getCalendarHandler(c *gin.Context) {
 			slug = "TANENBAUM " + u.Class
 		}
 	}
+
+	fmt.Printf("%s\n", slug)
 
 	cal, err := client.GetGroupPlanning(slug)
 	if err != nil {

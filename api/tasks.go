@@ -165,7 +165,8 @@ func getTasksHandler(c *gin.Context) {
 	var tasks []models.Task
 
 	start := time.Now().Add(-time.Hour * 24)
-	end := time.Now().Add(time.Hour * 24 * 7 * 2)
+	// TODO: client chosen time ranges
+	end := time.Now().Add(time.Hour * 24 * 365)
 	if u.Teacher {
 		tasks, err = models.GetAllTasksRange(start, end)
 	} else {

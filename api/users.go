@@ -36,6 +36,13 @@ func getCalendarHandler(c *gin.Context) {
 		return
 	}
 
+	// TODO
+	// Retrieve Teacher's schedule from chronos?
+	if u.Teacher {
+		c.JSON(http.StatusOK, nil)
+		return
+	}
+
 	client := chronos.NewClient(os.Getenv("CHRONOS_TOKEN"), nil)
 
 	// Class mapping

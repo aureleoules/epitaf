@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -24,6 +25,7 @@ func handleAuth() {
 	users := api.Group("/users")
 
 	users.POST("/authenticate", authenticateHandler)
+	users.POST("/authenticate/mobile", authenticateMobileHandler)
 	users.POST("/callback", auth.LoginHandler)
 }
 
@@ -71,6 +73,7 @@ func AuthMiddleware() *jwt.GinJWTMiddleware {
 }
 
 func authenticateHandler(c *gin.Context) {
+
 	// Prepare microsoft query
 	req, _ := http.NewRequest("GET", Endpoint+"/authorize", nil)
 	q := req.URL.Query()
@@ -92,16 +95,25 @@ func authenticateHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, req.URL.String())
 }
 
-func getAccessToken(code string) (string, error) {
-
+func authenticateMobileHandler(c *gin.Context) {
 	// Prepare microsoft query
-	var uri string
-	if os.Getenv("DEV") == "true" {
-		uri = "http://localhost:3000/callback"
-	} else {
-		uri = "https://epitaf.aureleoules.com/callback"
-	}
+	req, _ := http.NewRequest("GET", Endpoint+"/authorize", nil)
+	q := req.URL.Query()
 
+	q.Add("client_id", os.Getenv("CLIENT_ID"))
+	q.Add("response_type", "code")
+	q.Add("response_mode", "query")
+	q.Add("state", "0000")
+	q.Add("scope", "https://graph.microsoft.com/User.Read")
+
+	q.Add("redirect_uri", "epitaf://callback")
+
+	req.URL.RawQuery = q.Encode()
+	// Return URL that the user must go to
+	c.JSON(http.StatusOK, req.URL.String())
+}
+
+func getAccessToken(code string, uri string) (string, error) {
 	resp, err := http.PostForm(Endpoint+"/token", url.Values{
 		"grant_type":    {"authorization_code"},
 		"code":          {code},
@@ -138,7 +150,8 @@ func getAccessToken(code string) (string, error) {
 func callbackHandler(c *gin.Context) (interface{}, error) {
 	var m map[string]string
 	c.Bind(&m)
-	token, err := getAccessToken(m["code"])
+	fmt.Println(m["redirect_uri"])
+	token, err := getAccessToken(m["code"], m["redirect_uri"])
 	if err != nil {
 		return nil, err
 	}

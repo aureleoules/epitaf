@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
@@ -114,13 +115,19 @@ func authenticateMobileHandler(c *gin.Context) {
 }
 
 func getAccessToken(code string, uri string) (string, error) {
-	resp, err := http.PostForm(Endpoint+"/token", url.Values{
-		"grant_type":    {"authorization_code"},
-		"code":          {code},
-		"client_id":     {os.Getenv("CLIENT_ID")},
-		"client_secret": {os.Getenv("CLIENT_SECRET")},
-		"redirect_uri":  {uri},
-	})
+
+	form := url.Values{
+		"grant_type":   {"authorization_code"},
+		"code":         {code},
+		"client_id":    {os.Getenv("CLIENT_ID")},
+		"redirect_uri": {uri},
+	}
+
+	if !strings.HasPrefix(uri, "epitaf://") {
+		form.Add("client_secret", os.Getenv("CLIENT_SECRET"))
+	}
+
+	resp, err := http.PostForm(Endpoint+"/token", form)
 
 	if err != nil {
 		zap.S().Error(err)
@@ -134,6 +141,8 @@ func getAccessToken(code string, uri string) (string, error) {
 		zap.S().Error(err)
 		return "", jwt.ErrFailedAuthentication
 	}
+
+	fmt.Println(string(body))
 
 	var result map[string]string
 	json.Unmarshal([]byte(body), &result)

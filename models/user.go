@@ -88,12 +88,6 @@ type User struct {
 	Teacher   bool   `json:"teacher" db:"teacher"`
 }
 
-// MicrosoftProfile struct
-type MicrosoftProfile struct {
-	DisplayName string `json:"displayName"`
-	Mail        string `json:"mail"`
-}
-
 // GetUserByEmail retrives user by email
 func GetUserByEmail(email string) (*User, error) {
 	zap.S().Info("Retrieving user by email...")

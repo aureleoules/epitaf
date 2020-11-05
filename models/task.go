@@ -101,7 +101,7 @@ const (
 					AND tasks.class = ?
 					AND tasks.region = ?
 					AND tasks.semester = ?
-				) OR (tasks.promotion = ? AND tasks.global = 1)
+				) OR (tasks.promotion = ? AND tasks.semester = ? AND tasks.global = 1)
 			)
 			AND due_date > ? 
 			AND due_date < ?;
@@ -307,7 +307,7 @@ func GetTasksRange(promotion int, semester string, class string, region string, 
 	}()
 
 	var tasks []Task
-	err = tx.Select(&tasks, getTasksRangeQuery, promotion, class, region, semester, promotion, start, end)
+	err = tx.Select(&tasks, getTasksRangeQuery, promotion, class, region, semester, promotion, semester, start, end)
 	return tasks, err
 }
 

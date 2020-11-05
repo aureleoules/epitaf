@@ -39,14 +39,12 @@ func callbackHandler(c *gin.Context) (interface{}, error) {
 		return nil, jwt.ErrFailedAuthentication
 	}
 	if m["code"] == "" {
-		err := errors.New("missing code")
-		c.AbortWithStatusJSON(http.StatusNotAcceptable, err)
-		return nil, err
+		_ = c.AbortWithError(http.StatusNotAcceptable, errors.New("missing code"))
+		return nil, jwt.ErrFailedAuthentication
 	}
 	if m["redirect_uri"] == "" {
-		err := errors.New("missing redirect_uri")
-		c.AbortWithStatusJSON(http.StatusNotAcceptable, err)
-		return nil, err
+		_ = c.AbortWithError(http.StatusNotAcceptable, errors.New("missing code"))
+		return nil, jwt.ErrFailedAuthentication
 	}
 
 	token, err := microsoft.GetAccessToken(m["code"], m["redirect_uri"])

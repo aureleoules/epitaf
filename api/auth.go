@@ -33,7 +33,11 @@ func authenticateHandler(c *gin.Context) {
 
 func callbackHandler(c *gin.Context) (interface{}, error) {
 	var m map[string]string
-	c.Bind(&m)
+	err := c.Bind(&m)
+	if err != nil {
+		c.AbortWithStatus(http.StatusNotAcceptable)
+		return nil, jwt.ErrFailedAuthentication
+	}
 	if m["code"] == "" {
 		err := errors.New("missing code")
 		c.AbortWithStatusJSON(http.StatusNotAcceptable, err)

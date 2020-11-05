@@ -28,21 +28,23 @@ func init() {
 	}
 	zap.ReplaceGlobals(logger)
 
-	godotenv.Load()
+	if godotenv.Load() != nil {
+		zap.S().Warn(".env not found")
+	}
 }
 
 var rootCmd = &cobra.Command{
 	Use:   "epitaf",
 	Short: "Epitaf.",
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+		_ = cmd.Help()
 	},
 }
 
 // Execute cmd
 func main() {
 	if err := rootCmd.Execute(); err != nil {
-		rootCmd.Help()
+		_ = rootCmd.Help()
 		os.Exit(1)
 	}
 }

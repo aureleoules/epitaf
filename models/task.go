@@ -221,13 +221,7 @@ func (t *Task) Insert() error {
 		return err
 	}
 
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
+	defer checkErr(tx, err)
 
 	_, err = tx.NamedExec(insertTaskQuery, t)
 	return err
@@ -240,13 +234,7 @@ func DeleteTask(id string) error {
 		return err
 	}
 
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
+	defer checkErr(tx, err)
 
 	_, err = tx.Exec(deleteTaskQuery, id)
 	return err
@@ -259,13 +247,7 @@ func UpdateTask(task Task) error {
 		return err
 	}
 
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
+	defer checkErr(tx, err)
 
 	_, err = tx.NamedExec(updateTaskQuery, task)
 	return err
@@ -278,13 +260,7 @@ func GetTask(id string) (*Task, error) {
 		return nil, err
 	}
 
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
+	defer checkErr(tx, err)
 
 	var task Task
 	err = tx.Get(&task, getTaskQuery, id)
@@ -298,13 +274,7 @@ func GetTasksRange(promotion int, semester string, class string, region string, 
 		return nil, err
 	}
 
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
+	defer checkErr(tx, err)
 
 	var tasks []Task
 	err = tx.Select(&tasks, getTasksRangeQuery, promotion, class, region, semester, promotion, semester, start, end)
@@ -318,13 +288,7 @@ func GetAllTasksRange(start, end time.Time) ([]Task, error) {
 		return nil, err
 	}
 
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
+	defer checkErr(tx, err)
 
 	var tasks []Task
 	err = tx.Select(&tasks, getAllTasksRangeQuery, start, end)

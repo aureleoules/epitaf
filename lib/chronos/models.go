@@ -2,8 +2,8 @@ package chronos
 
 import "time"
 
-// ChronosCalendar struct
-type ChronosCalendar struct {
+// Calendar struct
+type Calendar struct {
 	ID      int `json:"Id"`
 	DayList []struct {
 		CourseList []struct {

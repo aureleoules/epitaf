@@ -1,7 +1,7 @@
 package cri
 
-// CRIProfileSearchReq is the response from CRI /users/search
-type CRIProfileSearchReq struct {
+// ProfileSearchReq is the response from CRI /users/search
+type ProfileSearchReq struct {
 	URL          string `json:"url"`
 	Login        string `json:"login"`
 	UID          int    `json:"uid"`
@@ -30,8 +30,8 @@ type CRIProfileSearchReq struct {
 	NewAccount  interface{}   `json:"new_account"`
 }
 
-// CRIGroup struct
-type CRIGroup struct {
+// Group struct
+type Group struct {
 	URL        string        `json:"url"`
 	Slug       string        `json:"slug"`
 	Gid        int           `json:"gid"`

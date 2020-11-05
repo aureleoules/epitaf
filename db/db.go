@@ -4,12 +4,14 @@ import (
 	"os"
 	"time"
 
+	// Import SQL driver
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 )
 
 var (
+	// DB holds DB socket
 	DB    *sqlx.DB
 	tries = 0
 )
@@ -39,10 +41,15 @@ func Close() {
 		return
 	}
 	zap.S().Info("Closing DB...")
-	DB.Close()
+	err := DB.Close()
+	if err != nil {
+		zap.S().Error()
+		return
+	}
 	zap.S().Info("Closed DB")
 }
 
+// Delete DB
 func Delete() {
 	if DB == nil {
 		return

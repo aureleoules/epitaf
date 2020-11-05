@@ -96,13 +96,7 @@ func GetUserByEmail(email string) (*User, error) {
 		return nil, err
 	}
 
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
+	defer checkErr(tx, err)
 
 	var user User
 	err = tx.Get(&user, getUserByEmailQuery, email)
@@ -120,13 +114,7 @@ func GetUser(uuid UUID) (*User, error) {
 		return nil, err
 	}
 
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
+	defer checkErr(tx, err)
 
 	var user User
 	err = tx.Get(&user, getUserQuery, uuid)
@@ -142,13 +130,7 @@ func (c *User) Insert() error {
 		return err
 	}
 
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
+	defer checkErr(tx, err)
 
 	_, err = tx.NamedExec(insertUserQuery, c)
 	if err != nil {

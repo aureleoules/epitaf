@@ -101,7 +101,11 @@ func GetAccessToken(code string, uri string) (string, error) {
 		return "", jwt.ErrFailedAuthentication
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if resp.Body.Close() != nil {
+			zap.S().Warn("could not close body")
+		}
+	}()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -110,7 +114,11 @@ func GetAccessToken(code string, uri string) (string, error) {
 	}
 
 	var result map[string]string
-	json.Unmarshal([]byte(body), &result)
+	err = json.Unmarshal([]byte(body), &result)
+	if err != nil {
+		zap.S().Error(err)
+		return "", jwt.ErrFailedAuthentication
+	}
 
 	// Return access token
 	token := result["access_token"]

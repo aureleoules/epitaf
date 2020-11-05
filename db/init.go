@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// Init DB
 func Init() {
 	if DB == nil {
 		connect(os.Getenv("DB_HOST"), os.Getenv("DB_USER"), os.Getenv("DB_PASS"), "")

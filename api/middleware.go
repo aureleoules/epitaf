@@ -38,7 +38,7 @@ func AuthMiddleware() *jwt.GinJWTMiddleware {
 			return true
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
-			c.AbortWithError(code, errors.New(message))
+			_ = c.AbortWithError(code, errors.New(message))
 		},
 		TokenLookup:   "header: Authorization, query: token, cookie: jwt",
 		TokenHeadName: "Bearer",

@@ -3,6 +3,7 @@ package api
 import (
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 var api *gin.RouterGroup
@@ -30,5 +31,7 @@ func Serve() {
 	handleUsers()
 	handleTasks()
 
-	r.Run()
+	if err := r.Run(); err != nil {
+		zap.S().Panic(err)
+	}
 }

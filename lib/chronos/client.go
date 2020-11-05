@@ -18,7 +18,7 @@ type Client struct {
 }
 
 // GetGroupPlanning from Chronos
-func (c *Client) GetGroupPlanning(groupSlug string) (*ChronosCalendar, error) {
+func (c *Client) GetGroupPlanning(groupSlug string) (*Calendar, error) {
 	zap.S().Info("Fetching Chronos data...")
 
 	resp, err := c.httpClient.R().
@@ -28,13 +28,13 @@ func (c *Client) GetGroupPlanning(groupSlug string) (*ChronosCalendar, error) {
 		return nil, err
 	}
 
-	var result []ChronosCalendar
+	var result []Calendar
 	err = json.Unmarshal(resp.Body(), &result)
 	if err != nil {
 		return nil, err
 	}
 
-	var days ChronosCalendar
+	var days Calendar
 	for _, r := range result {
 		for _, d := range r.DayList {
 			if d.DateTime.After(time.Now().Add(-time.Hour * 24)) {

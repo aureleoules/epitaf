@@ -96,13 +96,15 @@ const (
 			updated_user.uuid = tasks.updated_by_id
 		WHERE 
 			(
-				tasks.promotion = ?
-				AND tasks.class = ?
-				AND tasks.region = ?
-				AND tasks.semester = ?
-				AND due_date > ? 
-				AND due_date < ?
-			) OR (tasks.promotion = ? AND tasks.global = 1);
+				(
+					tasks.promotion = ?
+					AND tasks.class = ?
+					AND tasks.region = ?
+					AND tasks.semester = ?
+				) OR (tasks.promotion = ? AND tasks.global = 1)
+			)
+			AND due_date > ? 
+			AND due_date < ?;
 	`
 
 	getAllTasksRangeQuery = `
@@ -305,7 +307,7 @@ func GetTasksRange(promotion int, semester string, class string, region string, 
 	}()
 
 	var tasks []Task
-	err = tx.Select(&tasks, getTasksRangeQuery, promotion, class, region, semester, start, end, promotion)
+	err = tx.Select(&tasks, getTasksRangeQuery, promotion, class, region, semester, promotion, start, end)
 	return tasks, err
 }
 

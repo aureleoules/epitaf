@@ -1,0 +1,25 @@
+.input {
+    display: flex;
+    flex-direction: column;
+    input, textarea {
+        border: none;
+        border-radius: 8px;
+        padding: 5px 10px;
+        width: auto;
+        min-height: 20px;
+    
+        border: solid 2px #572ce8;
+        outline: none;
+    
+        resize: vertical;
+
+        &:disabled {
+            opacity: .6;
+        }
+    }
+
+    p {
+        margin: 0;
+        margin-bottom: 5px;
+    }
+}

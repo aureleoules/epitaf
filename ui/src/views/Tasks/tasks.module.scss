@@ -1,0 +1,91 @@
+.tasks {
+    display: flex;
+    flex-direction: column;
+    margin-top: 70px;
+    width: 100%;
+
+    .header {
+        h1 {
+            margin-top: 0;
+            margin-bottom: 35px;
+        }
+        display: flex;
+        align-items: center;
+
+        button {
+            margin-left: auto;
+        }
+    }
+
+    h2 {
+        margin-top: 0;
+        margin-bottom: 25px;
+    }
+    
+    .task {
+        display: flex;
+        position: relative;
+        align-items: center;
+        margin-bottom: 30px;
+
+        .icon-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            height: 65px;
+            width: 65px;
+            background-color: #f6f7fb;
+
+            svg {
+                width: 50%;
+                height: auto;
+            }
+        }
+
+        h2 {
+            color: #a8a9bc;
+        }
+
+        .content {
+            height: 100%;
+            margin-left: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            
+            h4 {
+                font-weight: 700;
+                font-size: 1.2em;
+                margin: 0;
+            }
+            p {
+                margin-top: 5px;
+                color: #7c7f9b;
+                margin-bottom: 0;
+            }
+
+            @media screen and (max-width: 900px) {
+                max-width: 50%;
+            }
+        }
+
+        .name {
+            background: #ffe7cc;
+            border-radius: 50%;
+            height: 45px;
+            width: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            right: 0;
+
+            span {
+                color: #ff8b0c;
+            }
+            
+        }
+
+    }
+}

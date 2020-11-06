@@ -1,0 +1,17 @@
+.select {
+    display: flex;
+    flex-direction: column;
+    p {
+        margin: 0;
+        margin-bottom: 5px;
+    }
+
+    select {
+        border-radius: 8px;
+        padding: 5px 10px;
+        width: auto;
+        min-height: 20px;
+        border: solid 2px #572ce8;
+        outline: none;
+    }
+}

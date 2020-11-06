@@ -1,0 +1,22 @@
+.profile {
+    display: flex;
+    flex-direction: column;
+    
+    h1 {
+        margin-top: 70px;
+    }
+    
+    .container {
+        display: flex;
+        flex-direction: column;
+
+        p {
+            span {
+                width: 100px;
+                display: inline-block;
+                font-weight: bold;
+            }
+            margin-top: 0;
+        }
+    }
+}

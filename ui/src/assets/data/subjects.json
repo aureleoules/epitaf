@@ -1,0 +1,62 @@
+[
+    {
+        "name": "physics",
+        "display_name": "Physics",
+        "icon": "physics.svg",
+        "classes": ["SUP", "SPE"]
+    },
+    {
+        "name": "architecture",
+        "display_name": "Architecture",
+        "icon": "architecture.svg",
+        "classes": ["SUP", "SPE"]
+    },
+    {
+        "name": "algorithmics",
+        "display_name": "Algorithmics",
+        "icon": "algo.svg",
+        "classes": ["SUP", "SPE"]
+    },
+    {
+        "name": "mathematics",
+        "display_name": "Mathematics",
+        "icon": "mathematics.svg",
+        "classes": ["SUP", "SPE", "ING"]
+    },
+    {
+        "name": "electronics",
+        "display_name": "Electronics",
+        "icon": "electronics.svg",
+        "classes": ["SUP", "SPE"]
+    },
+    {
+        "name": "te",
+        "display_name": "TE",
+        "icon": "te.svg",
+        "classes": ["SUP", "SPE"]
+    },
+    {
+        "name": "english",
+        "display_name": "English",
+        "icon": "english.svg",
+        "classes": ["SUP", "SPE", "ING"]
+    },
+    {
+        "name": "programming",
+        "display_name": "Programming",
+        "icon": "programming.svg",
+        "classes": ["SUP", "SPE"]
+    },
+    {
+        "name": "oc",
+        "display_name": "OC",
+        "icon": "english.svg",
+        "classes": ["SPE"]
+    },
+    {
+        "name": "project",
+        "display_name": "Project",
+        "icon": "project.svg",
+        "classes": ["SUP", "SPE"]
+    }
+]

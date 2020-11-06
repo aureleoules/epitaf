@@ -1,0 +1,174 @@
+.sidebar {
+    width: 330px;
+    position: fixed;
+    height: 100vh;
+
+    .logo {
+        p {
+            font-weight: bold;
+            color: #4f516a;
+            font-size: 2em;
+            margin-bottom: 0;
+        }
+    }
+
+    .avatar {
+        width: 50px;
+        height: 50px;
+        background-size: cover!important;
+        background-position: center!important;
+        border-radius: 50%;
+        
+    }
+
+    @media screen and (max-width: 900px) {
+        position: absolute;
+
+        width: 100%;
+        margin: 0;
+        .container {
+            margin-left: 0!important;
+            margin: 0 auto!important;
+            background: white;
+            position: fixed;
+            z-index: 99;
+            width: 100%!important;
+            height: 100%!important;
+            overflow: hidden;
+        }
+
+        .isClosed {
+            .container {
+                display: none;
+            }
+        }
+
+        .wrapper {
+            width: 80%;
+            margin: 0 auto;
+            height: 100%;
+        }
+
+        .logo {
+            display: none;
+        }
+
+        .user {
+            margin-top: 80px!important;
+        }
+    }
+
+    .wrapper {
+        height: 100%;
+    }
+
+    .burger {
+        cursor: pointer;
+        position: fixed;
+        left: 25px;
+        top: 15px;
+        width: 30px;
+        height: auto;
+        z-index: 999;
+        @media screen and(min-width: 900px) {
+            display: none;
+        }
+    }
+
+    .container, .container-content {
+        height: 98%;
+    }
+    
+    .container {
+        width: 65%;
+        margin-left: 50px;
+    }
+
+    .user {
+        display: flex;
+        margin-top: 40px;
+        align-items: center;
+        img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            margin-left: 25px;
+            h4 {
+                font-size: 16px;
+                margin: 0;
+            }
+            p {
+                color: #7c7f9b;
+                margin: 0;
+                margin-top: 4px;
+            }
+        }
+
+    }
+
+    .signout {
+        width: 100%;
+        margin-top: 15px;
+        button {
+            width: 100%;
+        }
+    }
+    
+    .routes {
+        padding-top: 55px;
+
+        padding-top: 55px;
+        height: calc(100% - 200px);
+        position: relative;
+
+        ul {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+
+            &.bottom {
+                bottom: 0;
+                position: absolute;
+            }
+
+            li {
+                display: flex;
+                align-items: center;
+                
+                border-radius: 8px;
+                font-size: 1.1em;
+
+                &.active {
+                    background-color: #f6f7fb;
+
+                    a, svg {
+                        color: #572ce8;
+                        font-weight: bold;
+                    }
+                }
+
+                svg {
+                    margin-bottom: 2px;
+                    color: #707392;
+                    width: 20px!important;
+                    height: auto!important;
+                    margin-right: 25px;
+                }
+
+                a {
+                    display: flex;
+                    align-items: center;
+                    text-decoration: none;
+                    padding: 10px 15px;
+                    color: #707392;
+                    width: 100%;
+                }
+            }
+        }
+    }
+}

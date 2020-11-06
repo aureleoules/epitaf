@@ -1,0 +1,44 @@
+.home {
+    display: flex;
+    width: 80%;
+    
+    .tasks {
+        width: 60%;
+    }
+    
+    .calendar {
+        margin-left: auto;
+        border-left: solid 1px #e6e6e6;
+        padding-left: 50px;
+        width: 350px;
+    }
+    
+    @media screen and (max-width: 1450px) {
+        flex-direction: column;
+
+        .tasks {
+            width: 80%;
+        }
+        
+        .calendar {
+            width: 80%;
+            margin-left: unset;
+            border-left: none;
+            padding-left: 0;
+
+            div  {
+                max-height: unset!important;
+            }
+        }
+    }
+
+    @media screen and (max-width: 900px) {
+        .tasks {
+            width: 100%;
+        }
+        .calendar {
+            width: 100%;
+        }
+    }
+
+}

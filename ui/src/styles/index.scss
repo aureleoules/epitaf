@@ -1,0 +1,28 @@
+@import "fonts";
+@import "colors";
+@import "reset";
+
+html, body,#root {
+    min-height: 100vh;
+}
+
+body {
+    font-family: 'Cabin', sans-serif;
+}
+
+.page {
+    min-height: 100vh;
+    display: flex;
+}
+
+.route {
+    display: flex;
+    padding-left: 350px;
+    width: 100%;
+
+    @media screen and (max-width: 900px) {
+        padding: 0;
+        width: 90%;
+        margin: 0 auto;
+    }
+}

@@ -1,0 +1,49 @@
+.button {
+    border-radius: 14px;
+    outline: none;
+    border: none;
+    color: #fefdff;
+    min-width: 90px;
+    min-height: 32px;
+    cursor: pointer;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    
+    padding: 5px 20px;
+    
+    svg {
+        margin-left: -5px;
+        margin-right: 5px;
+        width: 16px;
+        height: auto;
+    }
+    
+    &.primary {
+        background-color: #572ce8;
+    } 
+
+    &.green {
+        background-color: #00bb9e;
+    }
+
+    &.red {
+        background-color: #e74c3c;
+    }
+
+    &.large {
+        padding: 15px 40px;
+
+        svg {
+            margin-right: 15px;
+            width: 20px;
+        }
+    }
+
+    &.disabled {
+        pointer-events: none;
+        background-color: #808080;
+    }
+}

@@ -50,7 +50,7 @@
     {
         "name": "oc",
         "display_name": "OC",
-        "icon": "english.svg",
+        "icon": "oc.svg",
         "classes": ["SPE"]
     },
     {

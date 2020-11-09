@@ -12,7 +12,6 @@ import { useTranslation } from 'react-i18next';
 const colors: IDictionary<string> = chronosMapping;
 
 type Props = {
-    scroll?: boolean
 }
 export default function(props: Props) {
     const {t} = useTranslation();
@@ -42,7 +41,7 @@ export default function(props: Props) {
             </div>}
             {calendar?.DayList && <>
                 
-                <div className={[styles.classes, props.scroll ? styles.scroll: ""].join(" ")}>
+                <div className={[styles.classes].join(" ")}>
                     {calendar?.DayList.map((d, i) => (
                         <div key={i} className={styles.day}>
                             <h2>{dayjs(d.DateTime).format("DD MMMM")}</h2>

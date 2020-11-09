@@ -10,7 +10,7 @@ export default function(props: any) {
         </div>
         
         <div className={styles.calendar}>
-            <Calendar scroll/>
+            <Calendar/>
         </div>
     </div>
 }

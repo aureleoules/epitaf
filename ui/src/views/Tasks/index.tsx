@@ -135,8 +135,13 @@ export default function(props: any) {
                                     <h4>{t(capitalize(getSubject(ta.subject!)))}</h4>
                                     <p>{ta.title?.substr(0, 50)} · {t('Edited')} {dayjs(ta.updated_at).fromNow()}</p>
                                 </div>
-                                <div className={styles.name}>
-                                    <span>{initials(ta.updated_by!)}</span>
+                                <div className={styles.infos}>
+                                    <span className={[styles.group, ta.global ? styles.promotion : styles.class].join(" ")}>
+                                        {ta.global ? ta.promotion : ta.class}
+                                    </span>
+                                    <div className={styles.name}>
+                                        <span>{initials(ta.updated_by!)}</span>
+                                    </div>
                                 </div>
                             </Link>
                         ))}

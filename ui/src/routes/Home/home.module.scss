@@ -33,7 +33,7 @@
     }
     
     @media screen and (max-width: 1550px) {
-        flex-direction: column;
+        flex-direction: column-reverse;
 
         .tasks {
             width: 80%;

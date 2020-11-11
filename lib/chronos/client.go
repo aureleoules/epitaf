@@ -31,6 +31,7 @@ func (c *Client) GetGroupPlanning(groupSlug string) (*Calendar, error) {
 	var result []Calendar
 	err = json.Unmarshal(resp.Body(), &result)
 	if err != nil {
+		zap.S().Error(string(resp.Body()))
 		return nil, err
 	}
 

@@ -181,6 +181,7 @@ func getTasksHandler(c *gin.Context) {
 		return
 	}
 
+	zap.S().Info(u.Name + " fetched tasks.")
 	c.JSON(http.StatusOK, tasks)
 }
 

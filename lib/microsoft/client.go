@@ -3,7 +3,6 @@ package microsoft
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -113,8 +112,6 @@ func GetAccessToken(code string, uri string) (string, error) {
 		zap.S().Error(err)
 		return "", jwt.ErrFailedAuthentication
 	}
-
-	fmt.Println(string(body))
 
 	var result map[string]interface{}
 	err = json.Unmarshal(body, &result)

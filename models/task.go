@@ -2,9 +2,11 @@ package models
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/aureleoules/epitaf/db"
+	"github.com/aureleoules/epitaf/utils"
 	"github.com/teris-io/shortid"
 )
 
@@ -182,7 +184,7 @@ type Task struct {
 }
 
 // Validate task data
-func (t Task) Validate() error {
+func (t *Task) Validate() error {
 	if t.Title == "" {
 		return errors.New("title empty")
 	}
@@ -207,6 +209,17 @@ func (t Task) Validate() error {
 			return errors.New("no class")
 		}
 	}
+
+	// Truncate minutes and seconds of due date
+	t.DueDate = utils.TruncateDate(t.DueDate)
+
+	if t.DueDate.Before(utils.TruncateDate(time.Now())) {
+		return errors.New("invalid due date")
+	}
+
+	t.Semester = strings.ToUpper(t.Semester)
+	t.Class = strings.ToUpper(t.Class)
+	t.Region = strings.Title(strings.ToLower(t.Region))
 
 	return nil
 }

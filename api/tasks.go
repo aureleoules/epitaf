@@ -2,11 +2,11 @@ package api
 
 import (
 	"net/http"
-	"strings"
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/aureleoules/epitaf/models"
+	"github.com/aureleoules/epitaf/utils"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -64,9 +64,12 @@ func editTaskHandler(c *gin.Context) {
 		t.Region = task.Region
 	}
 
-	t.Semester = strings.ToUpper(t.Semester)
-	t.Class = strings.ToUpper(t.Class)
-	t.Region = strings.Title(strings.ToLower(t.Region))
+	err = task.Validate()
+	if err != nil {
+		zap.S().Error(err)
+		c.AbortWithStatus(http.StatusNotAcceptable)
+		return
+	}
 
 	err = models.UpdateTask(t)
 	if err != nil {
@@ -166,9 +169,9 @@ func getTasksHandler(c *gin.Context) {
 
 	var tasks []models.Task
 
-	start := time.Now().Add(-time.Hour * 24)
+	start := utils.TruncateDate(time.Now())
 	// TODO: client chosen time ranges
-	end := time.Now().Add(time.Hour * 24 * 365)
+	end := utils.TruncateDate(time.Now().Add(time.Hour * 24 * 365))
 	if u.Teacher {
 		tasks, err = models.GetAllTasksRange(start, end)
 	} else {
@@ -218,10 +221,6 @@ func createTaskHandler(c *gin.Context) {
 		task.Class = u.Class
 		task.Semester = u.Semester
 	}
-
-	task.Semester = strings.ToUpper(task.Semester)
-	task.Class = strings.ToUpper(task.Class)
-	task.Region = strings.Title(strings.ToLower(task.Region))
 
 	err = task.Validate()
 	if err != nil {

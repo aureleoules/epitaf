@@ -34,27 +34,30 @@ export default function(props: Props) {
         <div className={styles.calendar}>
             <h1>{t('Calendar')}</h1>
             
-            {(!calendar?.DayList && fetched) && <p>{t('Unavailable')}</p>}
+            {(!calendar?.days && fetched) && <p>{t('Unavailable')}</p>}
             
             {!fetched && <div style={{position: "absolute", left: "40%", top: "45%"}}>
                 <RotateSpinner size={50} color="#572ce8"/>
             </div>}
-            {calendar?.DayList && <>
+            {calendar?.days && <>
                 
                 <div className={[styles.classes].join(" ")}>
-                    {calendar?.DayList.map((d, i) => (
+                    {calendar?.days.map((d, i) => (
                         <div key={i} className={styles.day}>
-                            <h2>{dayjs(d.DateTime).format("DD MMMM")}</h2>
+                            <h2>{dayjs(d.date).format("DD MMMM")}</h2>
 
-                            {d.CourseList.map((c, i) => (
+                            {d.courses.map((c, i) => (
                                 <div key={i} className={styles.class}>
-                                    <h3>{dayjs(c.BeginDate).format("HH:MM")}</h3>
+                                    <div className={styles.date}>
+                                        <h3>{dayjs(c.start_date).format("HH:mm")}</h3>
+                                        <p>{Math.floor(c.duration / 60) + "h" + ((c.duration % 60) > 0 ? (c.duration % 60) : "")}</p>
+                                    </div>
                                     <span style={{
-                                        backgroundColor: colors[c.Name.toString()]
+                                        backgroundColor: colors[c.name.toString()]
                                     }} className={styles.separator}/>
                                     <div className={styles.content}>
-                                        <span>{c.RoomList[0] ? c.RoomList[0].Name : ""}</span>
-                                        <p>{c.Name ? c.Name : ""}</p>
+                                        <span>{c.rooms ? c.rooms[0] : ""}</span>
+                                        <p>{c.name ? c.name : ""}</p>
                                     </div>
                                 </div>
                             ))}

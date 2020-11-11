@@ -18,7 +18,13 @@ type Calendar struct {
 				Type     int    `json:"Type"`
 				ParentID int    `json:"ParentId"`
 			} `json:"StaffList"`
-			RoomList  []interface{} `json:"RoomList"`
+			RoomList []struct {
+				Rooms    interface{} `json:"Rooms"`
+				ID       int         `json:"Id"`
+				Name     string      `json:"Name"`
+				Type     int         `json:"Type"`
+				ParentID int         `json:"ParentId"`
+			} `json:"RoomList"`
 			GroupList []struct {
 				Groups   interface{} `json:"Groups"`
 				ID       int         `json:"Id"`

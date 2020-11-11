@@ -71,7 +71,7 @@ func getCalendarHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, cal)
+	c.JSON(http.StatusOK, models.FormatCalendar(*cal))
 }
 func getUserHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)

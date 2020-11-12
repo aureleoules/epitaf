@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -23,7 +22,6 @@ func handleUsers() {
 
 func searchUserHandler(c *gin.Context) {
 	q := c.Query("query")
-	fmt.Println(q)
 	users, err := models.SearchUser(q)
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
@@ -74,8 +72,6 @@ func getCalendarHandler(c *gin.Context) {
 			slug = "TANENBAUM " + u.Class
 		}
 	}
-
-	fmt.Printf("%s\n", slug)
 
 	cal, err := client.GetGroupPlanning(slug)
 	if err != nil {

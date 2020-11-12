@@ -27,8 +27,9 @@ func connect(host, user, pass, database string) {
 	}
 	zap.S().Info("Connecting to database...")
 	var err error
-	DB, err = sqlx.Connect("mysql", user+":"+pass+"@("+host+")/"+database+"?charset=utf8mb4,utf8&parseTime=true")
+	DB, err = sqlx.Connect("mysql", user+":"+pass+"@("+host+")/"+database+"?charset=utf8mb4,utf8&parseTime=true&time_zone=UTC")
 	if err != nil {
+		zap.S().Error(err)
 		time.Sleep(5 * time.Second)
 		connect(host, user, pass, database)
 	}

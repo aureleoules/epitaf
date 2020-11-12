@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { createRef, useEffect, useRef, useState } from 'react';
 import { Task } from '../../types/task';
 import styles from './task.module.scss';
 import {ReactComponent as CalendarIcon} from '../../assets/svg/calendar.svg';
@@ -16,6 +16,10 @@ import { useTranslation } from 'react-i18next';
 import Checkbox from '../../components/Checkbox';
 import {ReactComponent as LinkIcon} from '../../assets/svg/link.svg';
 import { copy, capitalize, getUser, getSubjects } from '../../utils';
+import { IDictionary } from '../../types/dictionnary';
+import TagsInput from 'react-tagsinput';
+import 'react-tagsinput/react-tagsinput.css';
+import { User } from '../../types/user';
 
 type Props = {
     task: Task
@@ -35,8 +39,14 @@ export default function(props: Props) {
 
     const [promotion, setPromotion] = useState<number>(new Date().getFullYear()+5);
     const [classroom, setClass] = useState<string>("");
-    const [region, setRegion] = useState<string>("Paris");
+    const [region, setRegion] = useState<string>("");
     const [semester, setSemester] = useState<string>("");
+
+    const [members, setMembers] = useState<Array<string>>(new Array<string>());
+
+    const [classes, setClasses] = useState<IDictionary<any>>();
+
+    const [searchedUsers, setSearchedUsers] = useState<Array<User>>(new Array<User>());
 
     function startEdit() {
         setContent(task.content!);
@@ -97,6 +107,78 @@ export default function(props: Props) {
         });
     }
     
+    function fetchClasses() {
+        Client.Classes.list().then(classes => {
+            setClasses(classes);
+
+            setTimeout(() => {
+                const p = parseInt(Object.keys(classes!)[0]);
+                updatePromotion(p, classes);
+            }, 10);
+
+        }).catch(err => {
+            if(err) throw err;
+        });
+    }
+
+    useEffect(() => {
+        fetchClasses();
+    }, []);
+
+    function updatePromotion(p: number, c: IDictionary<any> = classes!) {
+        setPromotion(p);
+        const s = Object.keys(c![p])[0];
+        setSemester(s);
+        const r = Object.keys(c![p][s])[0];
+        setRegion(r);
+
+        setClass(c![p][s][r][0]);
+    }
+
+    function updateSemester(s: string, c: IDictionary<any> = classes!) {
+        setSemester(s);
+        const r = Object.keys(c![promotion][s])[0];
+        setRegion(r);
+
+        setClass(c![promotion][s][r][0]);
+    }
+
+    function updateRegion(r: string, c: IDictionary<any> = classes!) {
+        setRegion(r);
+        setClass(c![promotion][semester][r][0]);
+    }
+
+    function searchUser(q: string) {
+        if(q.length === 0) setSearchedUsers(new Array<User>());
+        if(q.length < 2) return;
+        
+        Client.Users.search(q).then(users => {
+            setSearchedUsers(users);
+        }).catch(err => {
+            if(err) throw err;
+        });;
+    }
+
+    const tagRef = useRef(null);
+    function onKeyEnter(e: any) {
+        if(e.key === "Enter") {
+            const filtered = searchedUsers.filter((el) => !members.includes(el.login!));
+            if(!filtered || filtered.length < 1) return;
+            addMember(filtered[0].login!);
+        }
+    }
+
+    function addMember(login: string) {
+        if(members.includes(login)) return;
+        setMembers(m => [...m, login]);
+        setTimeout(() => {
+            const u = (tagRef.current! as any);
+            u.clearInput()
+            u.focus();
+            setSearchedUsers([]);
+        }, 1);
+    }
+
     return (
         <div className={styles.task}>
             {(!edit && !props.new) && <><div className={styles.header}>
@@ -166,18 +248,63 @@ export default function(props: Props) {
                         onChange={d => setDueDate(d?.toDate()!)}
                     />
                 </MuiPickersUtilsProvider>
-                <Checkbox disabled={!props.new} checked={global} onChange={(e:any) => setGlobal(e.target.checked)} title={t('Promotion')}/>
+                
+                <Checkbox disabled={!props.new || members.length > 0} checked={global} onChange={(e:any) => setGlobal(e.target.checked)} title={t('Promotion')}/>
 
-                {getUser().teacher && <>
+                {getUser().teacher && classes && <>
                     <div className={styles.classinfos}>
-                        <Input value={promotion} onChange={(e: any) => setPromotion(parseInt(e.target.value))} type="number" placeholder={t('Promotion')}/>
-                        <Input value={semester} onChange={(e: any) => setSemester(e.target.value)} disabled={global} placeholder={t('Semester')}/>
-                        <Input value={classroom} onChange={(e: any) => setClass(e.target.value)} disabled={global} placeholder={t('Class')}/>
+                        <Select value={promotion} onChange={(e: any) => {
+                            updatePromotion(e.target.value);
+                        }} title={t('Promotion')}>
+                            {Object.keys(classes!).map((r: string, i: number) => <option value={r}>{r}</option>)}
+                        </Select>
+                        <Select disabled={!promotion} value={semester} onChange={(e: any) => {
+                            updateSemester(e.target.value);
+                        }} title={t('Semester')}>
+                            {promotion && Object.keys(classes[promotion]!).map((s: string, i: number) => <option value={s}>{s}</option>)}
+                        </Select>
+                        <Select disabled={!semester || global} value={region} onChange={(e: any) => {
+                            updateRegion(e.target.value);
+                        }} title={t('Region')}>
+                            {((semester && !global) && classes[promotion][semester]) ? (Object.keys(classes[promotion][semester]).map((r: string, i: number) => <option value={r}>{r}</option>)) : null}
+                        </Select>
                     </div>
-                    <Select value={region} onChange={(e: any) => setRegion(e.target.value)} disabled={global} title={t('Region')}>
-                        {["Paris", "Lyon", "Strasbourg", "Rennes", "Toulouse"].map((r, i) => <option value={r}>{r}</option>)}
-                    </Select>
+                    {<Select value={classroom} onChange={(e: any) => setClass(e.target.value)} disabled={global || !region} title={t('Class')}>
+                        {(region && !global) && classes[promotion][semester][region].map((r: string, i: number) => <option value={r}>{r === "" ? t('All') : r}</option>)}
+                    </Select>}
                 </>}
+
+                <TagsInput 
+                    disabled={global}
+                    className={["react-tagsinput", global ? "disabled" : ""].join(" ")}
+                    inputProps={{
+                        placeholder: t('Students')
+                    }} 
+                    value={global ? [] : members}
+                    ref={tagRef}
+                    renderInput={props => <input {...props} value={props.value} onKeyDown={e => {
+                        if(e.key === "Enter") {
+                            if(searchedUsers.length < 1) return;
+                            onKeyEnter(e);
+                        } else props.onKeyDown(e);
+                    }} onChange={e => {
+                        searchUser(e.target.value);
+                        props.onChange(e);
+                    }} />}
+                    onChange={members => setMembers(members)}
+                />
+
+                {searchedUsers.length > 0 && <div className={styles.users}>
+                    {searchedUsers.filter((el) => !members.includes(el.login!)).map((u, i) => (
+                        <div onClick={() => {
+                            addMember(u.login!)
+                        }} className={styles.user}>
+                            <p>{u.name}</p>
+                        </div>
+                    ))}
+                </div>}
+                
+
                 <div className={styles.actions + " " + (props.new ? styles.new : "")}>
                     <Button className={styles.save} disabled={!subject || !title || !content} onClick={save} title={props.new ? t("Create"): t("Save")}/>
                     {!props.new && <Button color="red" onClick={deleteTask} title={t('Delete')}/>}

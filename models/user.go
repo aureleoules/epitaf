@@ -72,6 +72,25 @@ const (
 		FROM users
 		WHERE uuid = ?;
 	`
+
+	searchUserQuery = `
+		SELECT 
+			uuid, 
+			name, 
+			login,
+			email, 
+			promotion,
+			class,
+			region,
+			semester,
+			teacher,
+			created_at,
+			updated_at
+		FROM users
+		WHERE 
+			name LIKE ?
+			OR login LIKE ?;
+	`
 )
 
 // User struct
@@ -119,6 +138,25 @@ func GetUser(uuid UUID) (*User, error) {
 	var user User
 	err = tx.Get(&user, getUserQuery, uuid)
 	return &user, err
+}
+
+// SearchUser returns slice of users
+func SearchUser(query string) ([]User, error) {
+	tx, err := db.DB.Beginx()
+	if err != nil {
+		return nil, err
+	}
+
+	defer checkErr(tx, err)
+
+	var users []User
+
+	i := "%" + query + "%"
+	err = tx.Select(&users, searchUserQuery, i, i)
+	if err != nil {
+		zap.S().Error(err)
+	}
+	return users, err
 }
 
 // Insert user in DB

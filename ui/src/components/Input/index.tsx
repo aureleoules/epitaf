@@ -25,7 +25,7 @@ export default function(props: Props) {
     
     let el = props.multiline ? <textarea rows={props.rows} {...p}/> : <input type={props.type} {...p}/>;
     return <div className={styles.input}>
-        <p className={styles.p}>{props.placeholder || props.title}</p>
+        <p className={styles.p}>{props.title || props.placeholder}</p>
         {el}
     </div>
 }

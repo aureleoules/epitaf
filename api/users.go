@@ -18,6 +18,19 @@ func handleUsers() {
 	users := api.Group("/users")
 	users.GET("/me", getUserHandler)
 	users.GET("/calendar", getCalendarHandler)
+	users.GET("/search", searchUserHandler)
+}
+
+func searchUserHandler(c *gin.Context) {
+	q := c.Query("query")
+	fmt.Println(q)
+	users, err := models.SearchUser(q)
+	if err != nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	c.JSON(http.StatusOK, users)
 }
 
 func getCalendarHandler(c *gin.Context) {

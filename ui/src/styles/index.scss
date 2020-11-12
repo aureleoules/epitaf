@@ -26,3 +26,35 @@ body {
         margin: 0 auto;
     }
 }
+
+
+.react-tagsinput {
+    background-color: #fff;
+    border: 2px solid #572ce8!important;
+    overflow: hidden;
+    padding-left: 5px;
+    border-radius: 8px;
+    padding-top: 5px;
+
+    &.disabled {
+        opacity: .7;
+    }
+    
+    .react-tagsinput-tag {
+        background-color: #572ce8;
+        border-radius: 2px;
+        color: white;
+        border: none;
+        display: inline-block;
+        font-family: sans-serif;
+        font-size: 13px;
+        font-weight: 400;
+        margin-bottom: 5px;
+        margin-right: 5px;
+        padding: 5px;
+    }
+
+    input {
+        width: 120px;
+    }
+}

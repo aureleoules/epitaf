@@ -44,5 +44,16 @@ export default {
         }).catch(err => {
             reject(err);
         }); 
+    }),
+    search: (query: string) => new Promise<Array<User>>((resolve, reject) => {
+        client.get('/users/search', {
+            params: {
+                query
+            }
+        }).then(response => {
+            resolve(response.data || []);
+        }).catch(err => {
+            reject(err);
+        }); 
     })
 };

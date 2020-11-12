@@ -30,6 +30,7 @@ func Serve() {
 
 	handleUsers()
 	handleTasks()
+	handleClasses()
 
 	if err := r.Run(); err != nil {
 		zap.S().Panic(err)

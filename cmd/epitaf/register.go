@@ -9,6 +9,7 @@ import (
 
 func init() {
 	rootCmd.AddCommand(registerCmd)
+	rootCmd.AddCommand(registerAdminCmd)
 }
 
 var registerCmd = &cobra.Command{
@@ -25,6 +26,33 @@ var registerCmd = &cobra.Command{
 		}
 
 		err = user.Insert()
+		if err != nil {
+			zap.S().Error(err)
+			return
+		}
+	},
+}
+
+var registerAdminCmd = &cobra.Command{
+	Use:   "admin",
+	Short: "register admin user",
+	Args:  cobra.ExactArgs(3),
+	Run: func(cmd *cobra.Command, args []string) {
+		db.Connect()
+
+		user := models.User{
+			Name:      args[0],
+			Login:     args[1],
+			Email:     args[2],
+			Class:     "",
+			Promotion: 0,
+			Teacher:   true,
+			Region:    "",
+			Semester:  "",
+		}
+		user.UUID = models.NewUUID()
+
+		err := user.Insert()
 		if err != nil {
 			zap.S().Error(err)
 			return

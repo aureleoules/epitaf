@@ -2,6 +2,7 @@ import axios from 'axios';
 import { setupCache } from 'axios-cache-adapter'
 
 import Users from './users';
+import Classes from './classes';
 import Tasks from './tasks';
 
 const cache = setupCache({
@@ -25,7 +26,8 @@ export {client};
 
 const Client = {
     Users,
-    Tasks
+    Tasks,
+    Classes
 };
 
 export default Client;

@@ -4,7 +4,7 @@ import styles from './select.module.scss';
 type Props = {
     title?: string
     children: any
-    value?: string
+    value?: any
     onChange?: any
     disabled?: boolean
 }

@@ -123,7 +123,8 @@ export default function(props: Props) {
 
     useEffect(() => {
         fetchClasses();
-    });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     function updatePromotion(p: number, c: IDictionary<any> = classes!) {
         setPromotion(p);

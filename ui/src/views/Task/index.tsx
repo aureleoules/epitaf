@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Task } from '../../types/task';
 import styles from './task.module.scss';
 import {ReactComponent as CalendarIcon} from '../../assets/svg/calendar.svg';
@@ -123,7 +123,7 @@ export default function(props: Props) {
 
     useEffect(() => {
         fetchClasses();
-    }, []);
+    });
 
     function updatePromotion(p: number, c: IDictionary<any> = classes!) {
         setPromotion(p);

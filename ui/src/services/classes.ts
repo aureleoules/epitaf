@@ -1,5 +1,4 @@
 import { client } from './client';
-import { Class } from '../types/class';
 import { IDictionary } from '../types/dictionnary';
 
 export default {

@@ -9,9 +9,11 @@ export type Task = base & {
     class?: string
     region?: string
     semester?: string
-    global?: boolean
+    visibility?: string
     members?: Array<string>
     created_by?: string
     updated_by?: string
+    created_by_login?: string
+    updated_by_login?: string
     due_date?: Date
 }

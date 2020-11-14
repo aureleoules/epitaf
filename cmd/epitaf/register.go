@@ -50,7 +50,6 @@ var registerAdminCmd = &cobra.Command{
 			Region:    "",
 			Semester:  "",
 		}
-		user.UUID = models.NewUUID()
 
 		err := user.Insert()
 		if err != nil {

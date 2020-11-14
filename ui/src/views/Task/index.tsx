@@ -13,7 +13,6 @@ import DateDayjsUtils from '@date-io/dayjs';
 
 import Client from '../../services/client';
 import { useTranslation } from 'react-i18next';
-import Checkbox from '../../components/Checkbox';
 import {ReactComponent as LinkIcon} from '../../assets/svg/link.svg';
 import { copy, capitalize, getUser, getSubjects } from '../../utils';
 import { IDictionary } from '../../types/dictionnary';
@@ -35,7 +34,6 @@ export default function(props: Props) {
     const [subject, setSubject] = useState<string>("algorithmics");
     const [title, setTitle] = useState<string>("");
     const [due_date, setDueDate] = useState<Date>(dayjs(new Date()).add(24, 'hour').toDate());
-    const [global, setGlobal] = useState<boolean>(false);
 
     const [promotion, setPromotion] = useState<number>(new Date().getFullYear()+5);
     const [classroom, setClass] = useState<string>("");
@@ -43,23 +41,24 @@ export default function(props: Props) {
     const [semester, setSemester] = useState<string>("");
 
     const [members, setMembers] = useState<Array<string>>(new Array<string>());
-
     const [classes, setClasses] = useState<IDictionary<any>>();
 
     const [searchedUsers, setSearchedUsers] = useState<Array<User>>(new Array<User>());
+
+    const [visibility, setVisibility] = useState<string>("self");
 
     function startEdit() {
         setContent(task.content!);
         setSubject(task.subject!);
         setTitle(task.title!);
         setDueDate(task.due_date!);
-        setGlobal(task.global!);
+        setVisibility(task.visibility!);
         setPromotion(task.promotion!);
         setClass(task.class!);
         setRegion(task.region!);
         setSemester(task.semester!);
         setEdit(true);
-        setMembers(task.members!);
+        setMembers(task.members || []);
     }
 
     function save() {
@@ -69,7 +68,7 @@ export default function(props: Props) {
             members,
             title,
             due_date,
-            global,
+            visibility,
             region,
             promotion,
             semester,
@@ -252,60 +251,67 @@ export default function(props: Props) {
                     />
                 </MuiPickersUtilsProvider>
                 
-                <Checkbox disabled={!props.new || members.length > 0} checked={global} onChange={(e:any) => setGlobal(e.target.checked)} title={t('Promotion')}/>
-
-                {getUser().teacher && classes && <>
-                    <div className={styles.classinfos}>
-                        <Select value={promotion} onChange={(e: any) => {
-                            updatePromotion(e.target.value);
-                        }} title={t('Promotion')}>
-                            {Object.keys(classes!).map((r: string, i: number) => <option value={r}>{r}</option>)}
-                        </Select>
-                        <Select disabled={!promotion} value={semester} onChange={(e: any) => {
-                            updateSemester(e.target.value);
-                        }} title={t('Semester')}>
-                            {promotion && Object.keys(classes[promotion]!).map((s: string, i: number) => <option value={s}>{s}</option>)}
-                        </Select>
-                        <Select disabled={!semester || global} value={region} onChange={(e: any) => {
-                            updateRegion(e.target.value);
-                        }} title={t('Region')}>
-                            {((semester && !global) && classes[promotion][semester]) ? (Object.keys(classes[promotion][semester]).map((r: string, i: number) => <option value={r}>{r}</option>)) : null}
-                        </Select>
-                    </div>
-                    {<Select value={classroom} onChange={(e: any) => setClass(e.target.value)} disabled={global || !region} title={t('Class')}>
-                        {(region && !global) && classes[promotion][semester][region].map((r: string, i: number) => <option value={r}>{r === "" ? t('All') : r}</option>)}
-                    </Select>}
-                </>}
-
-                <TagsInput 
-                    disabled={global}
-                    className={["react-tagsinput", global ? "disabled" : ""].join(" ")}
-                    inputProps={{
-                        placeholder: t('Students')
-                    }} 
-                    value={global ? [] : members}
-                    ref={tagRef}
-                    renderInput={props => <input {...props} value={props.value} onKeyDown={e => {
-                        if(e.key === "Enter") {
-                            if(searchedUsers.length < 1) return;
-                            onKeyEnter(e);
-                        } else props.onKeyDown(e);
-                    }} onChange={e => {
-                        searchUser(e.target.value);
-                        props.onChange(e);
-                    }} />}
-                    onChange={members => setMembers(members)}
-                />
-
-                {searchedUsers.length > 0 && <div className={styles.users}>
-                    {searchedUsers.filter((el) => !members.includes(el.login!)).map((u, i) => (
-                        <div onClick={() => {
-                            addMember(u.login!)
-                        }} className={styles.user}>
-                            <p>{u.name}</p>
+                {(props.new || getUser().login === task.created_by_login) && <>
+                    <Select value={visibility} onChange={(e: any) => setVisibility(e.target.value)} title={t('Visibility')}>
+                        <option value={'self'}>{t('Me')}</option>
+                        <option value={'students'}>{t('Students')}</option>
+                        <option value={'class'}>{t('Classe') + (!getUser().teacher ? ` (${getUser().class})` : "")}</option>
+                        {!getUser().teacher && <option value={'promotion'}>{t('Promotion') + ` (${getUser().promotion})`}</option>}
+                    </Select>
+                    {getUser().teacher && classes && <>
+                        <div className={styles.classinfos}>
+                            <Select value={promotion} onChange={(e: any) => {
+                                updatePromotion(e.target.value);
+                            }} title={t('Promotion')}>
+                                {Object.keys(classes!).map((r: string, i: number) => <option value={r}>{r}</option>)}
+                            </Select>
+                            <Select disabled={!promotion} value={semester} onChange={(e: any) => {
+                                updateSemester(e.target.value);
+                            }} title={t('Semester')}>
+                                {promotion && Object.keys(classes[promotion]!).map((s: string, i: number) => <option value={s}>{s}</option>)}
+                            </Select>
+                            <Select disabled={!semester || visibility === "promotion"} value={region} onChange={(e: any) => {
+                                updateRegion(e.target.value);
+                            }} title={t('Region')}>
+                                {((semester && visibility !== "promotion") && classes[promotion][semester]) ? (Object.keys(classes[promotion][semester]).map((r: string, i: number) => <option value={r}>{r}</option>)) : null}
+                            </Select>
                         </div>
-                    ))}
-                </div>}
+                        {<Select value={classroom} onChange={(e: any) => setClass(e.target.value)} disabled={visibility === "promotion" || !region} title={t('Class')}>
+                            {(region && visibility !== "promotion") && classes[promotion][semester][region].map((r: string, i: number) => <option value={r}>{r === "" ? t('All') : r}</option>)}
+                        </Select>}
+                    </>}
+
+                    {visibility === 'students' &&
+                        <>
+                            <TagsInput 
+                                className={"react-tagsinput"}
+                                inputProps={{
+                                    placeholder: t('Students')
+                                }} 
+                                value={members}
+                                ref={tagRef}
+                                renderInput={props => <input {...props} value={props.value} onKeyDown={e => {
+                                    if(e.key === "Enter") {
+                                        if(searchedUsers.length < 1) return;
+                                        onKeyEnter(e);
+                                    } else props.onKeyDown(e);
+                                }} onChange={e => {
+                                    searchUser(e.target.value);
+                                    props.onChange(e);
+                                }} />}
+                                onChange={members => setMembers(members)}
+                            />
+                            {searchedUsers.length > 0 && <div className={styles.users}>
+                                {searchedUsers.filter((el) => !members.includes(el.login!)).map((u, i) => (
+                                    <div onClick={() => {
+                                        addMember(u.login!)
+                                    }} className={styles.user}>
+                                        <p>{u.name}</p>
+                                    </div>
+                                ))}
+                            </div>}
+                        </>}
+                </>}
                 
 
                 <div className={styles.actions + " " + (props.new ? styles.new : "")}>

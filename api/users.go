@@ -33,14 +33,7 @@ func searchUserHandler(c *gin.Context) {
 
 func getCalendarHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
-	uuid, err := models.FromUUID(claims["uuid"].(string))
-	if err != nil {
-		zap.S().Error(err)
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-
-	u, err := models.GetUser(uuid)
+	u, err := models.GetUser(claims["login"].(string))
 	if err != nil {
 		zap.S().Error(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -84,14 +77,7 @@ func getCalendarHandler(c *gin.Context) {
 }
 func getUserHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
-	uuid, err := models.FromUUID(claims["uuid"].(string))
-	if err != nil {
-		zap.S().Error(err)
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-
-	u, err := models.GetUser(uuid)
+	u, err := models.GetUser(claims["login"].(string))
 	if err != nil {
 		spew.Dump(claims)
 		zap.S().Error(err)

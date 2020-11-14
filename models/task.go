@@ -15,11 +15,10 @@ import (
 const (
 	taskSchema = `
 		CREATE TABLE tasks (
-			uuid BINARY(16) NOT NULL,
 			short_id VARCHAR(16) NOT NULL,
 			
 			promotion VARCHAR(256) NOT NULL,
-			global BOOLEAN NOT NULL DEFAULT 0,
+			visibility ENUM('self', 'promotion', 'class', 'students') NOT NULL DEFAULT 'self',
 			members VARCHAR(10000),
 			class VARCHAR(256) NOT NULL,
 			region VARCHAR(256) NOT NULL,
@@ -28,30 +27,29 @@ const (
 			subject VARCHAR(256) NOT NULL,
 			content TEXT NOT NULL DEFAULT "",
 			due_date TIMESTAMP NOT NULL,
-			created_by_id BINARY(16) NOT NULL,
-			updated_by_id BINARY(16) NOT NULL,
+			created_by_login VARCHAR(256) NOT NULL,
+			updated_by_login VARCHAR(256) NOT NULL,
 
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
 
-			PRIMARY KEY (uuid),
-			FOREIGN KEY (created_by_id) REFERENCES users (uuid),
-			FOREIGN KEY (updated_by_id) REFERENCES users (uuid)
+			PRIMARY KEY (short_id),
+			FOREIGN KEY (created_by_login) REFERENCES users (login),
+			FOREIGN KEY (updated_by_login) REFERENCES users (login)
 		);
 	`
 
 	insertTaskQuery = `
 		INSERT INTO tasks 
-			(uuid, short_id, promotion, global, members, class, region, semester, title, subject, content, due_date, created_by_id, updated_by_id) 
+			(short_id, promotion, visibility, members, class, region, semester, title, subject, content, due_date, created_by_login, updated_by_login) 
 		VALUES 
-			(:uuid, :short_id, :promotion, :global, :members, :class, :region, :semester, :title, :subject, :content, :due_date, :created_by_id, :updated_by_id) 
+			(:short_id, :promotion, :visibility, :members, :class, :region, :semester, :title, :subject, :content, :due_date, :created_by_login, :updated_by_login) 
 		`
 	getTaskQuery = `
 		SELECT 
-			tasks.uuid,
 			tasks.short_id,
 			tasks.promotion,
-			tasks.global,
+			tasks.visibility,
 			tasks.members,
 			tasks.class,
 			tasks.region,
@@ -60,6 +58,8 @@ const (
 			tasks.subject,
 			tasks.content,
 			tasks.due_date,
+			tasks.created_by_login,
+			tasks.updated_by_login,
 			users.name as created_by,
 			updated_user.name as updated_by,
 			tasks.created_at,
@@ -67,19 +67,18 @@ const (
 		FROM tasks
 		LEFT JOIN users
 		ON 
-			users.uuid = tasks.created_by_id
+			users.login = tasks.created_by_login
 		LEFT JOIN users as updated_user
 		ON
-			updated_user.uuid = tasks.updated_by_id
+			updated_user.login = tasks.updated_by_login
 		WHERE short_id = ?;
 	`
 
 	getTasksRangeQuery = `
 		SELECT
-			tasks.uuid,
 			tasks.short_id,
 			tasks.promotion,
-			tasks.global,
+			tasks.visibility,
 			tasks.members,
 			tasks.class,
 			tasks.title,
@@ -90,25 +89,39 @@ const (
 			tasks.due_date,
 			users.name as created_by,
 			updated_user.name as updated_by,
-			tasks.created_by_id,
-			tasks.updated_by_id,
+			tasks.created_by_login,
+			tasks.updated_by_login,
 			tasks.created_at,
 			tasks.updated_at
 		FROM tasks
 		LEFT JOIN users
 		ON 
-			users.uuid = tasks.created_by_id
+			users.login = tasks.created_by_login
 		LEFT JOIN users as updated_user
 		ON
-			updated_user.uuid = tasks.updated_by_id
+			updated_user.login = tasks.updated_by_login
 		WHERE 
 			(
 				(
-					tasks.promotion = ?
+					tasks.visibility = 'self'
+					AND tasks.created_by_login = ?
+				) 
+				OR (
+					tasks.visibility = 'class'
+					AND tasks.promotion = ?
 					AND tasks.class = ?
 					AND tasks.region = ?
 					AND tasks.semester = ?
-				) OR (tasks.promotion = ? AND tasks.semester = ? AND tasks.global = 1)
+				) 
+				OR (
+					tasks.visibility = 'promotion'
+					AND tasks.promotion = ? 
+					AND tasks.semester = ? 
+				)
+				OR (
+					tasks.visibility = 'students'
+					AND (tasks.members LIKE ? OR tasks.created_by_login = ?)
+				)
 			)
 			AND due_date > ? 
 			AND due_date < ?;
@@ -116,10 +129,9 @@ const (
 
 	getAllTasksRangeQuery = `
 		SELECT
-			tasks.uuid,
 			tasks.short_id,
 			tasks.promotion,
-			tasks.global,
+			tasks.visibility,
 			tasks.members,
 			tasks.class,
 			tasks.title,
@@ -130,17 +142,17 @@ const (
 			tasks.due_date,
 			users.name as created_by,
 			updated_user.name as updated_by,
-			tasks.created_by_id,
-			tasks.updated_by_id,
+			tasks.created_by_login,
+			tasks.updated_by_login,
 			tasks.created_at,
 			tasks.updated_at
 		FROM tasks
 		LEFT JOIN users
 		ON 
-			users.uuid = tasks.created_by_id
+			users.login = tasks.created_by_login
 		LEFT JOIN users as updated_user
 		ON
-			updated_user.uuid = tasks.updated_by_id
+			updated_user.login = tasks.updated_by_login
 		WHERE 
 			due_date > ? 
 			AND due_date < ?;
@@ -149,16 +161,17 @@ const (
 	updateTaskQuery = `
 		UPDATE tasks
 		SET
-			title=:title,
-			subject=:subject,
-			members=:members,
-			content=:content,
-			updated_by_id=:updated_by_id,
-			due_date=:due_date,
+			title=COALESCE(NULLIF(:title,''), tasks.title),
+			subject=COALESCE(NULLIF(:subject,''), tasks.subject),
+			visibility=COALESCE(NULLIF(:visibility,''), tasks.visibility),
+			members=IF(visibility = 'students', COALESCE(NULLIF(:members,''), tasks.members), NULL),
+			content=COALESCE(NULLIF(:subject,''), tasks.subject),
+			due_date=COALESCE(NULLIF(:due_date,''), tasks.due_date),
 			semester=:semester,
 			region=:region,
 			class=:class,
-			promotion=:promotion
+			promotion=:promotion,
+			updated_by_login=:updated_by_login
 		WHERE short_id=:short_id
 	`
 
@@ -198,6 +211,10 @@ func (m Members) String() string {
 
 // Value of members
 func (m Members) Value() (driver.Value, error) {
+	if len(m) == 0 {
+		return nil, nil
+	}
+
 	return driver.Value(m.String()), nil
 }
 
@@ -214,28 +231,50 @@ func (m *Members) Scan(src interface{}) error {
 	return err
 }
 
+// Visibility enum
+type Visibility string
+
+const (
+	// SelfVisibility only the author of task can access it
+	SelfVisibility Visibility = "self"
+	// PromotionVisibility only the promotion of the author of the task can access it
+	PromotionVisibility Visibility = "promotion"
+	// ClassVisibility only the class of the author of the task can access it
+	ClassVisibility Visibility = "class"
+	// StudentsVisibility only selected students can access it
+	StudentsVisibility Visibility = "students"
+)
+
 // Task truct
 type Task struct {
 	base
 
+	// Meta
 	ShortID string `json:"short_id" db:"short_id"`
 
-	Promotion int       `json:"promotion" db:"promotion"`
-	Global    bool      `json:"global" db:"global"`
-	Members   Members   `json:"members" db:"members"`
-	Class     string    `json:"class" db:"class"`
-	Region    string    `json:"region" db:"region"`
-	Semester  string    `json:"semester" db:"semester"`
-	Title     string    `json:"title" db:"title"`
-	Subject   string    `json:"subject" db:"subject"`
-	Content   string    `json:"content" db:"content"`
-	DueDate   time.Time `json:"due_date" db:"due_date"`
+	Visibility Visibility `json:"visibility" db:"visibility"`
+	// Promotion
+	Promotion int    `json:"promotion" db:"promotion"`
+	Semester  string `json:"semester" db:"semester"`
 
-	CreatedByID UUID   `json:"-" db:"created_by_id"`
-	CreatedBy   string `json:"created_by" db:"created_by"`
+	// Class
+	Class  string `json:"class" db:"class"`
+	Region string `json:"region" db:"region"`
 
-	UpdatedByID UUID   `json:"-" db:"updated_by_id"`
-	UpdatedBy   string `json:"updated_by" db:"updated_by"`
+	// Students
+	Members Members `json:"members" db:"members"`
+
+	// Body
+	Title   string    `json:"title" db:"title"`
+	Subject string    `json:"subject" db:"subject"`
+	Content string    `json:"content" db:"content"`
+	DueDate time.Time `json:"due_date" db:"due_date"`
+
+	// Meta
+	CreatedByLogin string `json:"created_by_login" db:"created_by_login"`
+	CreatedBy      string `json:"created_by" db:"created_by"`
+	UpdatedByLogin string `json:"updated_by_login" db:"updated_by_login"`
+	UpdatedBy      string `json:"updated_by" db:"updated_by"`
 }
 
 // Validate task data
@@ -250,11 +289,24 @@ func (t *Task) Validate() error {
 	if t.Content == "" {
 		return errors.New("content empty")
 	}
-	if t.Promotion == 0 {
-		return errors.New("no promotion")
+
+	if t.Visibility == PromotionVisibility {
+		if t.Promotion == 0 {
+			return errors.New("no promotion")
+		}
+		if t.Semester == "" {
+			return errors.New("no semester")
+		}
+
+		if len(t.Members) > 0 {
+			return errors.New("members incompatible")
+		}
 	}
 
-	if !t.Global {
+	if t.Visibility == ClassVisibility {
+		if t.Promotion == 0 {
+			return errors.New("no promotion")
+		}
 		if t.Semester == "" {
 			return errors.New("no semester")
 		}
@@ -264,10 +316,9 @@ func (t *Task) Validate() error {
 		if t.Class == "" {
 			return errors.New("no class")
 		}
-	}
-
-	if t.Global && len(t.Members) > 0 {
-		return errors.New("cannot be global with members")
+		if len(t.Members) > 0 {
+			return errors.New("members incompatible")
+		}
 	}
 
 	// Truncate minutes and seconds of due date
@@ -281,12 +332,15 @@ func (t *Task) Validate() error {
 	t.Class = strings.ToUpper(t.Class)
 	t.Region = strings.Title(strings.ToLower(t.Region))
 
+	if len(t.Members) == 0 {
+		t.Members = nil
+	}
+
 	return nil
 }
 
 // Insert task in DB
 func (t *Task) Insert() error {
-	t.UUID = NewUUID()
 	t.ShortID = shortid.MustGenerate()
 
 	tx, err := db.DB.Beginx()
@@ -341,7 +395,7 @@ func GetTask(id string) (*Task, error) {
 }
 
 // GetTasksRange returns list of tasks in a time for a specific class promotion
-func GetTasksRange(promotion int, semester string, class string, region string, start, end time.Time) ([]Task, error) {
+func GetTasksRange(user User, start, end time.Time) ([]Task, error) {
 	tx, err := db.DB.Beginx()
 	if err != nil {
 		return nil, err
@@ -350,7 +404,7 @@ func GetTasksRange(promotion int, semester string, class string, region string, 
 	defer checkErr(tx, err)
 
 	var tasks []Task
-	err = tx.Select(&tasks, getTasksRangeQuery, promotion, class, region, semester, promotion, semester, start, end)
+	err = tx.Select(&tasks, getTasksRangeQuery, user.Login, user.Promotion, user.Class, user.Region, user.Semester, user.Promotion, user.Semester, "%"+user.Login+"%", user.Login, start, end)
 	return tasks, err
 }
 

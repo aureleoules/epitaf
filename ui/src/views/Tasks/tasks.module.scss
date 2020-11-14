@@ -78,14 +78,37 @@
             align-items: center;
             
             .group {
-                border-radius: 10px;
+                border-radius: 8px;
                 background-color: #572ce8;
                 color: white;
-                padding: 4px 6px;
+                padding: 6px;
                 font-size: 12px;
                 margin-right: 15px;
                 min-width: 30px;
                 text-align: center;
+
+                svg {
+                    width: 18px;
+                    height: auto;
+                }
+
+                &.students {
+                    background-color: #009688;
+                }
+
+                &.self {
+                    background-color: #22b6db;
+                }
+
+                &.icon {
+                    padding: 4px;
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
 
                 &.class {
                     background-color: #e34646;

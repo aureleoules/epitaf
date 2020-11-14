@@ -5,6 +5,8 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { Task } from '../../types/task';
 import Button from '../../components/Button';
 import {ReactComponent as PlusIcon} from '../../assets/svg/plus.svg';
+import {ReactComponent as UsersIcon} from '../../assets/svg/users.svg';
+import {ReactComponent as UserIcon} from '../../assets/svg/user.svg';
 import { Link } from 'react-router-dom';
 
 import TaskView from '../Task';
@@ -18,11 +20,6 @@ import history from '../../history';
 dayjs.extend(relativeTime)
 
 const subjects = getSubjects(getUser().teacher);
-
-function initials(str: string): string {
-    const l = str.split(" ");
-    return l[0][0] + l[1][0];
-}
 
 type Props = {
     location: any
@@ -136,12 +133,21 @@ export default function(props: any) {
                                     <p>{ta.title?.substr(0, 50)} · {t('Edited')} {dayjs(ta.updated_at).fromNow()}</p>
                                 </div>
                                 <div className={styles.infos}>
-                                    <span className={[styles.group, ta.global ? styles.promotion : styles.class].join(" ")}>
-                                        {ta.global ? ta.promotion : ta.class}
-                                    </span>
-                                    <div className={styles.name}>
+                                    {ta.visibility === "promotion" && <span className={styles.group + " " + styles.promotion}>
+                                        {ta.promotion}
+                                    </span>}
+                                    {ta.visibility === "class" && <span className={styles.group + " " + styles.class}>
+                                        {ta.class || ta.region}
+                                    </span>}
+                                    {ta.visibility === "self" && <span className={styles.group + " " + styles.icon + " " + styles.self}>
+                                        <UserIcon/>
+                                    </span>}
+                                    {ta.visibility === "students" && <span className={styles.group + " " + styles.icon + " " + styles.students}>
+                                        <UsersIcon/>
+                                    </span>}
+                                    {/* <div className={styles.name}>
                                         <span>{initials(ta.updated_by!)}</span>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </Link>
                         ))}

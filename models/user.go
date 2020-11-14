@@ -14,11 +14,10 @@ import (
 const (
 	userSchema = `
 		CREATE TABLE users (
-			uuid BINARY(16) NOT NULL,
-			
+			login VARCHAR(256) NOT NULL UNIQUE,
+
 			name VARCHAR(256) NOT NULL,
 			email VARCHAR(256) NOT NULL UNIQUE,
-			login VARCHAR(256) NOT NULL UNIQUE,
 			promotion VARCHAR(256) NOT NULL DEFAULT 0,
 			class VARCHAR(256) NOT NULL DEFAULT "",
 			region VARCHAR(256) NOT NULL DEFAULT "",
@@ -27,23 +26,21 @@ const (
 			
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
-			PRIMARY KEY (uuid),
-			UNIQUE INDEX (email)
+			PRIMARY KEY (login),
 		);
 	`
 
 	insertUserQuery = `
 		INSERT INTO users 
-			(uuid, name, login, email, promotion, class, region, semester, teacher) 
+			(login, name, email, promotion, class, region, semester, teacher) 
 		VALUES 
-			(:uuid, :name, :login, :email, :promotion, :class, :region, :semester, :teacher);
+			(:login, :name, :email, :promotion, :class, :region, :semester, :teacher);
 	`
 
 	getUserByEmailQuery = `
 		SELECT 
-			uuid, 
-			name, 
 			login,
+			name, 
 			email, 
 			promotion,
 			class,
@@ -58,9 +55,8 @@ const (
 
 	getUserQuery = `
 		SELECT 
-			uuid, 
-			name, 
 			login,
+			name, 
 			email, 
 			promotion,
 			class,
@@ -70,14 +66,13 @@ const (
 			created_at,
 			updated_at
 		FROM users
-		WHERE uuid = ?;
+		WHERE login = ?;
 	`
 
 	searchUserQuery = `
 		SELECT 
-			uuid, 
-			name, 
 			login,
+			name, 
 			email, 
 			promotion,
 			class,
@@ -97,8 +92,8 @@ const (
 type User struct {
 	base
 
-	Name      string `json:"name" db:"name"`
 	Login     string `json:"login" db:"login"`
+	Name      string `json:"name" db:"name"`
 	Promotion int    `json:"promotion" db:"promotion"`
 	Class     string `json:"class" db:"class"`
 	Region    string `json:"region" db:"region"`
@@ -126,8 +121,8 @@ func GetUserByEmail(email string) (*User, error) {
 	return &user, err
 }
 
-// GetUser retrives user by uuid
-func GetUser(uuid UUID) (*User, error) {
+// GetUser retrives user by login
+func GetUser(login string) (*User, error) {
 	tx, err := db.DB.Beginx()
 	if err != nil {
 		return nil, err
@@ -136,7 +131,7 @@ func GetUser(uuid UUID) (*User, error) {
 	defer checkErr(tx, err)
 
 	var user User
-	err = tx.Get(&user, getUserQuery, uuid)
+	err = tx.Get(&user, getUserQuery, login)
 	return &user, err
 }
 
@@ -161,8 +156,6 @@ func SearchUser(query string) ([]User, error) {
 
 // Insert user in DB
 func (c *User) Insert() error {
-	c.UUID = NewUUID()
-
 	tx, err := db.DB.Beginx()
 	if err != nil {
 		return err
@@ -177,7 +170,6 @@ func (c *User) Insert() error {
 
 	zap.S().Info("User ", c.Name, " just created. ("+c.Email+")")
 	return nil
-
 }
 
 // PrepareUser data

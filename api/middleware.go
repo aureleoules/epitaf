@@ -22,7 +22,6 @@ func AuthMiddleware() *jwt.GinJWTMiddleware {
 			u := data.(*models.User)
 			// What we put in the JWT claims
 			return jwt.MapClaims{
-				"uuid":      u.UUID.String(),
 				"email":     u.Email,
 				"name":      u.Name,
 				"login":     u.Login,

@@ -191,7 +191,10 @@ func (m Members) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON interface method
 func (m *Members) UnmarshalJSON(b []byte) error {
 	var a []string = strings.Split(string(b), ",")
-	json.Unmarshal(b, &a)
+	err := json.Unmarshal(b, &a)
+	if err != nil {
+		return err
+	}
 	*m = Members(a)
 	return nil
 }

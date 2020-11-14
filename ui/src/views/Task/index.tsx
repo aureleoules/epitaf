@@ -60,7 +60,7 @@ export default function(props: Props) {
         setEdit(true);
         setMembers(task.members || []);
 
-        if(task.visibility !== "promotion" && task.visibility != "class") setDefaultPromotion();
+        if(task.visibility !== "promotion" && task.visibility !== "class") setDefaultPromotion();
         if(task.visibility === "promotion") {
             setDefaultRegion()
         }

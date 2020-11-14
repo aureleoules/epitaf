@@ -145,9 +145,6 @@ export default function(props: any) {
                                     {ta.visibility === "students" && <span className={styles.group + " " + styles.icon + " " + styles.students}>
                                         <UsersIcon/>
                                     </span>}
-                                    {/* <div className={styles.name}>
-                                        <span>{initials(ta.updated_by!)}</span>
-                                    </div> */}
                                 </div>
                             </Link>
                         ))}

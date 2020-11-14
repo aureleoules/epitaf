@@ -166,7 +166,7 @@ const (
 			subject=COALESCE(NULLIF(:subject,''), tasks.subject),
 			visibility=COALESCE(NULLIF(:visibility,''), tasks.visibility),
 			members=IF(visibility = 'students', COALESCE(NULLIF(:members,''), tasks.members), NULL),
-			content=COALESCE(NULLIF(:subject,''), tasks.subject),
+			content=COALESCE(NULLIF(:content,''), tasks.content),
 			due_date=COALESCE(NULLIF(:due_date,''), tasks.due_date),
 			semester=:semester,
 			region=:region,

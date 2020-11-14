@@ -41,6 +41,14 @@
     .classinfos {
         display: flex;
         justify-content: space-between;
+
+        &.promotion {
+            > div {
+                width: 49%;
+            }
+            margin-bottom: 15px!important;
+        }
+        
         > div {
             width: 32%;
         }

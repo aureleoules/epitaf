@@ -47,7 +47,7 @@ func editTaskHandler(c *gin.Context) {
 		ShortID:        task.ShortID,
 		UpdatedByLogin: u.Login,
 		Title:          t.Title,
-		Subject:        t.Title,
+		Subject:        t.Subject,
 		Content:        t.Content,
 		DueDate:        t.DueDate,
 	}
@@ -241,7 +241,7 @@ func createTaskHandler(c *gin.Context) {
 		}
 		if t.Visibility == models.PromotionVisibility {
 			task.Promotion = t.Promotion
-			task.Semester = u.Semester
+			task.Semester = t.Semester
 		}
 	}
 

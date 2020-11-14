@@ -35,7 +35,7 @@ export default function(props: Props) {
     const [title, setTitle] = useState<string>("");
     const [due_date, setDueDate] = useState<Date>(dayjs(new Date()).add(24, 'hour').toDate());
 
-    const [promotion, setPromotion] = useState<number>(new Date().getFullYear()+5);
+    const [promotion, setPromotion] = useState<number>(0);
     const [classroom, setClass] = useState<string>("");
     const [region, setRegion] = useState<string>("");
     const [semester, setSemester] = useState<string>("");
@@ -45,7 +45,7 @@ export default function(props: Props) {
 
     const [searchedUsers, setSearchedUsers] = useState<Array<User>>(new Array<User>());
 
-    const [visibility, setVisibility] = useState<string>("self");
+    const [visibility, setVisibility] = useState<string | "self" | "students" | "promotion" | "class">("self");
 
     function startEdit() {
         setContent(task.content!);
@@ -59,6 +59,19 @@ export default function(props: Props) {
         setSemester(task.semester!);
         setEdit(true);
         setMembers(task.members || []);
+
+        if(task.visibility !== "promotion" && task.visibility != "class") setDefaultPromotion();
+        if(task.visibility === "promotion") {
+            setDefaultRegion()
+        }
+    }
+
+    function setDefaultPromotion() {
+        updatePromotion(parseInt(Object.keys(classes!)[0]));
+    }
+
+    function setDefaultRegion() {
+        updateRegion(Object.keys(classes![promotion][semester])[0]);
     }
 
     function save() {
@@ -111,12 +124,8 @@ export default function(props: Props) {
     function fetchClasses() {
         Client.Classes.list().then(classes => {
             setClasses(classes);
-
-            setTimeout(() => {
-                const p = parseInt(Object.keys(classes!)[0]);
-                updatePromotion(p, classes);
-            }, 10);
-
+            const p = parseInt(Object.keys(classes!)[0]);
+            updatePromotion(p, classes);
         }).catch(err => {
             if(err) throw err;
         });
@@ -133,21 +142,19 @@ export default function(props: Props) {
         setSemester(s);
         const r = Object.keys(c![p][s])[0];
         setRegion(r);
-
         setClass(c![p][s][r][0]);
     }
 
     function updateSemester(s: string, c: IDictionary<any> = classes!) {
         setSemester(s);
-        const r = Object.keys(c![promotion][s])[0];
+        const r = Object.keys(c![promotion!!][s])[0];
         setRegion(r);
-
-        setClass(c![promotion][s][r][0]);
+        setClass(c![promotion!!][s][r][0]);
     }
 
     function updateRegion(r: string, c: IDictionary<any> = classes!) {
         setRegion(r);
-        setClass(c![promotion][semester][r][0]);
+        setClass(c![promotion!!][semester][r][0]);
     }
 
     function searchUser(q: string) {
@@ -201,7 +208,6 @@ export default function(props: Props) {
                     {task.content!}
                 </ReactMarkdown>
             </div>
-
             <div className={styles.columns}>
                 <div className={styles.column}>
                     <h3>{t('Due date')}</h3>
@@ -252,32 +258,35 @@ export default function(props: Props) {
                 </MuiPickersUtilsProvider>
                 
                 {(props.new || getUser().login === task.created_by_login) && <>
-                    <Select value={visibility} onChange={(e: any) => setVisibility(e.target.value)} title={t('Visibility')}>
+                    <Select value={visibility} onChange={(e: any) => {
+                            setVisibility(e.target.value); 
+                        }
+                        } title={t('Visibility')}>
                         <option value={'self'}>{t('Me')}</option>
                         <option value={'students'}>{t('Students')}</option>
                         <option value={'class'}>{t('Classe') + (!getUser().teacher ? ` (${getUser().class})` : "")}</option>
-                        {!getUser().teacher && <option value={'promotion'}>{t('Promotion') + ` (${getUser().promotion})`}</option>}
+                        <option value={'promotion'}>{t('Promotion') + (!getUser().teacher ? ` (${getUser().promotion})` : "")}</option>
                     </Select>
-                    {getUser().teacher && classes && <>
-                        <div className={styles.classinfos}>
+                    {getUser().teacher && classes && (visibility === "class" || visibility === "promotion") && <>
+                        <div className={[styles.classinfos, visibility === "promotion" ? styles.promotion : ""].join(" ")}>
                             <Select value={promotion} onChange={(e: any) => {
-                                updatePromotion(e.target.value);
+                                updatePromotion(parseInt(e.target.value));
                             }} title={t('Promotion')}>
                                 {Object.keys(classes!).map((r: string, i: number) => <option value={r}>{r}</option>)}
                             </Select>
-                            <Select disabled={!promotion} value={semester} onChange={(e: any) => {
+                            {promotion && <Select value={semester} onChange={(e: any) => {
                                 updateSemester(e.target.value);
                             }} title={t('Semester')}>
-                                {promotion && Object.keys(classes[promotion]!).map((s: string, i: number) => <option value={s}>{s}</option>)}
-                            </Select>
-                            <Select disabled={!semester || visibility === "promotion"} value={region} onChange={(e: any) => {
+                                {Object.keys(classes[promotion!]!).map((s: string, i: number) => <option value={s}>{s}</option>)}
+                            </Select>}
+                            {visibility === "class" &&  <Select value={region} onChange={(e: any) => {
                                 updateRegion(e.target.value);
                             }} title={t('Region')}>
-                                {((semester && visibility !== "promotion") && classes[promotion][semester]) ? (Object.keys(classes[promotion][semester]).map((r: string, i: number) => <option value={r}>{r}</option>)) : null}
-                            </Select>
+                                {(classes[promotion!][semester]) ? (Object.keys(classes[promotion!][semester]).map((r: string, i: number) => <option value={r}>{r}</option>)) : null}
+                            </Select>}
                         </div>
-                        {<Select value={classroom} onChange={(e: any) => setClass(e.target.value)} disabled={visibility === "promotion" || !region} title={t('Class')}>
-                            {(region && visibility !== "promotion") && classes[promotion][semester][region].map((r: string, i: number) => <option value={r}>{r === "" ? t('All') : r}</option>)}
+                        {(visibility === "class" && region) && <Select value={classroom} onChange={(e: any) => setClass(e.target.value)} title={t('Class')}>
+                            {classes[promotion!][semester][region].map((r: string, i: number) => <option value={r}>{r === "" ? t('All') : r}</option>)}
                         </Select>}
                     </>}
 

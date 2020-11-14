@@ -135,13 +135,13 @@ func deleteTaskHandler(c *gin.Context) {
 
 }
 func getTaskHandler(c *gin.Context) {
-	claims := jwt.ExtractClaims(c)
-	u, err := models.GetUser(claims["login"].(string))
-	if err != nil {
-		zap.S().Error(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
+	// claims := jwt.ExtractClaims(c)
+	// u, err := models.GetUser(claims["login"].(string))
+	// if err != nil {
+	// 	zap.S().Error(err)
+	// 	c.AbortWithStatus(http.StatusInternalServerError)
+	// 	return
+	// }
 
 	task, err := models.GetTask(c.Param("id"))
 	if err != nil {
@@ -151,7 +151,6 @@ func getTaskHandler(c *gin.Context) {
 	}
 
 	// TODO Check authorized
-	u = u
 
 	c.JSON(http.StatusOK, task)
 }

@@ -10,6 +10,7 @@ export type Task = base & {
     region?: string
     semester?: string
     global?: boolean
+    members?: Array<string>
     created_by?: string
     updated_by?: string
     due_date?: Date

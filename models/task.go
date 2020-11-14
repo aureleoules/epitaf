@@ -1,6 +1,8 @@
 package models
 
 import (
+	"database/sql/driver"
+	"encoding/json"
 	"errors"
 	"strings"
 	"time"
@@ -18,6 +20,7 @@ const (
 			
 			promotion VARCHAR(256) NOT NULL,
 			global BOOLEAN NOT NULL DEFAULT 0,
+			members VARCHAR(10000),
 			class VARCHAR(256) NOT NULL,
 			region VARCHAR(256) NOT NULL,
 			semester VARCHAR(256) NOT NULL,
@@ -39,9 +42,9 @@ const (
 
 	insertTaskQuery = `
 		INSERT INTO tasks 
-			(uuid, short_id, promotion, global, class, region, semester, title, subject, content, due_date, created_by_id, updated_by_id) 
+			(uuid, short_id, promotion, global, members, class, region, semester, title, subject, content, due_date, created_by_id, updated_by_id) 
 		VALUES 
-			(:uuid, :short_id, :promotion, :global, :class, :region, :semester, :title, :subject, :content, :due_date, :created_by_id, :updated_by_id) 
+			(:uuid, :short_id, :promotion, :global, :members, :class, :region, :semester, :title, :subject, :content, :due_date, :created_by_id, :updated_by_id) 
 		`
 	getTaskQuery = `
 		SELECT 
@@ -49,6 +52,7 @@ const (
 			tasks.short_id,
 			tasks.promotion,
 			tasks.global,
+			tasks.members,
 			tasks.class,
 			tasks.region,
 			tasks.semester,
@@ -76,6 +80,7 @@ const (
 			tasks.short_id,
 			tasks.promotion,
 			tasks.global,
+			tasks.members,
 			tasks.class,
 			tasks.title,
 			tasks.subject,
@@ -115,6 +120,7 @@ const (
 			tasks.short_id,
 			tasks.promotion,
 			tasks.global,
+			tasks.members,
 			tasks.class,
 			tasks.title,
 			tasks.subject,
@@ -145,6 +151,7 @@ const (
 		SET
 			title=:title,
 			subject=:subject,
+			members=:members,
 			content=:content,
 			updated_by_id=:updated_by_id,
 			due_date=:due_date,
@@ -160,6 +167,53 @@ const (
 	`
 )
 
+// Members string
+type Members []string
+
+// MarshalJSON interface method
+func (m Members) MarshalJSON() ([]byte, error) {
+	return json.Marshal([]string(m))
+}
+
+// UnmarshalJSON interface method
+func (m *Members) UnmarshalJSON(b []byte) error {
+	var a []string = strings.Split(string(b), ",")
+	json.Unmarshal(b, &a)
+	*m = Members(a)
+	return nil
+}
+
+// String method
+func (m Members) String() string {
+	l := ""
+	for i, s := range m {
+		l += string(s)
+		if i != len(m)-1 {
+			l += ","
+		}
+	}
+
+	return l
+}
+
+// Value of members
+func (m Members) Value() (driver.Value, error) {
+	return driver.Value(m.String()), nil
+}
+
+// Scan Members
+func (m *Members) Scan(src interface{}) error {
+	if src == nil {
+		return nil
+	}
+
+	var me Members
+	err := me.UnmarshalJSON(src.([]byte))
+	*m = me
+
+	return err
+}
+
 // Task truct
 type Task struct {
 	base
@@ -168,6 +222,7 @@ type Task struct {
 
 	Promotion int       `json:"promotion" db:"promotion"`
 	Global    bool      `json:"global" db:"global"`
+	Members   Members   `json:"members" db:"members"`
 	Class     string    `json:"class" db:"class"`
 	Region    string    `json:"region" db:"region"`
 	Semester  string    `json:"semester" db:"semester"`
@@ -185,6 +240,7 @@ type Task struct {
 
 // Validate task data
 func (t *Task) Validate() error {
+
 	if t.Title == "" {
 		return errors.New("title empty")
 	}
@@ -208,6 +264,10 @@ func (t *Task) Validate() error {
 		if t.Class == "" {
 			return errors.New("no class")
 		}
+	}
+
+	if t.Global && len(t.Members) > 0 {
+		return errors.New("cannot be global with members")
 	}
 
 	// Truncate minutes and seconds of due date

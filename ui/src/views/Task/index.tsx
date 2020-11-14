@@ -59,12 +59,14 @@ export default function(props: Props) {
         setRegion(task.region!);
         setSemester(task.semester!);
         setEdit(true);
+        setMembers(task.members!);
     }
 
     function save() {
         const ta: Task = {
             content,
             subject,
+            members,
             title,
             due_date,
             global,

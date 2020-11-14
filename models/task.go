@@ -19,7 +19,7 @@ const (
 			
 			promotion VARCHAR(256) NOT NULL,
 			visibility ENUM('self', 'promotion', 'class', 'students') NOT NULL DEFAULT 'self',
-			members VARCHAR(10000),
+			members VARCHAR(10000) DEFAULT NULL,
 			class VARCHAR(256) NOT NULL,
 			region VARCHAR(256) NOT NULL,
 			semester VARCHAR(256) NOT NULL,
@@ -191,10 +191,6 @@ func (m Members) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON interface method
 func (m *Members) UnmarshalJSON(b []byte) error {
 	var a []string = strings.Split(string(b), ",")
-	err := json.Unmarshal(b, &a)
-	if err != nil {
-		return err
-	}
 	*m = Members(a)
 	return nil
 }

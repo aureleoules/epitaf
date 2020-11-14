@@ -26,7 +26,7 @@ const (
 			
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
-			PRIMARY KEY (login),
+			PRIMARY KEY (login)
 		);
 	`
 

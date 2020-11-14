@@ -324,7 +324,7 @@ export default function(props: Props) {
                 
 
                 <div className={styles.actions + " " + (props.new ? styles.new : "")}>
-                    <Button className={styles.save} disabled={!subject || !title || !content} onClick={save} title={props.new ? t("Create"): t("Save")}/>
+                    <Button className={styles.save} disabled={!subject || !title || !content || (members.length < 1 && visibility === "students")} onClick={save} title={props.new ? t("Create"): t("Save")}/>
                     {!props.new && <Button color="red" onClick={deleteTask} title={t('Delete')}/>}
                 </div>
             </div>}

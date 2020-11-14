@@ -10,6 +10,7 @@ import (
 	"github.com/aureleoules/epitaf/db"
 	"github.com/aureleoules/epitaf/utils"
 	"github.com/teris-io/shortid"
+	"go.uber.org/zap"
 )
 
 const (
@@ -190,7 +191,12 @@ func (m Members) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON interface method
 func (m *Members) UnmarshalJSON(b []byte) error {
-	var a []string = strings.Split(string(b), ",")
+	var a []string
+	err := json.Unmarshal(b, &a)
+	if err != nil {
+		zap.S().Error(err)
+		return err
+	}
 	*m = Members(a)
 	return nil
 }
@@ -223,11 +229,8 @@ func (m *Members) Scan(src interface{}) error {
 		return nil
 	}
 
-	var me Members
-	err := me.UnmarshalJSON(src.([]byte))
-	*m = me
-
-	return err
+	*m = Members(strings.Split(string(src.([]byte)), ","))
+	return nil
 }
 
 // Visibility enum

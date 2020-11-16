@@ -50,6 +50,11 @@ func editTaskHandler(c *gin.Context) {
 		Subject:        t.Subject,
 		Content:        t.Content,
 		DueDate:        t.DueDate,
+		Region:         t.Region,
+		Promotion:      t.Promotion,
+		Class:          t.Class,
+		Semester:       t.Semester,
+		Members:        t.Members,
 	}
 
 	// Allow only the author of a task to change visibility (or teacher)

@@ -128,7 +128,7 @@ const (
 			AND due_date < ?;
 	`
 
-	getAllTasksRangeQuery = `
+	getTeacherTasksRangeQuery = `
 		SELECT
 			tasks.short_id,
 			tasks.promotion,
@@ -156,7 +156,8 @@ const (
 			updated_user.login = tasks.updated_by_login
 		WHERE 
 			due_date > ? 
-			AND due_date < ?;
+			AND due_date < ?
+			AND (tasks.visibility = 'promotion' OR tasks.visibility = 'class');
 	`
 
 	updateTaskQuery = `
@@ -410,8 +411,8 @@ func GetTasksRange(user User, start, end time.Time) ([]Task, error) {
 	return tasks, err
 }
 
-// GetAllTasksRange returns list of tasks in a time range (for teachers)
-func GetAllTasksRange(start, end time.Time) ([]Task, error) {
+// GetTeacherTasksRange returns list of tasks in a time range (for teachers)
+func GetTeacherTasksRange(start, end time.Time) ([]Task, error) {
 	tx, err := db.DB.Beginx()
 	if err != nil {
 		return nil, err
@@ -420,6 +421,6 @@ func GetAllTasksRange(start, end time.Time) ([]Task, error) {
 	defer checkErr(tx, err)
 
 	var tasks []Task
-	err = tx.Select(&tasks, getAllTasksRangeQuery, start, end)
+	err = tx.Select(&tasks, getTeacherTasksRangeQuery, start, end)
 	return tasks, err
 }

@@ -38,6 +38,27 @@
 
     }
     
+    p.sharedwith {
+        margin-bottom: 0;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+
+        span.member {
+            &:first-child {
+                margin-left: 5px;
+            }
+            
+            border-radius: 8px;
+            background-color: #572ce8;
+            color: white;
+            padding: 3px 6px;
+            font-size: 12px;
+            text-align: center;
+            margin: 2px 2px;
+        }
+    }
+    
     .classinfos {
         display: flex;
         justify-content: space-between;
@@ -88,10 +109,10 @@
             }
         }
         .save {
-            width: 80%;
+            width: 100%;
         }
-        :last-child {
-            margin-left: auto;
+        .delete {
+            margin-left: 10px;
         }
     }
 

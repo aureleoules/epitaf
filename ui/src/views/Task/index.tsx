@@ -47,6 +47,8 @@ export default function(props: Props) {
 
     const [visibility, setVisibility] = useState<string | "self" | "students" | "promotion" | "class">("self");
 
+    const searchedUsersFilter = (el: User) => !members.includes(el.login!) && el.login !== getUser().login!;
+
     function startEdit() {
         setContent(task.content!);
         setSubject(task.subject!);
@@ -171,7 +173,7 @@ export default function(props: Props) {
     const tagRef = useRef(null);
     function onKeyEnter(e: any) {
         if(e.key === "Enter") {
-            const filtered = searchedUsers.filter((el) => !members.includes(el.login!));
+            const filtered = searchedUsers.filter(searchedUsersFilter);
             if(!filtered || filtered.length < 1) return;
             addMember(filtered[0].login!);
         }
@@ -187,7 +189,7 @@ export default function(props: Props) {
             setSearchedUsers([]);
         }, 1);
     }
-
+    
     return (
         <div className={styles.task}>
             {(!edit && !props.new) && <><div className={styles.header}>
@@ -228,6 +230,9 @@ export default function(props: Props) {
                     </p>
                 </div>
             </div>
+            {task.visibility === "students" && <p className={styles.sharedwith}>{t('Shared with')} {task.members?.map((m, i) => (
+                <span className={styles.member}>{m}</span>
+            ))}</p>}
             </>}
 
             {(edit || props.new) && <div className={styles.edit}>
@@ -311,7 +316,7 @@ export default function(props: Props) {
                                 onChange={members => setMembers(members)}
                             />
                             {searchedUsers.length > 0 && <div className={styles.users}>
-                                {searchedUsers.filter((el) => !members.includes(el.login!)).map((u, i) => (
+                                {searchedUsers.filter(searchedUsersFilter).map((u, i) => (
                                     <div onClick={() => {
                                         addMember(u.login!)
                                     }} className={styles.user}>
@@ -325,7 +330,7 @@ export default function(props: Props) {
 
                 <div className={styles.actions + " " + (props.new ? styles.new : "")}>
                     <Button className={styles.save} disabled={!subject || !title || !content || (members.length < 1 && visibility === "students")} onClick={save} title={props.new ? t("Create"): t("Save")}/>
-                    {!props.new && <Button color="red" onClick={deleteTask} title={t('Delete')}/>}
+                    {(!props.new && (getUser().teacher || task.created_by_login === getUser().login)) && <Button className={styles.delete} color="red" onClick={deleteTask} title={t('Delete')}/>}
                 </div>
             </div>}
         </div>

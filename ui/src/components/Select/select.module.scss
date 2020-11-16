@@ -7,11 +7,13 @@
     }
 
     select {
+        background-color: var(--input-background);
+        color: var(--text);
         border-radius: 8px;
         padding: 5px 10px;
         width: auto;
         min-height: 20px;
-        border: solid 2px #572ce8;
+        border: solid 2px var(--primary);
         outline: none;
     }
 }

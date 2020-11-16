@@ -117,7 +117,7 @@ export default function(props: any) {
             </div>
 
             {!fetched && <div style={{position: "absolute", left: "40%", top: "45%"}}>
-                <RotateSpinner size={50} color="#572ce8"/>
+                <RotateSpinner size={50} color="var(--primary)"/>
             </div>}
 
             {(fetched && tasks.length === 0) && <h4>{t('Nothing to do.')}</h4>}

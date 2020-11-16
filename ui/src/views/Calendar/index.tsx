@@ -37,7 +37,7 @@ export default function(props: Props) {
             {(!calendar?.days && fetched) && <p>{t('Unavailable')}</p>}
             
             {!fetched && <div style={{position: "absolute", left: "40%", top: "45%"}}>
-                <RotateSpinner size={50} color="#572ce8"/>
+                <RotateSpinner size={50} color="var(--primary)"/>
             </div>}
             {calendar?.days && <>
                 

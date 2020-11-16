@@ -17,6 +17,9 @@
             margin-left: 20px;
             width: 50px;
             height: auto;
+            path {
+                color: var(--text);
+            }
         }
 
         button {
@@ -50,7 +53,7 @@
             }
             
             border-radius: 8px;
-            background-color: #572ce8;
+            background-color: var(--primary);
             color: white;
             padding: 3px 6px;
             font-size: 12px;
@@ -123,18 +126,16 @@
         display: flex;
         p {
             margin: 0;
-            color: #303742;
         }
         p.subject {
             font-weight: bold;
-            color: #572ce8;
+            color: var(--primary);
             text-transform: uppercase;
         }
         p.author {
             margin-left: 45px;
             span {
                 font-weight: bold;
-                color: #332f2f;
             }
         }
 
@@ -164,7 +165,6 @@
 
             display: flex;
             align-items: center;
-            color: #332f2f;
         }
 
         @media screen and (max-width: 550px) {
@@ -189,12 +189,8 @@
         max-height: 320px;
         overflow-y: auto;
 
-        @media screen and(max-width: 900px) {
-            // width: 50%;
-        }
-
         a {
-            color: #572ce8;
+            color: var(--primary);
         }
     }
 
@@ -224,7 +220,7 @@
             p {
                 border-radius: 4px;
                 margin: 0;
-                background-color: #572ce8;
+                background-color: var(--primary);
                 color: white;
                 padding: 5px 15px;
             }

@@ -35,7 +35,7 @@
             border-radius: 20px;
             height: 65px;
             width: 65px;
-            background-color: #f6f7fb;
+            background-color: var(--subject-background);
 
             svg {
                 width: 50%;
@@ -61,7 +61,7 @@
             }
             p {
                 margin-top: 5px;
-                color: #7c7f9b;
+                color: var(--text-secondary);
                 margin-bottom: 0;
             }
 
@@ -79,7 +79,7 @@
             
             .group {
                 border-radius: 8px;
-                background-color: #572ce8;
+                background-color: var(--primary);
                 color: white;
                 padding: 6px;
                 font-size: 12px;

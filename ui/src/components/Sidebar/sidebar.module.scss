@@ -3,12 +3,44 @@
     position: fixed;
     height: 100vh;
 
+    .languages {
+        display: flex;
+        align-items: center;
+        justify-self: center;
+        margin-left: 10px;
+        button.c {
+            margin-right: 5px;
+
+            svg {
+                width: 30px;
+            }
+        }
+    }
+    
+    
+    button.c {
+        border: none;
+        outline: none;
+        background: none;
+        cursor: pointer;
+        color: var(--primary);
+        display: flex;
+        padding: 0;
+        margin: 0;
+    }
+
     .logo {
+        display: flex;
+        align-items: center;
+        margin-top: 35px;
+
+        
         p {
             font-weight: bold;
-            color: #4f516a;
+            color: var(--header);
             font-size: 2em;
-            margin-bottom: 0;
+            margin: 0;
+            margin-right: 25px;
         }
     }
 
@@ -103,7 +135,7 @@
                 margin: 0;
             }
             p {
-                color: #7c7f9b;
+                color: var(--text-secondary);
                 margin: 0;
                 margin-top: 4px;
             }
@@ -144,17 +176,17 @@
                 font-size: 1.1em;
 
                 &.active {
-                    background-color: #f6f7fb;
+                    background-color: var(--menu-active);
 
                     a, svg {
-                        color: #572ce8;
-                        font-weight: bold;
+                        color: var(--menu-active-color);
+                        font-weight: var(--menu-active-boldness);
                     }
                 }
 
                 svg {
                     margin-bottom: 2px;
-                    color: #707392;
+                    color: var(--menu-inactive);
                     width: 20px!important;
                     height: auto!important;
                     margin-right: 25px;
@@ -165,7 +197,7 @@
                     align-items: center;
                     text-decoration: none;
                     padding: 10px 15px;
-                    color: #707392;
+                    color: var(--menu-inactive);
                     width: 100%;
                 }
             }

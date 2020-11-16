@@ -10,9 +10,11 @@ import Callback from './routes/Callback';
 import SignIn from './routes/SignIn';
 import Sidebar from './components/Sidebar';
 import Profile from './routes/Profile';
-import { isLoggedIn, logout, parseJwt } from './utils';
+import { getTheme, isLoggedIn, logout, parseJwt } from './utils';
 
 export default function(props: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_, y] = React.useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem("jwt");
@@ -31,14 +33,19 @@ export default function(props: any) {
             localStorage.setItem("redirect_url", "");
             history.push(redirect_url);
         }
+
+        window.addEventListener("render", () => {
+            console.log("render");
+            y(x => !x);
+        });
+        
     }, []);
     
     return (
         <Router history={history}>
-            <div className="page">
+            <div className={["page", "theme", "theme--" + getTheme()].join(" ")}>
                 {isLoggedIn() && <Sidebar/>}
                 <Switch>
-
                     {isLoggedIn() && <>
                         <Route exact path="/" component={Home}/>
                         <Route exact path="/tasks" component={Tasks}/>

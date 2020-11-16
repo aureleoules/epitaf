@@ -2,13 +2,14 @@
     display: flex;
     flex-direction: column;
     input, textarea {
+        background-color: var(--input-background);
         border: none;
         border-radius: 8px;
         padding: 5px 10px;
         width: auto;
         min-height: 20px;
-    
-        border: solid 2px #572ce8;
+        color: var(--text);
+        border: solid 2px var(--primary);
         outline: none;
     
         resize: vertical;

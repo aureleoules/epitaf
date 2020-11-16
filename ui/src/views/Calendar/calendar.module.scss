@@ -36,13 +36,15 @@
                 height: 55px;
                 width: 4px;
                 border-radius: 8px;
-                background-color: #572ce8;
+                background-color: var(--primary);
                 display: block;
+
+                filter: brightness(var(--subject-separator-brightness));
             }
 
             .date {
                 p {
-                    color: #575757;
+                    color: var(--text-secondary);
                     margin: 0;
                     font-size: 1em;
                     font-weight: 500;

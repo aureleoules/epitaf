@@ -71,3 +71,19 @@ export const getSubjects = (all?: boolean): Array<Subject> => {
 
     return subjects.filter(s => s.classes.includes(type));
 }
+
+export const getTheme = (): string => {
+    return localStorage.getItem("theme") === "dark" ? "dark": "light";
+}
+
+export const getLanguage = (): string => {
+    return localStorage.getItem("language")!;
+}
+
+export const setTheme = (theme: string) => {
+    localStorage.setItem("theme", theme);
+}
+
+export const setLanguage = (lang: string) => {
+    localStorage.setItem("language", lang);
+}

@@ -5,4 +5,7 @@
     margin: 0;
     padding-left: 0!important;
     
+    svg path {
+        fill: var(--text);
+    }
 }

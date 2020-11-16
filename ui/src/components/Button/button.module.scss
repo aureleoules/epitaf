@@ -22,7 +22,7 @@
     }
     
     &.primary {
-        background-color: #572ce8;
+        background-color: var(--primary);
     } 
 
     &.green {
@@ -30,7 +30,7 @@
     }
 
     &.red {
-        background-color: #e74c3c;
+        background-color: var(--danger);
     }
 
     &.large {

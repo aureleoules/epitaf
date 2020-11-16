@@ -1,0 +1,47 @@
+$themes: (
+    light: (
+		'background': #fff,
+		'primary': #572ce8,
+		'text': #303742,
+		'text-secondary': #7c7f9b,
+		'header': #1e272e,
+		'menu-inactive': #707392,
+		'menu-active': #f6f7fb,
+		'menu-active-color': var(--primary),
+		'menu-active-boldness': bold,
+		'separator': #e6e6e6,
+		'modal-background': white,
+		'input-background': white,
+		'login-background': var(--primary),
+		'danger': #e74c3c,
+		'subject-separator-brightness': 1,
+		'subject-background': #f6f7fb
+
+    ),
+    dark: (
+		'background': #181a1b,
+		'primary': #572ce8,
+		'text': white,
+		'text-secondary': #c9c9c9,
+		'header': white,
+		'menu-inactive': #a2a2a2,
+		'menu-active': var(--primary),
+		'menu-active-color': white,
+		'menu-active-boldness': normal,
+		'separator': #2a2a2a,
+		'modal-background': #181a1b,
+		'input-background': #1d1f20,
+		'login-background': var(--background),
+		'danger': #b53a2e,
+		'subject-separator-brightness': 1.35,
+		'subject-background': #3a3a3a
+    )
+);
+
+@each $name, $map in $themes {
+    .theme--#{$name} {
+        @each $key, $value in $map {
+            --#{$key}: #{$value};
+        }
+    }
+} 

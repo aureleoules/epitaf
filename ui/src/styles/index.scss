@@ -1,6 +1,6 @@
 @import "fonts";
-@import "colors";
 @import "reset";
+@import "themes";
 
 html, body,#root {
     min-height: 100vh;
@@ -13,6 +13,16 @@ body {
 .page {
     min-height: 100vh;
     display: flex;
+    background-color: var(--background);
+
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--header);
+}
+
+p {
+    color: var(--text);
 }
 
 .route {
@@ -28,9 +38,13 @@ body {
 }
 
 
+.MuiFormControl-root.MuiTextField-root > * {
+    color: var(--text);
+}
+
 .react-tagsinput {
     background-color: #fff;
-    border: 2px solid #572ce8!important;
+    border: 2px solid var(--primary)!important;
     overflow: hidden;
     padding-left: 5px;
     border-radius: 8px;
@@ -41,7 +55,7 @@ body {
     }
     
     .react-tagsinput-tag {
-        background-color: #572ce8;
+        background-color: var(--primary);
         border-radius: 2px;
         color: white;
         border: none;

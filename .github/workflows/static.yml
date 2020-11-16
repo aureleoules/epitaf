@@ -1,5 +1,5 @@
 name: static check
-on: push
+on: [push, pull_request]
 
 jobs:
   imports:

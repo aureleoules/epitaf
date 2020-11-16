@@ -184,7 +184,7 @@
     }
     
     .content {
-        color: #303742;
+        color: var(--text);
         margin-top: 10px;
         max-height: 320px;
         overflow-y: auto;

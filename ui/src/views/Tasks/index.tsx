@@ -61,7 +61,9 @@ export default function(props: any) {
     
     function closeModal() {
         setOpen(false);
-        history.push(`/${history.location.pathname.split("/")[1]}`);
+        let pathname = history.location.pathname.split("/")[1];
+        if(pathname === 't') pathname = 'tasks';
+        history.push(`/${pathname}`);
         setCreateTask(false);
     }
 

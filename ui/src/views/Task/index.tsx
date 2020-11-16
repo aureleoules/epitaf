@@ -230,9 +230,11 @@ export default function(props: Props) {
                     </p>
                 </div>
             </div>
-            {task.visibility === "students" && <p className={styles.sharedwith}>{t('Shared with')} {task.members?.map((m, i) => (
+            {task.visibility === "students" && <p className={styles.sharedwith}>{t('Shared with')} {task.members?.filter(u => u !== getUser().login).map((m, i) => (
                 <span className={styles.member}>{m}</span>
-            ))}</p>}
+            ))} 
+            {(getUser().login !== task.created_by_login) && <span className={styles.member}>{task.created_by_login}</span>}
+            </p>}
             </>}
 
             {(edit || props.new) && <div className={styles.edit}>

@@ -108,7 +108,7 @@ export default function(props: Props) {
     }
 
     function copyURL() {
-        copy("https://" + window.location.host + "/tasks/" + task.short_id);   
+        copy("https://" + window.location.host + "/t/" + task.short_id);   
     }
 
     function deleteTask() {

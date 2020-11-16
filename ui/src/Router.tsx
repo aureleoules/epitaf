@@ -43,6 +43,7 @@ export default function(props: any) {
                         <Route exact path="/" component={Home}/>
                         <Route exact path="/tasks" component={Tasks}/>
                         <Route exact path="/tasks/:id" component={Tasks}/>
+                        <Route exact path="/t/:id" component={Tasks}/>
                         <Route exact path="/calendar" component={Calendar}/>
                         <Route exact path="/me" component={Profile}/>
 

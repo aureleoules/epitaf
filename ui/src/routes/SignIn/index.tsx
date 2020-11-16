@@ -41,7 +41,7 @@ export default function(props: any) {
                             <AureleoulesLogo style={{width: 32}} />
                         </a>
                     </div>
-                    <p>{t('Made with')} <Heart/> {t('by')} Aurèle</p>
+                    <p>{t('Made with')} <Heart/> {t('by')} 🧱</p>
                 </div>
             </div>
         </div>

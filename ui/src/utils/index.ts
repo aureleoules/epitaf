@@ -2,6 +2,10 @@ import { User } from "../types/user";
 import subjects from '../assets/data/subjects.json';
 import { Subject } from "../types/subject";
 
+import frLocale from 'dayjs/locale/fr';
+import enLocale from 'dayjs/locale/en';
+import dayjs from "dayjs";
+
 export const getQueryVariable = (variable: string) => {
     const query = window.location.search.substring(1);
     const vars = query.split('&');
@@ -86,4 +90,9 @@ export const setTheme = (theme: string) => {
 
 export const setLanguage = (lang: string) => {
     localStorage.setItem("language", lang);
+    if(lang === "fr-FR") {
+        dayjs.locale(frLocale);
+    } else {
+        dayjs.locale(enLocale);
+    }
 }

@@ -185,6 +185,16 @@ const (
 // Members string
 type Members []string
 
+// Includes checks if s is included in slice
+func (m Members) Includes(s string) bool {
+	for _, a := range m {
+		if a == s {
+			return true
+		}
+	}
+	return false
+}
+
 // MarshalJSON interface method
 func (m Members) MarshalJSON() ([]byte, error) {
 	return json.Marshal([]string(m))

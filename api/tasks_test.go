@@ -34,11 +34,12 @@ func Test_deleteTaskHandler(t *testing.T) {
 	refreshDB()
 
 	u, token := insertTestUser2024C1()
-	_, token2 := insertTestUser2024C2()
+	c1_2024, tokenc1 := insertTestUser2024C1_2()
+	c2_2025, token2 := insertTestUser2024C2()
 	_, token3 := insertTestUser2025C1()
-	_, tokenTeacher := insertTestTeacher()
+	teacher, tokenTeacher := insertTestTeacher()
 
-	// Insert task
+	/* Promotion task */
 	task := models.Task{
 		Subject:        "mathematics",
 		Content:        "This is a test",
@@ -47,6 +48,8 @@ func Test_deleteTaskHandler(t *testing.T) {
 		CreatedByLogin: u.Login,
 		UpdatedByLogin: u.Login,
 		Title:          "Thing to do",
+		Promotion:      u.Promotion,
+		Semester:       u.Semester,
 	}
 	task.Insert()
 
@@ -76,7 +79,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 		Status(http.StatusNotFound).
 		End()
 
-	// Check unauthorized deletion from other user
+	// Other class cannot delete
 	apitest.New().
 		Handler(createRouter()).
 		Delete("/api/tasks/"+task.ShortID).
@@ -85,7 +88,25 @@ func Test_deleteTaskHandler(t *testing.T) {
 		Status(http.StatusUnauthorized).
 		End()
 
-	// Check ok delete
+	// Other promo cannot delete
+	apitest.New().
+		Handler(createRouter()).
+		Delete("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token3).
+		Expect(t).
+		Status(http.StatusUnauthorized).
+		End()
+
+	// Other class member cannot delete
+	apitest.New().
+		Handler(createRouter()).
+		Delete("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+tokenc1).
+		Expect(t).
+		Status(http.StatusUnauthorized).
+		End()
+
+	// User can delete
 	apitest.New().
 		Handler(createRouter()).
 		Delete("/api/tasks/"+task.ShortID).
@@ -106,9 +127,37 @@ func Test_deleteTaskHandler(t *testing.T) {
 		Status(http.StatusOK).
 		End()
 
+	// Should not delete after delete
+	apitest.New().
+		Handler(createRouter()).
+		Delete("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+tokenTeacher).
+		Expect(t).
+		Status(http.StatusNotFound).
+		End()
+
+	/* Self task */
+	task = models.Task{
+		Subject:        "mathematics",
+		Content:        "This is a test",
+		DueDate:        utils.TruncateDate(time.Now().Add(time.Hour * 72)),
+		Visibility:     models.SelfVisibility,
+		CreatedByLogin: u.Login,
+		UpdatedByLogin: u.Login,
+		Title:          "Thing to do",
+	}
 	task.Insert()
 
-	// Check ok delete from teacher
+	// Other class cannot delete
+	apitest.New().
+		Handler(createRouter()).
+		Delete("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token2).
+		Expect(t).
+		Status(http.StatusUnauthorized).
+		End()
+
+	// Other promo cannot delete
 	apitest.New().
 		Handler(createRouter()).
 		Delete("/api/tasks/"+task.ShortID).
@@ -116,23 +165,313 @@ func Test_deleteTaskHandler(t *testing.T) {
 		Expect(t).
 		Status(http.StatusUnauthorized).
 		End()
+
+	// Teacher cannot delete
+	apitest.New().
+		Handler(createRouter()).
+		Delete("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+tokenTeacher).
+		Expect(t).
+		Status(http.StatusUnauthorized).
+		End()
+
+	// Other class member cannot delete
+	apitest.New().
+		Handler(createRouter()).
+		Delete("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+tokenc1).
+		Expect(t).
+		Status(http.StatusUnauthorized).
+		End()
+
+	// User can delete
+	apitest.New().
+		Handler(createRouter()).
+		Delete("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token).
+		Expect(t).
+		Status(http.StatusOK).
+		End()
+
+	/* Class task */
+	task = models.Task{
+		Subject:        "mathematics",
+		Content:        "This is a test",
+		DueDate:        utils.TruncateDate(time.Now().Add(time.Hour * 72)),
+		Visibility:     models.ClassVisibility,
+		CreatedByLogin: u.Login,
+		UpdatedByLogin: u.Login,
+		Title:          "Thing to do",
+		Class:          u.Class,
+		Promotion:      u.Promotion,
+		Semester:       u.Semester,
+		Region:         u.Region,
+	}
+	task.Insert()
+
+	// Other class cannot delete
+	apitest.New().
+		Handler(createRouter()).
+		Delete("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token2).
+		Expect(t).
+		Status(http.StatusUnauthorized).
+		End()
+
+	// Other promo cannot delete
+	apitest.New().
+		Handler(createRouter()).
+		Delete("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token3).
+		Expect(t).
+		Status(http.StatusUnauthorized).
+		End()
+
+	// Same class member cannot delete
+	apitest.New().
+		Handler(createRouter()).
+		Delete("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+tokenc1).
+		Expect(t).
+		Status(http.StatusUnauthorized).
+		End()
+
+	// Teacher can delete
+	apitest.New().
+		Handler(createRouter()).
+		Delete("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+tokenTeacher).
+		Expect(t).
+		Status(http.StatusOK).
+		End()
+	task.Insert()
+
+	// Author can delete
+	apitest.New().
+		Handler(createRouter()).
+		Delete("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token).
+		Expect(t).
+		Status(http.StatusOK).
+		End()
+
+	/* Students task */
+	task = models.Task{
+		Subject:        "mathematics",
+		Content:        "This is a test",
+		DueDate:        utils.TruncateDate(time.Now().Add(time.Hour * 72)),
+		Visibility:     models.StudentsVisibility,
+		CreatedByLogin: u.Login,
+		UpdatedByLogin: u.Login,
+		Title:          "Thing to do",
+		Members:        []string{c1_2024.Login, c2_2025.Login},
+	}
+	task.Insert()
+
+	// Other class cannot delete
+	apitest.New().
+		Handler(createRouter()).
+		Delete("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token2).
+		Expect(t).
+		Status(http.StatusUnauthorized).
+		End()
+
+	// Other promo cannot delete
+	apitest.New().
+		Handler(createRouter()).
+		Delete("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token3).
+		Expect(t).
+		Status(http.StatusUnauthorized).
+		End()
+
+	// Same class member cannot delete
+	apitest.New().
+		Handler(createRouter()).
+		Delete("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+tokenc1).
+		Expect(t).
+		Status(http.StatusUnauthorized).
+		End()
+
+	// Teacher cannot delete
+	apitest.New().
+		Handler(createRouter()).
+		Delete("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+tokenTeacher).
+		Expect(t).
+		Status(http.StatusUnauthorized).
+		End()
+	task.Insert()
+
+	// Author can delete
+	apitest.New().
+		Handler(createRouter()).
+		Delete("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token).
+		Expect(t).
+		Status(http.StatusOK).
+		End()
+
+	/* Students task with teacher */
+	task = models.Task{
+		Subject:        "mathematics",
+		Content:        "This is a test",
+		DueDate:        utils.TruncateDate(time.Now().Add(time.Hour * 72)),
+		Visibility:     models.StudentsVisibility,
+		CreatedByLogin: u.Login,
+		UpdatedByLogin: u.Login,
+		Title:          "Thing to do",
+		Members:        []string{c1_2024.Login, c2_2025.Login, teacher.Login},
+	}
+	task.Insert()
+
+	// Teacher cannot delete
+	apitest.New().
+		Handler(createRouter()).
+		Delete("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+tokenTeacher).
+		Expect(t).
+		Status(http.StatusUnauthorized).
+		End()
+
 }
 
 func Test_getTaskHandler(t *testing.T) {
-	type args struct {
-		c *gin.Context
+	refreshDB()
+
+	u, token := insertTestUser2024C1()
+	_, token2 := insertTestUser2024C2()
+	_, token3 := insertTestUser2025C1()
+	_, tokenTeacher := insertTestTeacher()
+
+	// Insert task
+	task := models.Task{
+		Subject:        "mathematics",
+		Content:        "This is a test",
+		DueDate:        utils.TruncateDate(time.Now().Add(time.Hour * 72)),
+		Visibility:     models.PromotionVisibility,
+		CreatedByLogin: u.Login,
+		UpdatedByLogin: u.Login,
+		Title:          "Thing to do",
+		Promotion:      u.Promotion,
+		Semester:       u.Semester,
 	}
-	tests := []struct {
-		name string
-		args args
-	}{
-		// TODO: Add test cases.
+	task.Insert()
+
+	// Check unauthorized
+	apitest.New().
+		Handler(createRouter()).
+		Get("/api/tasks/" + task.ShortID).
+		Expect(t).
+		Status(http.StatusUnauthorized).
+		End()
+
+	// Check not found
+	apitest.New().
+		Handler(createRouter()).
+		Get("/api/tasks/1").
+		Header("Authorization", "Bearer "+token).
+		Expect(t).
+		Status(http.StatusNotFound).
+		End()
+	apitest.New().
+		Handler(createRouter()).
+		Get("/api/tasks/1234").
+		Header("Authorization", "Bearer "+token).
+		Expect(t).
+		Status(http.StatusNotFound).
+		End()
+
+	r := apitest.New().
+		Handler(createRouter()).
+		Get("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token).
+		Expect(t).
+		Status(http.StatusOK).
+		End()
+
+	var result models.Task
+	r.JSON(&result)
+
+	assert.Equal(t, task.Subject, result.Subject)
+	assert.Equal(t, task.Title, result.Title)
+	assert.Equal(t, task.Content, result.Content)
+	assert.Equal(t, task.DueDate.Unix(), result.DueDate.Unix())
+	assert.Equal(t, u.Login, result.CreatedByLogin)
+	assert.Equal(t, u.Login, result.UpdatedByLogin)
+	assert.Equal(t, task.Visibility, result.Visibility)
+	assert.Equal(t, u.Semester, result.Semester)
+	assert.Equal(t, u.Promotion, result.Promotion)
+
+	apitest.New().
+		Handler(createRouter()).
+		Get("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token2).
+		Expect(t).
+		Status(http.StatusOK).
+		End()
+
+	apitest.New().
+		Handler(createRouter()).
+		Get("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token3).
+		Expect(t).
+		Status(http.StatusNotFound).
+		End()
+
+	apitest.New().
+		Handler(createRouter()).
+		Get("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+tokenTeacher).
+		Expect(t).
+		Status(http.StatusOK).
+		End()
+
+	// Insert task
+	task = models.Task{
+		Subject:        "mathematics",
+		Content:        "This is a test",
+		DueDate:        utils.TruncateDate(time.Now().Add(time.Hour * 72)),
+		Visibility:     models.SelfVisibility,
+		CreatedByLogin: u.Login,
+		UpdatedByLogin: u.Login,
+		Title:          "Thing to do",
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			getTaskHandler(tt.args.c)
-		})
-	}
+	task.Insert()
+
+	apitest.New().
+		Handler(createRouter()).
+		Get("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token).
+		Expect(t).
+		Status(http.StatusOK).
+		End()
+
+	apitest.New().
+		Handler(createRouter()).
+		Get("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token2).
+		Expect(t).
+		Status(http.StatusNotFound).
+		End()
+
+	apitest.New().
+		Handler(createRouter()).
+		Get("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token3).
+		Expect(t).
+		Status(http.StatusNotFound).
+		End()
+
+	apitest.New().
+		Handler(createRouter()).
+		Get("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+tokenTeacher).
+		Expect(t).
+		Status(http.StatusNotFound).
+		End()
 }
 
 func Test_getTasksHandler(t *testing.T) {

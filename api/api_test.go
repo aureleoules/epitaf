@@ -42,6 +42,23 @@ func insertTestUser2024C1() (models.User, string) {
 	return u, token
 }
 
+func insertTestUser2024C1_2() (models.User, string) {
+	u := models.User{
+		Name:      "Test C1_2",
+		Login:     "test_user_2024_C1_2",
+		Class:     "C1",
+		Email:     "test_user_2024_C1_2@epita.fr",
+		Promotion: 2024,
+		Region:    "Paris",
+		Semester:  "S3",
+		Teacher:   false,
+	}
+	u.Insert()
+
+	token, _, _ := AuthMiddleware().TokenGenerator(&u)
+	return u, token
+}
+
 func insertTestUser2024C2() (models.User, string) {
 	u := models.User{
 		Name:      "Test C2",

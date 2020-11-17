@@ -123,30 +123,31 @@ func deleteTaskHandler(c *gin.Context) {
 		return
 	}
 
-	// Only author can delete task (or teacher)
-	if task.CreatedByLogin != u.Login && !u.Teacher {
-		c.AbortWithStatus(http.StatusUnauthorized)
+	// Only author can delete, or teacher is task is promo or class
+	if task.CreatedByLogin == u.Login || ((task.Visibility == models.ClassVisibility || task.Visibility == models.PromotionVisibility) && u.Teacher) {
+		err = models.DeleteTask(task.ShortID)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+
+		zap.S().Info("User ", u.Name, " deleted task ", task.ShortID)
+		c.Status(http.StatusOK)
 		return
 	}
 
-	err = models.DeleteTask(task.ShortID)
-	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	zap.S().Info("User ", u.Name, " deleted task ", task.ShortID)
-	c.Status(http.StatusOK)
+	c.AbortWithStatus(http.StatusUnauthorized)
+	return
 
 }
 func getTaskHandler(c *gin.Context) {
-	// claims := jwt.ExtractClaims(c)
-	// u, err := models.GetUser(claims["login"].(string))
-	// if err != nil {
-	// 	zap.S().Error(err)
-	// 	c.AbortWithStatus(http.StatusInternalServerError)
-	// 	return
-	// }
+	claims := jwt.ExtractClaims(c)
+	u, err := models.GetUser(claims["login"].(string))
+	if err != nil {
+		zap.S().Error(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 
 	task, err := models.GetTask(c.Param("id"))
 	if err != nil {
@@ -155,9 +156,19 @@ func getTaskHandler(c *gin.Context) {
 		return
 	}
 
-	// TODO Check authorized
+	if task.CreatedByLogin == u.Login ||
+		(task.Visibility == models.StudentsVisibility && task.Members.Includes(u.Login)) ||
+		(u.Teacher && (task.Visibility == models.ClassVisibility || task.Visibility == models.PromotionVisibility)) ||
+		(task.Visibility == models.PromotionVisibility && u.Promotion == task.Promotion && u.Semester == task.Semester) ||
+		(task.Visibility == models.ClassVisibility && u.Promotion == task.Promotion && u.Semester == task.Semester && task.Class == u.Class && task.Region == u.Region) {
 
-	c.JSON(http.StatusOK, task)
+		c.JSON(http.StatusOK, task)
+		return
+	}
+
+	c.AbortWithStatus(http.StatusNotFound)
+	return
+
 }
 
 func getTasksHandler(c *gin.Context) {

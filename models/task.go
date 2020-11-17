@@ -290,6 +290,60 @@ type Task struct {
 	UpdatedBy      string `json:"updated_by" db:"updated_by"`
 }
 
+// PrepareUpdate prepares new update data
+func (t Task) PrepareUpdate(def Task, user User) Task {
+	var update Task
+	// Due date
+	if t.DueDate.IsZero() {
+		update.DueDate = def.DueDate
+	} else {
+		update.DueDate = t.DueDate
+	}
+
+	// Content
+	update.Content = setValueDefaultString(t.Content, def.Content)
+	update.Title = setValueDefaultString(t.Title, def.Title)
+	update.Subject = setValueDefaultString(t.Subject, def.Subject)
+	update.Subject = setValueDefaultString(t.Subject, def.Subject)
+
+	// Visibility has changed
+	if user.Login == def.CreatedByLogin {
+		update.Visibility = Visibility(setValueDefaultString(string(t.Visibility), string(def.Visibility)))
+		if update.Visibility == PromotionVisibility {
+			if user.Teacher {
+				update.Promotion = setValueDefaultInt(t.Promotion, def.Promotion)
+				update.Semester = setValueDefaultString(t.Semester, def.Semester)
+			} else {
+				update.Promotion = user.Promotion
+				update.Semester = user.Semester
+			}
+		} else if t.Visibility == ClassVisibility {
+			if user.Teacher {
+				update.Promotion = setValueDefaultInt(t.Promotion, def.Promotion)
+				update.Semester = setValueDefaultString(t.Semester, def.Semester)
+				update.Class = setValueDefaultString(t.Class, def.Class)
+				update.Region = setValueDefaultString(t.Region, def.Region)
+			} else {
+				update.Promotion = user.Promotion
+				update.Semester = user.Semester
+				update.Class = user.Class
+				update.Region = user.Region
+			}
+		} else if t.Visibility == SelfVisibility {
+			// Nothing to do
+		} else if t.Visibility == StudentsVisibility {
+			if len(t.Members) == 0 {
+				update.Members = def.Members
+			} else {
+				update.Members = t.Members
+			}
+		}
+	}
+
+	return update
+
+}
+
 // Validate task data
 func (t *Task) Validate() error {
 

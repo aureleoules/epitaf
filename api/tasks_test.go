@@ -8,26 +8,186 @@ import (
 
 	"github.com/aureleoules/epitaf/models"
 	"github.com/aureleoules/epitaf/utils"
-	"github.com/gin-gonic/gin"
 	"github.com/steinfletcher/apitest"
 	"github.com/stretchr/testify/assert"
 )
 
 func Test_editTaskHandler(t *testing.T) {
-	type args struct {
-		c *gin.Context
+	refreshDB()
+
+	u, token := insertTestUser2024C1()
+	_, tokenc1 := insertTestUser2024C1_2()
+	_, token2 := insertTestUser2024C2()
+	_, token3 := insertTestUser2025C1()
+	_, tokenTeacher := insertTestTeacher()
+
+	/* Promotion task */
+	task := models.Task{
+		Subject:        "mathematics",
+		Content:        "This is a test",
+		DueDate:        time.Now().Add(time.Hour * 72).UTC(),
+		Visibility:     models.PromotionVisibility,
+		CreatedByLogin: u.Login,
+		UpdatedByLogin: u.Login,
+		Title:          "Thing to do",
+		Promotion:      u.Promotion,
+		Semester:       u.Semester,
 	}
-	tests := []struct {
-		name string
-		args args
-	}{
-		// TODO: Add test cases.
+	task.Validate()
+	task.Insert()
+
+	update := models.Task{
+		Subject: "physics",
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			editTaskHandler(tt.args.c)
-		})
-	}
+
+	data, err := json.Marshal(update)
+	assert.Nil(t, err)
+
+	// Unauthorized
+	apitest.New().
+		Handler(createRouter()).
+		Put("/api/tasks/" + task.ShortID).
+		Body(string(data)).
+		Expect(t).
+		Status(http.StatusUnauthorized).
+		End()
+
+	// Unauthorized
+	apitest.New().
+		Handler(createRouter()).
+		Put("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token3).
+		Body(string(data)).
+		Expect(t).
+		Status(http.StatusUnauthorized).
+		End()
+
+	/* Small update */
+	apitest.New().
+		Handler(createRouter()).
+		Put("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token).
+		Body(string(data)).
+		Expect(t).
+		Status(http.StatusOK).
+		End()
+
+	// Compare
+	fetched, err := models.GetTask(task.ShortID)
+	assert.Nil(t, err)
+
+	assert.Equal(t, update.Subject, fetched.Subject)
+	assert.Equal(t, task.Title, fetched.Title)
+	assert.Equal(t, task.Content, fetched.Content)
+	assert.Equal(t, task.Visibility, fetched.Visibility)
+	assert.Nil(t, fetched.Members)
+	assert.Equal(t, "", fetched.Class)
+	assert.Equal(t, "", fetched.Region)
+	assert.Equal(t, u.Promotion, fetched.Promotion)
+	assert.Equal(t, u.Semester, fetched.Semester)
+
+	/* Self visibility */
+	update.Visibility = models.SelfVisibility
+	update.Content = "test content"
+
+	data, err = json.Marshal(update)
+	assert.Nil(t, err)
+
+	apitest.New().
+		Handler(createRouter()).
+		Put("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token).
+		Body(string(data)).
+		Expect(t).
+		Status(http.StatusOK).
+		End()
+
+	fetched, err = models.GetTask(task.ShortID)
+	assert.Nil(t, err)
+
+	assert.Equal(t, update.Subject, fetched.Subject)
+	assert.Equal(t, task.Title, fetched.Title)
+	assert.Equal(t, update.Content, fetched.Content)
+	assert.Equal(t, models.SelfVisibility, fetched.Visibility)
+	assert.Nil(t, fetched.Members)
+	assert.Zero(t, fetched.Promotion)
+	assert.Equal(t, "", fetched.Semester)
+	assert.Equal(t, "", fetched.Class)
+	assert.Equal(t, "", fetched.Region)
+
+	/* Class visibility */
+	update.Visibility = models.ClassVisibility
+	update.Title = "test"
+
+	data, err = json.Marshal(update)
+	assert.Nil(t, err)
+
+	apitest.New().
+		Handler(createRouter()).
+		Put("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token).
+		Body(string(data)).
+		Expect(t).
+		Status(http.StatusOK).
+		End()
+
+	fetched, err = models.GetTask(task.ShortID)
+	assert.Nil(t, err)
+
+	assert.Equal(t, update.Subject, fetched.Subject)
+	assert.Equal(t, update.Title, fetched.Title)
+	assert.Equal(t, update.Content, fetched.Content)
+	assert.Equal(t, models.ClassVisibility, fetched.Visibility)
+	assert.Nil(t, fetched.Members)
+	assert.Equal(t, u.Promotion, fetched.Promotion)
+	assert.Equal(t, u.Semester, fetched.Semester)
+	assert.Equal(t, u.Class, fetched.Class)
+	assert.Equal(t, u.Region, fetched.Region)
+	assert.Equal(t, task.DueDate.Unix(), fetched.DueDate.Unix())
+
+	update = models.Task{}
+	update.Visibility = models.SelfVisibility
+	data, err = json.Marshal(update)
+	assert.Nil(t, err)
+
+	apitest.New().
+		Handler(createRouter()).
+		Put("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token2).
+		Body(string(data)).
+		Expect(t).
+		Status(http.StatusUnauthorized).
+		End()
+
+	apitest.New().
+		Handler(createRouter()).
+		Put("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token3).
+		Body(string(data)).
+		Expect(t).
+		Status(http.StatusUnauthorized).
+		End()
+	apitest.New().
+		Handler(createRouter()).
+		Put("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+tokenTeacher).
+		Body(string(data)).
+		Expect(t).
+		Status(http.StatusUnauthorized).
+		End()
+
+	apitest.New().
+		Handler(createRouter()).
+		Put("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+tokenc1).
+		Body(string(data)).
+		Expect(t).
+		Status(http.StatusUnauthorized).
+		End()
+
+	fetched, err = models.GetTask(task.ShortID)
+	assert.Nil(t, err)
+
 }
 
 func Test_deleteTaskHandler(t *testing.T) {
@@ -43,7 +203,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	task := models.Task{
 		Subject:        "mathematics",
 		Content:        "This is a test",
-		DueDate:        utils.TruncateDate(time.Now().Add(time.Hour * 72)),
+		DueDate:        utils.TruncateDate(time.Now().Add(time.Hour * 72).UTC()),
 		Visibility:     models.PromotionVisibility,
 		CreatedByLogin: u.Login,
 		UpdatedByLogin: u.Login,

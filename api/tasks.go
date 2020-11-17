@@ -43,68 +43,42 @@ func editTaskHandler(c *gin.Context) {
 		return
 	}
 
-	update := models.Task{
-		ShortID:        task.ShortID,
-		UpdatedByLogin: u.Login,
-		Title:          t.Title,
-		Subject:        t.Subject,
-		Content:        t.Content,
-		DueDate:        t.DueDate,
-		Region:         t.Region,
-		Promotion:      t.Promotion,
-		Class:          t.Class,
-		Semester:       t.Semester,
-		Members:        t.Members,
-	}
-
-	// Allow only the author of a task to change visibility (or teacher)
-	if task.CreatedByLogin == u.Login || u.Teacher {
-		update.Visibility = t.Visibility
-		if !u.Teacher {
-			if t.Visibility == models.ClassVisibility {
-				update.Region = u.Region
-				update.Promotion = u.Promotion
-				update.Class = u.Class
-				update.Semester = u.Semester
-			}
-			if t.Visibility == models.PromotionVisibility {
-				update.Semester = u.Semester
-				update.Promotion = u.Promotion
-			}
-		} else {
-			if t.Visibility == models.ClassVisibility {
-				update.Region = t.Region
-				update.Promotion = t.Promotion
-				update.Class = t.Class
-				update.Semester = t.Semester
-			}
-			if t.Visibility == models.PromotionVisibility {
-				update.Semester = t.Semester
-				update.Promotion = t.Promotion
-			}
-		}
-
-		if t.Visibility == models.StudentsVisibility {
-			update.Members = t.Members
-		}
-	}
-
-	err = update.Validate()
-	if err != nil {
-		zap.S().Error(err)
-		c.AbortWithStatus(http.StatusNotAcceptable)
+	if task.CreatedByLogin != u.Login && task.Visibility != t.Visibility {
+		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
-	err = models.UpdateTask(update)
-	if err != nil {
-		zap.S().Error(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+	if task.CreatedByLogin == u.Login ||
+		(task.Visibility == models.StudentsVisibility && task.Members.Includes(u.Login)) ||
+		(u.Teacher && (task.Visibility == models.ClassVisibility || task.Visibility == models.PromotionVisibility)) ||
+		(task.Visibility == models.PromotionVisibility && u.Promotion == task.Promotion && u.Semester == task.Semester) ||
+		(task.Visibility == models.ClassVisibility && u.Promotion == task.Promotion && u.Semester == task.Semester && task.Class == u.Class && task.Region == u.Region) {
+
+		update := t.PrepareUpdate(*task, *u)
+		update.UpdatedByLogin = u.Login
+		update.ShortID = task.ShortID
+
+		err = update.Validate()
+		if err != nil {
+			zap.S().Error(err)
+			c.AbortWithStatus(http.StatusNotAcceptable)
+			return
+		}
+
+		err = models.UpdateTask(update)
+		if err != nil {
+			zap.S().Error(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+
+		zap.S().Info("User ", u.Name, " updated task ", update.ShortID)
+		c.Status(http.StatusOK)
 		return
 	}
 
-	zap.S().Info("User ", u.Name, " updated task ", update.ShortID)
-	c.Status(http.StatusOK)
+	c.AbortWithStatus(http.StatusUnauthorized)
+
 }
 
 func deleteTaskHandler(c *gin.Context) {

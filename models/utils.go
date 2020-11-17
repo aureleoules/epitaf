@@ -18,3 +18,16 @@ func checkErr(tx *sqlx.Tx, err error) {
 		}
 	}
 }
+
+func setValueDefaultString(value, def string) string {
+	if value == "" {
+		return def
+	}
+	return value
+}
+func setValueDefaultInt(value, def int) int {
+	if value == 0 {
+		return def
+	}
+	return value
+}

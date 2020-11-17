@@ -8,10 +8,21 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func init() {
 	godotenv.Load("../.env_test")
+
+	var config zap.Config
+	config = zap.NewDevelopmentConfig()
+	config.Level.SetLevel(zap.WarnLevel)
+	config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	logger, err := config.Build()
+	if err != nil {
+		zap.S().Panic(err)
+	}
+	zap.ReplaceGlobals(logger)
 	gin.SetMode(gin.TestMode)
 }
 

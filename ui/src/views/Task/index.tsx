@@ -238,7 +238,7 @@ export default function(props: Props) {
             </>}
 
             {(edit || props.new) && <div className={styles.edit}>
-                <h1>{t('Add a task')}</h1>
+                <h1>{props.new ? t('Add a task') : t('Edit task')}</h1>
                 <Select value={subject} onChange={(e:any) => setSubject(e.target.value)} title={t("Subject")}>
                     {getSubjects(getUser().teacher)
                         .sort((a, b) => t(a.display_name).localeCompare(t(b.display_name)))

@@ -57,7 +57,7 @@ func Delete() {
 	}
 
 	zap.S().Info("Deleting epitaf...")
-	_, err := DB.Exec("DROP DATABASE epitaf;")
+	_, err := DB.Exec("DROP DATABASE " + os.Getenv("DB_NAME"))
 	if err != nil {
 		zap.S().Fatal(err)
 	}

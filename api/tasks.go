@@ -12,11 +12,11 @@ import (
 )
 
 func handleTasks() {
-	api.POST("/tasks", createTaskHandler)
-	api.GET("/tasks/:id", getTaskHandler)
-	api.GET("/tasks", getTasksHandler)
-	api.PUT("/tasks/:id", editTaskHandler)
-	api.DELETE("/tasks/:id", deleteTaskHandler)
+	router.POST("/tasks", createTaskHandler)
+	router.GET("/tasks/:id", getTaskHandler)
+	router.GET("/tasks", getTasksHandler)
+	router.PUT("/tasks/:id", editTaskHandler)
+	router.DELETE("/tasks/:id", deleteTaskHandler)
 }
 
 func editTaskHandler(c *gin.Context) {

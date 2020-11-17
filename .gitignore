@@ -1,4 +1,6 @@
 build
 tmp
 .env
+.env_test
 docker-compose.prod.yml
+epitaf_test.db

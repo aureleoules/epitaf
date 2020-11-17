@@ -17,9 +17,8 @@ func Init() {
 	_, err := DB.Exec(`CREATE DATABASE ` + os.Getenv("DB_NAME"))
 	if err != nil {
 		zap.S().Warn(err)
-		return
+		// return
 	}
-	zap.S().Info("Created database: " + os.Getenv("DB_NAME"))
 
 	connect(os.Getenv("DB_HOST"), os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_NAME"))
 

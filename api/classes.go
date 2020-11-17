@@ -8,7 +8,7 @@ import (
 )
 
 func handleClasses() {
-	api.GET("/classes", getClassesHandler)
+	router.GET("/classes", getClassesHandler)
 }
 
 func getClassesHandler(c *gin.Context) {

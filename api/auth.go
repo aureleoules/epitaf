@@ -12,7 +12,7 @@ import (
 )
 
 func handleAuth() {
-	users := api.Group("/users")
+	users := router.Group("/users")
 
 	users.POST("/authenticate", authenticateHandler)
 	users.POST("/callback", auth.LoginHandler)

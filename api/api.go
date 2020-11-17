@@ -6,11 +6,10 @@ import (
 	"go.uber.org/zap"
 )
 
-var api *gin.RouterGroup
+var router *gin.RouterGroup
 var auth *jwt.GinJWTMiddleware
 
-// Serve private api
-func Serve() {
+func createRouter() *gin.Engine {
 	// Create router
 	r := gin.Default()
 
@@ -18,7 +17,7 @@ func Serve() {
 	r.Use(cors())
 
 	// Default API route
-	api = r.Group("/api")
+	router = r.Group("/api")
 	// JWT middleware
 	auth = AuthMiddleware()
 
@@ -26,11 +25,18 @@ func Serve() {
 	handleAuth()
 
 	// Apply auth middleware on these routes
-	api.Use(auth.MiddlewareFunc())
+	router.Use(auth.MiddlewareFunc())
 
 	handleUsers()
 	handleTasks()
 	handleClasses()
+
+	return r
+}
+
+// Serve private api
+func Serve() {
+	r := createRouter()
 
 	if err := r.Run(); err != nil {
 		zap.S().Panic(err)

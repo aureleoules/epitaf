@@ -21,7 +21,8 @@ jobs:
     - name: check
       uses: grandcolline/golang-github-actions@v1.1.0
       with:
-        run: errcheck -ignoretests
+        run: errcheck
+        flags: -ignoretests
         token: ${{ secrets.GITHUB_TOKEN }}
 
   lint:
@@ -54,7 +55,8 @@ jobs:
     - name: check
       uses: grandcolline/golang-github-actions@v1.1.0
       with:
-        run: staticcheck -tests=false
+        run: staticcheck
+        flags: -tests=false
         token: ${{ secrets.GITHUB_TOKEN }}
 
   sec:

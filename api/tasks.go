@@ -137,9 +137,8 @@ func deleteTaskHandler(c *gin.Context) {
 	}
 
 	c.AbortWithStatus(http.StatusUnauthorized)
-	return
-
 }
+
 func getTaskHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	u, err := models.GetUser(claims["login"].(string))
@@ -167,8 +166,6 @@ func getTaskHandler(c *gin.Context) {
 	}
 
 	c.AbortWithStatus(http.StatusNotFound)
-	return
-
 }
 
 func getTasksHandler(c *gin.Context) {

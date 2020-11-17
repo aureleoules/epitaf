@@ -317,7 +317,7 @@ export default function(props: Props) {
                                 }} />}
                                 onChange={members => setMembers(members)}
                             />
-                            {searchedUsers.length > 0 && <div className={styles.users}>
+                            {searchedUsers.filter(searchedUsersFilter).length > 0 && <div className={styles.users}>
                                 {searchedUsers.filter(searchedUsersFilter).map((u, i) => (
                                     <div onClick={() => {
                                         addMember(u.login!)

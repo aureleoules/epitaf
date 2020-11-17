@@ -200,15 +200,18 @@
 
     .users {
         flex-wrap: wrap;
+        padding-right: 5px;
         margin-left: -5px;
         transition: all 0.2s;
-        animation: task_fadeIn__1rbHa 0.4s;
+        animation: task_task_fadeIn__1rbHa__XDpYD 0.4s;
         position: absolute;
         bottom: 80px;
         z-index: 12;
-        background: white;
+        background: var(--background);
         width: 100%;
         left: 0;
+        border-radius: 8px;
+        padding-top: 8px;
         right: 0;
 
         .user {

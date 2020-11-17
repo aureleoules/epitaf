@@ -43,7 +43,7 @@ p {
 }
 
 .react-tagsinput {
-    background-color: #fff;
+    background-color: var(--input-background);
     border: 2px solid var(--primary)!important;
     overflow: hidden;
     padding-left: 5px;

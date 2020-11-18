@@ -124,8 +124,8 @@ const (
 					AND (tasks.members LIKE ? OR tasks.created_by_login = ?)
 				)
 			)
-			AND due_date > ? 
-			AND due_date < ?;
+			AND due_date >= ? 
+			AND due_date <= ?;
 	`
 
 	getTeacherTasksRangeQuery = `
@@ -155,8 +155,8 @@ const (
 		ON
 			updated_user.login = tasks.updated_by_login
 		WHERE 
-			due_date > ? 
-			AND due_date < ?
+			due_date >= ? 
+			AND due_date <= ?
 			AND (tasks.visibility = 'promotion' OR tasks.visibility = 'class');
 	`
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -30,6 +31,16 @@ func init() {
 
 	if godotenv.Load() != nil {
 		zap.S().Warn(".env not found")
+	}
+
+	// Set timezone to UTC
+	if tz := os.Getenv("TZ"); tz != "" {
+		var err error
+		time.Local, err = time.LoadLocation(tz)
+		zap.S().Info("Loaded " + tz + " timezone.")
+		if err != nil {
+			zap.S().Error(err)
+		}
 	}
 }
 

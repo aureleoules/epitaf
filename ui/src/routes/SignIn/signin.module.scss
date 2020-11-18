@@ -10,6 +10,8 @@
     height: 100vh!important;
     position: absolute;
 
+    transition: all .2s;
+
     .container {
         margin-top: -50px;
         height: inherit;
@@ -21,7 +23,6 @@
 
     @media screen and(max-width: 900px) {
         width: 100%!important;
-        
     }
 
     h1 {
@@ -29,6 +30,26 @@
         font-size: 4em;
         margin-bottom: 15px;
     }
+
+    .authenticate {
+        width: 250px;
+        height: 50px;
+        &.authenticating {
+            display:inline-block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+    
+            svg {
+                margin: 0;
+                path {
+                    fill: var(--background);
+                }
+            }
+        }
+    }
+
 
     .infos {
         position: absolute;

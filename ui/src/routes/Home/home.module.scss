@@ -18,6 +18,7 @@
     .calendar {
         margin-left: auto;
         border-left: solid 1px var(--separator);
+        transition: border-left .2s;
         padding-left: 50px;
         width: 350px;
 

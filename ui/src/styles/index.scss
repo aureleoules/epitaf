@@ -2,27 +2,55 @@
 @import "reset";
 @import "themes";
 
-html, body,#root {
+html,
+body,
+#root {
     min-height: 100vh;
 }
 
 body {
-    font-family: 'Cabin', sans-serif;
+    font-family: "Cabin", sans-serif;
 }
 
 .page {
     min-height: 100vh;
     display: flex;
     background-color: var(--background);
-
+    transition: background-color 0.2s;
 }
 
-h1, h2, h3, h4, h5, h6 {
+.preload {
+    transition: none!important;
+    animation: none!important;
+    * {
+        transition: none!important;
+        animation: none!important;
+    }
+}
+
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     color: var(--header);
+    transition: color 0.2s;
 }
 
 p {
     color: var(--text);
+    transition: color 0.2s;
 }
 
 .route {
@@ -37,23 +65,22 @@ p {
     }
 }
 
-
 .MuiFormControl-root.MuiTextField-root > * {
     color: var(--text);
 }
 
 .react-tagsinput {
     background-color: var(--input-background);
-    border: 2px solid var(--primary)!important;
+    border: 2px solid var(--primary) !important;
     overflow: hidden;
     padding-left: 5px;
     border-radius: 8px;
     padding-top: 5px;
 
     &.disabled {
-        opacity: .7;
+        opacity: 0.7;
     }
-    
+
     .react-tagsinput-tag {
         background-color: var(--primary);
         border-radius: 2px;

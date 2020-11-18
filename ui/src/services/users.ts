@@ -18,6 +18,7 @@ export default {
             redirect_uri: process.env.REACT_APP_REDIRECT_URI
         }).then(response => {
             localStorage.setItem("jwt", response.data.token);
+            localStorage.setItem("loginAnimation", "true");
             setTimeout(() => window.location.replace('/'), 100);
             resolve(response.data);
         }).catch(err => {

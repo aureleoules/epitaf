@@ -20,6 +20,12 @@
         width: 16px;
         height: auto;
     }
+
+    transition: opacity .2s;
+
+    &:hover {
+        opacity: .9;
+    }
     
     &.primary {
         background-color: var(--primary);

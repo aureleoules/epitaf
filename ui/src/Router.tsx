@@ -11,12 +11,18 @@ import SignIn from './routes/SignIn';
 import Sidebar from './components/Sidebar';
 import Profile from './routes/Profile';
 import { getTheme, isLoggedIn, logout, parseJwt } from './utils';
+import { Console } from 'console';
 
 export default function(props: any) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, y] = React.useState(false);
+    const [ok, setOk] = React.useState<boolean>(false);
 
     useEffect(() => {
+        setTimeout(() => {
+            setOk(true);
+        }, 10);
+        
         const token = localStorage.getItem("jwt");
         if(!token) return;
         try {
@@ -35,15 +41,14 @@ export default function(props: any) {
         }
 
         window.addEventListener("render", () => {
-            console.log("render");
             y(x => !x);
         });
-        
+
     }, []);
     
     return (
         <Router history={history}>
-            <div className={["page", "theme", "theme--" + getTheme()].join(" ")}>
+            <div className={[!ok ? "preload": "", "router", "page", "theme", "theme--" + getTheme()].join(" ")}>
                 {isLoggedIn() && <Sidebar/>}
                 <Switch>
                     {isLoggedIn() && <>

@@ -27,6 +27,25 @@
         display: flex;
         padding: 0;
         margin: 0;
+
+        &.light {
+            svg {
+                transition: fill .2s;
+                fill: transparent;
+            }
+            
+            &:hover {
+                svg {
+                    fill: var(--primary);
+                }
+            }
+        }
+        
+        &.dark {
+            svg {
+                fill: var(--primary);
+            }
+        }
     }
 
     .logo {
@@ -174,8 +193,13 @@
                 
                 border-radius: 8px;
                 font-size: 1.1em;
-
+                transition: all .2s;
+                &:hover {
+                    // opacity: .8;
+                    background-color: var(--menu-hover);
+                }
                 &.active {
+                    opacity: 1;
                     background-color: var(--menu-active);
 
                     a, svg {

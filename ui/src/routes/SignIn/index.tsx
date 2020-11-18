@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Button from '../../components/Button';
 import styles from './signin.module.scss';
 
@@ -9,11 +9,15 @@ import {ReactComponent as AureleoulesLogo} from '../../assets/svg/aureleoules.sv
 import Client from '../../services/client';
 import { useTranslation } from 'react-i18next';
 
+import { ReactComponent as Loading } from '../../assets/svg/loading.svg';
 
 export default function(props: any) {
     const {t} = useTranslation();
 
+    const [authenticating, setAuthenticating] = useState<boolean>(false);
+
     function authenticate() {
+        setAuthenticating(true);
         Client.Users.authenticateUrl().then(url => {
             window.location.replace(url);
         });
@@ -25,11 +29,12 @@ export default function(props: any) {
                 <h1>EPITAF</h1>
                 <div>
                     <Button 
+                        className={[authenticating ? styles.authenticating : "", styles.authenticate].join(" ")}
                         onClick={authenticate}
-                        icon={MicrosoftIcon} 
+                        icon={authenticating ? Loading : MicrosoftIcon} 
                         large  
                         color="green" 
-                        title="Sign in with Microsoft"
+                        title={!authenticating ? "Sign in with Microsoft" : ""}
                     />
                 </div>
                 <div className={styles.infos}>

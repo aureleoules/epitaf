@@ -27,6 +27,12 @@
         position: relative;
         align-items: center;
         margin-bottom: 30px;
+        border-radius: 18px;
+        transition: all .2s;
+        padding: 10px;
+        &:hover {
+            background: var(--task-hover);
+        }
 
         .icon-container {
             display: flex;
@@ -36,7 +42,7 @@
             height: 65px;
             width: 65px;
             background-color: var(--subject-background);
-
+            transition: background-color .2s;
             svg {
                 width: 50%;
                 height: auto;

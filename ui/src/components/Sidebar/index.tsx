@@ -85,6 +85,7 @@ export default function(props: Props) {
         else setTheme("dark");
 
         window.dispatchEvent(new Event("render"));
+
     }
 
     function toggleLanguage() {
@@ -101,12 +102,9 @@ export default function(props: Props) {
                 <div className={[styles.container].join(" ")}>
                     <div className={styles.logo}>
                         <p>EPITAF</p>
-                        {getTheme() === "light" && <button className={styles.c} onClick={toggleTheme}>
-                            <SunIcon/>
-                        </button>}
-                        {getTheme() === "dark" && <button className={styles.c} onClick={toggleTheme}>
+                        <button className={[styles.c, getTheme() === "dark" ? styles.dark : styles.light].join(" ")} onClick={toggleTheme}>
                             <MoonIcon/>
-                        </button>}
+                        </button>
                         <div className={styles.languages}>
                             {getLanguage() === "fr-FR" && <button onClick={toggleLanguage} className={styles.c}>
                                 <FranceIcon/>

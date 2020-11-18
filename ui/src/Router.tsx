@@ -11,7 +11,6 @@ import SignIn from './routes/SignIn';
 import Sidebar from './components/Sidebar';
 import Profile from './routes/Profile';
 import { getTheme, isLoggedIn, logout, parseJwt } from './utils';
-import { Console } from 'console';
 
 export default function(props: any) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

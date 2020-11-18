@@ -7,7 +7,6 @@ import {ReactComponent as CalendarIcon} from '../../assets/svg/calendar.svg';
 import {ReactComponent as UserIcon} from '../../assets/svg/user.svg';
 import {ReactComponent as MenuIcon} from '../../assets/svg/menu.svg';
 import {ReactComponent as MoonIcon} from '../../assets/svg/moon.svg';
-import {ReactComponent as SunIcon} from '../../assets/svg/sun.svg';
 import {ReactComponent as FranceIcon} from '../../assets/svg/france.svg';
 import {ReactComponent as USAIcon} from '../../assets/svg/usa.svg';
 

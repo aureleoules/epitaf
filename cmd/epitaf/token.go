@@ -31,6 +31,6 @@ var tokenCmd = &cobra.Command{
 			return
 		}
 		zap.S().Info("Generated JWT: ", token)
-		zap.S().Info("Expires at", t.UTC().String())
+		zap.S().Info("Expires at", t.String())
 	},
 }

@@ -154,9 +154,9 @@ func getTasksHandler(c *gin.Context) {
 
 	var tasks []models.Task
 
-	start := utils.TruncateDate(time.Now().UTC())
+	start := utils.TruncateDate(time.Now())
 	// TODO: client chosen time ranges
-	end := utils.TruncateDate(time.Now().UTC().Add(time.Hour * 24 * 365))
+	end := utils.TruncateDate(time.Now().Add(time.Hour * 24 * 365))
 	if u.Teacher {
 		tasks, err = models.GetTeacherTasksRange(start, end)
 	} else {

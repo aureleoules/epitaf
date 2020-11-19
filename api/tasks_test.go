@@ -25,7 +25,7 @@ func Test_editTaskHandler(t *testing.T) {
 	task := models.Task{
 		Subject:        "mathematics",
 		Content:        "This is a test",
-		DueDate:        time.Now().Add(time.Hour * 72).UTC(),
+		DueDate:        time.Now().Add(time.Hour * 72),
 		Visibility:     models.PromotionVisibility,
 		CreatedByLogin: u.Login,
 		UpdatedByLogin: u.Login,
@@ -203,7 +203,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	task := models.Task{
 		Subject:        "mathematics",
 		Content:        "This is a test",
-		DueDate:        utils.TruncateDate(time.Now().Add(time.Hour * 72).UTC()),
+		DueDate:        utils.TruncateDate(time.Now().Add(time.Hour * 72)),
 		Visibility:     models.PromotionVisibility,
 		CreatedByLogin: u.Login,
 		UpdatedByLogin: u.Login,

@@ -33,7 +33,7 @@ func init() {
 		zap.S().Warn(".env not found")
 	}
 
-	// Set timezone to UTC
+	// Set timezone
 	if tz := os.Getenv("TZ"); tz != "" {
 		var err error
 		time.Local, err = time.LoadLocation(tz)

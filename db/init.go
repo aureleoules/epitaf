@@ -23,8 +23,8 @@ func Init() {
 	connect(os.Getenv("DB_HOST"), os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_NAME"))
 
 	// Timezone
-	zap.S().Info("Settings UTC as timezone...")
-	_, err = DB.Exec(`SET GLOBAL time_zone = 'UTC';`)
+	zap.S().Info("Settings Europe/Paris as timezone...")
+	_, err = DB.Exec(`SET GLOBAL time_zone = 'Europe/Paris';`)
 	if err != nil {
 		zap.S().Fatal(err)
 	}

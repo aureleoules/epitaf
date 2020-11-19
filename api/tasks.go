@@ -135,9 +135,13 @@ func getTaskHandler(c *gin.Context) {
 		(task.Visibility == models.PromotionVisibility && u.Promotion == task.Promotion && u.Semester == task.Semester) ||
 		(task.Visibility == models.ClassVisibility && u.Promotion == task.Promotion && u.Semester == task.Semester && task.Class == u.Class && task.Region == u.Region) {
 
+		zap.S().Info(task.DueDate, " ", task.DueDate.Unix())
+
 		c.JSON(http.StatusOK, task)
 		return
 	}
+
+	zap.S().Info(task.DueDate, " ", task.DueDate.Unix())
 
 	c.AbortWithStatus(http.StatusNotFound)
 }

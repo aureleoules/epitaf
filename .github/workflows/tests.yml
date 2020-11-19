@@ -34,4 +34,5 @@ jobs:
         CRI_PASSWORD: ${{ secrets.CRI_PASSWORD }}
         CHRONOS_TOKEN: ${{ secrets.CHRONOS_TOKEN }}
         DEV: true
+        TZ: Europe/Paris  
       run: go test -v ./...

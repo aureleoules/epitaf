@@ -578,7 +578,7 @@ func Test_getTaskHandler(t *testing.T) {
 		Get("/api/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token3).
 		Expect(t).
-		Status(http.StatusNotFound).
+		Status(http.StatusUnauthorized).
 		End()
 
 	apitest.New().
@@ -614,7 +614,7 @@ func Test_getTaskHandler(t *testing.T) {
 		Get("/api/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token2).
 		Expect(t).
-		Status(http.StatusNotFound).
+		Status(http.StatusUnauthorized).
 		End()
 
 	apitest.New().
@@ -622,7 +622,7 @@ func Test_getTaskHandler(t *testing.T) {
 		Get("/api/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token3).
 		Expect(t).
-		Status(http.StatusNotFound).
+		Status(http.StatusUnauthorized).
 		End()
 
 	apitest.New().
@@ -630,7 +630,7 @@ func Test_getTaskHandler(t *testing.T) {
 		Get("/api/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+tokenTeacher).
 		Expect(t).
-		Status(http.StatusNotFound).
+		Status(http.StatusUnauthorized).
 		End()
 }
 

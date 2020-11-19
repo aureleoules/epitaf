@@ -299,6 +299,7 @@ func (t Task) PrepareUpdate(def Task, user User) Task {
 	} else {
 		update.DueDate = t.DueDate
 	}
+	update.DueDate = update.DueDate.Local()
 
 	// Content
 	update.Content = setValueDefaultString(t.Content, def.Content)

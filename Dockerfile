@@ -8,20 +8,20 @@ RUN go mod download
 COPY . /app
 RUN make
 
-FROM alpine
-RUN apk update
-RUN apk upgrade
-RUN apk add ca-certificates && update-ca-certificates
-# Change TimeZone
-RUN apk add --update tzdata
-ENV TZ=Europe/Paris
-# Clean APK cache
-RUN rm -rf /var/cache/apk/*
-# Get SSL certificates
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-# Retrieve binary
-COPY --from=builder /app/build/epitaf /app/epitaf
+# FROM alpine
+# RUN apk update
+# RUN apk upgrade
+# RUN apk add ca-certificates && update-ca-certificates
+# # Change TimeZone
+# RUN apk add --update tzdata
+# ENV TZ=Europe/Paris
+# # Clean APK cache
+# RUN rm -rf /var/cache/apk/*
+# # Get SSL certificates
+# COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+# # Retrieve binary
+# COPY --from=builder /app/build/epitaf /app/epitaf
 
 WORKDIR /app
-ENTRYPOINT ["./epitaf"]
+ENTRYPOINT ["/app/build/epitaf"]
 CMD ["start"]

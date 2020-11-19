@@ -197,7 +197,7 @@ func createTaskHandler(c *gin.Context) {
 
 	task := models.Task{
 		Content:        t.Content,
-		DueDate:        t.DueDate,
+		DueDate:        t.DueDate.Local(),
 		Subject:        t.Subject,
 		Title:          t.Title,
 		Visibility:     t.Visibility,

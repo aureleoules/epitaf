@@ -28,12 +28,15 @@
         align-items: center;
         margin-bottom: 15px;
         border-radius: 18px;
-        transition: all .2s;
+        transition: all 0.2s;
         padding: 10px;
         &:hover {
             background: var(--task-hover);
-        }
 
+            .infos span.incompleted {
+                opacity: .3;
+            }
+        }
         .icon-container {
             display: flex;
             align-items: center;
@@ -42,7 +45,7 @@
             height: 65px;
             width: 65px;
             background-color: var(--subject-background);
-            transition: background-color .2s;
+            transition: background-color 0.2s;
             svg {
                 width: 50%;
                 height: auto;
@@ -77,12 +80,39 @@
         }
 
         .infos {
-            
             position: absolute;
             right: 0;
             display: flex;
             align-items: center;
-            
+
+            .complete {
+                position: absolute;
+                right: 80px;
+                opacity: .2;
+                transition: all .2s;
+                display: flex;
+                height: 40px;
+                width: 40px;
+                align-items: center;
+                justify-content: center;
+
+                svg {
+                    color: #1abc9c;
+                }
+
+                &.completed {
+                    opacity: 1;
+                }
+
+                &.incompleted {
+                    opacity: 0;
+
+                    &:hover {
+                        opacity: 1;
+                    }
+                }
+            }
+
             .group {
                 border-radius: 8px;
                 background-color: var(--primary);

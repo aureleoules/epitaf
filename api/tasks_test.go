@@ -73,7 +73,7 @@ func Test_editTaskHandler(t *testing.T) {
 		End()
 
 	// Compare
-	fetched, err := models.GetTask(task.ShortID)
+	fetched, err := models.GetUserTask(task.ShortID, u.Login)
 	assert.Nil(t, err)
 
 	assert.Equal(t, update.Subject, fetched.Subject)
@@ -102,7 +102,7 @@ func Test_editTaskHandler(t *testing.T) {
 		Status(http.StatusOK).
 		End()
 
-	fetched, err = models.GetTask(task.ShortID)
+	fetched, err = models.GetUserTask(task.ShortID, u.Login)
 	assert.Nil(t, err)
 
 	assert.Equal(t, update.Subject, fetched.Subject)
@@ -131,7 +131,7 @@ func Test_editTaskHandler(t *testing.T) {
 		Status(http.StatusOK).
 		End()
 
-	fetched, err = models.GetTask(task.ShortID)
+	fetched, err = models.GetUserTask(task.ShortID, u.Login)
 	assert.Nil(t, err)
 
 	assert.Equal(t, update.Subject, fetched.Subject)
@@ -185,7 +185,7 @@ func Test_editTaskHandler(t *testing.T) {
 		Status(http.StatusUnauthorized).
 		End()
 
-	fetched, err = models.GetTask(task.ShortID)
+	fetched, err = models.GetUserTask(task.ShortID, u.Login)
 	assert.Nil(t, err)
 
 }
@@ -745,7 +745,7 @@ func Test_createTaskHandler(t *testing.T) {
 	r.JSON(&id)
 	assert.NotEqual(t, "", id)
 
-	ta, err := models.GetTask(id)
+	ta, err := models.GetUserTask(id, u.Login)
 	assert.Nil(t, err)
 
 	assert.Equal(t, task.Subject, ta.Subject)
@@ -803,7 +803,7 @@ func Test_createTaskHandler(t *testing.T) {
 	r.JSON(&id)
 	assert.NotEqual(t, "", id)
 
-	ta, err = models.GetTask(id)
+	ta, err = models.GetUserTask(id, u.Login)
 	assert.Nil(t, err)
 
 	assert.Equal(t, task.Subject, ta.Subject)

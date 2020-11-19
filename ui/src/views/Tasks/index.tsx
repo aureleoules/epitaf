@@ -7,6 +7,7 @@ import Button from '../../components/Button';
 import {ReactComponent as PlusIcon} from '../../assets/svg/plus.svg';
 import {ReactComponent as UsersIcon} from '../../assets/svg/users.svg';
 import {ReactComponent as UserIcon} from '../../assets/svg/user.svg';
+import {ReactComponent as CheckIcon} from '../../assets/svg/check.svg';
 import { Link } from 'react-router-dom';
 
 import TaskView from '../Task';
@@ -16,6 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { capitalize, getSubjects, getUser } from '../../utils';
 import { RotateSpinner  } from "react-spinners-kit";
 import history from '../../history';
+
 
 dayjs.extend(relativeTime)
 
@@ -109,6 +111,20 @@ export default function(props: any) {
     }
     
     
+    function complete(e: any, ta: Task) {
+        e.stopPropagation();
+        e.preventDefault();
+        if(ta.completed) {
+            Client.Tasks.incomplete(ta.short_id!).then(() => fetchTasks()).catch(err => {
+                if(err) throw err;
+            });
+        } else {
+            Client.Tasks.complete(ta.short_id!).then(() => fetchTasks()).catch(err => {
+                if(err) throw err;
+            });
+        }
+    }
+
     return (
         <div className={styles.tasks}>
             <div className={styles.header}>
@@ -125,8 +141,8 @@ export default function(props: any) {
                 return (
                     <div key={i}>
                         <h2>{capitalize(dayjs(l[0].due_date).format("dddd DD MMMM"))}</h2>
-                        {l.reverse().map((ta, i) => (
-                            <Link to={"#"} onClick={() => openTask(ta)} key={i} className={styles.task}>
+                        {l.sort((a, b) => dayjs(a.updated_at!).isBefore(dayjs(b.updated_at!)) ? 1 : -1).map((ta, i) => (
+                            <Link to={"#"} onClick={() => openTask(ta)} key={i} className={[styles.task, ta.completed ? styles.completed: ""].join(" ")}>
                                 <div className={styles["icon-container"]}>
                                     <img alt={ta.subject} width={30} src={require('../../assets/svg/subjects/' + getIcon(ta.subject!))}/>
                                 </div>
@@ -135,6 +151,7 @@ export default function(props: any) {
                                     <p>{ta.title?.substr(0, 50)} · {t('Edited')} {dayjs(ta.updated_at).fromNow()}</p>
                                 </div>
                                 <div className={styles.infos}>
+                                    <span onClick={(e: any) => complete(e, ta)} className={[styles.complete, ta.completed ? styles.completed : styles.incompleted].join(" ")}><CheckIcon/></span>
                                     {ta.visibility === "promotion" && <span className={styles.group + " " + styles.promotion}>
                                         {ta.promotion}
                                     </span>}

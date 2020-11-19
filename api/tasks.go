@@ -17,6 +17,81 @@ func handleTasks() {
 	router.GET("/tasks", getTasksHandler)
 	router.PUT("/tasks/:id", editTaskHandler)
 	router.DELETE("/tasks/:id", deleteTaskHandler)
+
+	router.POST("/tasks/:id/complete", completeTaskHandler)
+	router.DELETE("/tasks/:id/complete", unCompleteTaskHandler)
+}
+
+func completeTaskHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	u, err := models.GetUser(claims["login"].(string))
+	if err != nil {
+		zap.S().Error(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	task, err := models.GetUserTask(c.Param("id"), u.Login)
+	if err != nil {
+		zap.S().Error(err)
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	if task.Completed {
+		c.AbortWithStatus(http.StatusNotAcceptable)
+		return
+	}
+
+	if !u.CanViewTask(*task) {
+		zap.S().Error(err)
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	err = task.Mark(u.Login)
+	if err != nil {
+		zap.S().Error(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+	c.Status(http.StatusOK)
+}
+
+func unCompleteTaskHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	u, err := models.GetUser(claims["login"].(string))
+	if err != nil {
+		zap.S().Error(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	task, err := models.GetUserTask(c.Param("id"), u.Login)
+	if err != nil {
+		zap.S().Error(err)
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	if !task.Completed {
+		c.AbortWithStatus(http.StatusNotAcceptable)
+		return
+	}
+
+	if !u.CanViewTask(*task) {
+		zap.S().Error(err)
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	err = task.Unmark(u.Login)
+	if err != nil {
+		zap.S().Error(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+	c.Status(http.StatusOK)
 }
 
 func editTaskHandler(c *gin.Context) {
@@ -28,7 +103,7 @@ func editTaskHandler(c *gin.Context) {
 		return
 	}
 
-	task, err := models.GetTask(c.Param("id"))
+	task, err := models.GetUserTask(c.Param("id"), u.Login)
 	if err != nil {
 		zap.S().Error(err)
 		c.AbortWithStatus(http.StatusNotFound)
@@ -48,37 +123,31 @@ func editTaskHandler(c *gin.Context) {
 		return
 	}
 
-	if task.CreatedByLogin == u.Login ||
-		(task.Visibility == models.StudentsVisibility && task.Members.Includes(u.Login)) ||
-		(u.Teacher && (task.Visibility == models.ClassVisibility || task.Visibility == models.PromotionVisibility)) ||
-		(task.Visibility == models.PromotionVisibility && u.Promotion == task.Promotion && u.Semester == task.Semester) ||
-		(task.Visibility == models.ClassVisibility && u.Promotion == task.Promotion && u.Semester == task.Semester && task.Class == u.Class && task.Region == u.Region) {
-
-		update := t.PrepareUpdate(*task, *u)
-		update.UpdatedByLogin = u.Login
-		update.ShortID = task.ShortID
-
-		err = update.Validate()
-		if err != nil {
-			zap.S().Error(err)
-			c.AbortWithStatus(http.StatusNotAcceptable)
-			return
-		}
-
-		err = models.UpdateTask(update)
-		if err != nil {
-			zap.S().Error(err)
-			c.AbortWithStatus(http.StatusInternalServerError)
-			return
-		}
-
-		zap.S().Info("User ", u.Name, " updated task ", update.ShortID)
-		c.Status(http.StatusOK)
+	if !u.CanEditTask(*task) {
+		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
-	c.AbortWithStatus(http.StatusUnauthorized)
+	update := t.PrepareUpdate(*task, *u)
+	update.UpdatedByLogin = u.Login
+	update.ShortID = task.ShortID
 
+	err = update.Validate()
+	if err != nil {
+		zap.S().Error(err)
+		c.AbortWithStatus(http.StatusNotAcceptable)
+		return
+	}
+
+	err = models.UpdateTask(update)
+	if err != nil {
+		zap.S().Error(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	zap.S().Info("User ", u.Name, " updated task ", update.ShortID)
+	c.Status(http.StatusOK)
 }
 
 func deleteTaskHandler(c *gin.Context) {
@@ -90,7 +159,7 @@ func deleteTaskHandler(c *gin.Context) {
 		return
 	}
 
-	task, err := models.GetTask(c.Param("id"))
+	task, err := models.GetUserTask(c.Param("id"), u.Login)
 	if err != nil {
 		zap.S().Error(err)
 		c.AbortWithStatus(http.StatusNotFound)
@@ -98,19 +167,19 @@ func deleteTaskHandler(c *gin.Context) {
 	}
 
 	// Only author can delete, or teacher is task is promo or class
-	if task.CreatedByLogin == u.Login || ((task.Visibility == models.ClassVisibility || task.Visibility == models.PromotionVisibility) && u.Teacher) {
-		err = models.DeleteTask(task.ShortID)
-		if err != nil {
-			c.AbortWithStatus(http.StatusInternalServerError)
-			return
-		}
-
-		zap.S().Info("User ", u.Name, " deleted task ", task.ShortID)
-		c.Status(http.StatusOK)
+	if !u.CanDeleteTask(*task) {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+	err = models.DeleteTask(task.ShortID)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	c.AbortWithStatus(http.StatusUnauthorized)
+	zap.S().Info("User ", u.Name, " deleted task ", task.ShortID)
+	c.Status(http.StatusOK)
+
 }
 
 func getTaskHandler(c *gin.Context) {
@@ -122,28 +191,19 @@ func getTaskHandler(c *gin.Context) {
 		return
 	}
 
-	task, err := models.GetTask(c.Param("id"))
+	task, err := models.GetUserTask(c.Param("id"), u.Login)
 	if err != nil {
 		zap.S().Error(err)
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
-	if task.CreatedByLogin == u.Login ||
-		(task.Visibility == models.StudentsVisibility && task.Members.Includes(u.Login)) ||
-		(u.Teacher && (task.Visibility == models.ClassVisibility || task.Visibility == models.PromotionVisibility)) ||
-		(task.Visibility == models.PromotionVisibility && u.Promotion == task.Promotion && u.Semester == task.Semester) ||
-		(task.Visibility == models.ClassVisibility && u.Promotion == task.Promotion && u.Semester == task.Semester && task.Class == u.Class && task.Region == u.Region) {
-
-		zap.S().Info(task.DueDate, " ", task.DueDate.Unix())
-
-		c.JSON(http.StatusOK, task)
+	if !u.CanViewTask(*task) {
+		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
-	zap.S().Info(task.DueDate, " ", task.DueDate.Unix())
-
-	c.AbortWithStatus(http.StatusNotFound)
+	c.JSON(http.StatusOK, task)
 }
 
 func getTasksHandler(c *gin.Context) {

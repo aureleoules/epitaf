@@ -11,6 +11,8 @@ export type Task = base & {
     semester?: string
     visibility?: string
     members?: Array<string>
+    completed?: boolean
+    completed_at?: Date
     created_by?: string
     updated_by?: string
     created_by_login?: string

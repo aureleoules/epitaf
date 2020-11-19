@@ -155,7 +155,7 @@ func SearchUser(query string) ([]User, error) {
 }
 
 // Insert user in DB
-func (c *User) Insert() error {
+func (u *User) Insert() error {
 	tx, err := db.DB.Beginx()
 	if err != nil {
 		return err
@@ -163,12 +163,12 @@ func (c *User) Insert() error {
 
 	defer checkErr(tx, err)
 
-	_, err = tx.NamedExec(insertUserQuery, c)
+	_, err = tx.NamedExec(insertUserQuery, u)
 	if err != nil {
 		return err
 	}
 
-	zap.S().Info("User ", c.Name, " just created. ("+c.Email+")")
+	zap.S().Info("User ", u.Name, " just created. ("+u.Email+")")
 	return nil
 }
 
@@ -220,4 +220,52 @@ func PrepareUser(email string) (User, error) {
 
 	zap.S().Info("Prepared user data.")
 	return user, nil
+}
+
+// CanViewTask checks if an user can view a task
+func (u User) CanViewTask(task Task) bool {
+	// Author
+	if task.CreatedByLogin == u.Login {
+		return true
+	}
+	// Student is included in visibility
+	if task.Visibility == StudentsVisibility && task.Members.Includes(u.Login) {
+		return true
+	}
+
+	// Student is in promotion
+	if task.Visibility == PromotionVisibility && u.Promotion == task.Promotion && u.Semester == task.Semester {
+		return true
+	}
+
+	// Student is in class
+	if task.Visibility == ClassVisibility && u.Promotion == task.Promotion && u.Semester == task.Semester && task.Class == u.Class && task.Region == u.Region {
+		return true
+	}
+
+	// If teacher : can view class & promo
+	if u.Teacher && (task.Visibility == ClassVisibility || task.Visibility == PromotionVisibility) {
+		return true
+	}
+
+	return false
+}
+
+// CanEditTask checks if an user can edit a task
+func (u User) CanEditTask(task Task) bool {
+	// Permission is the same for now
+	return u.CanViewTask(task)
+}
+
+// CanDeleteTask checks if an user can delete a task
+func (u User) CanDeleteTask(task Task) bool {
+	if task.CreatedByLogin == u.Login {
+		return true
+	}
+
+	if u.Teacher && (task.Visibility == ClassVisibility || task.Visibility == PromotionVisibility) {
+		return true
+	}
+
+	return false
 }

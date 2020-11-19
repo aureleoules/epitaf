@@ -14,9 +14,19 @@ import (
 )
 
 const (
+	completedTaskSchema = `
+		CREATE TABLE completed_tasks (
+			task_id VARCHAR(16) NOT NULL,
+			login VARCHAR(256) NOT NULL,
+			completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
+			
+			FOREIGN KEY (task_id) REFERENCES tasks (short_id)
+		);
+	`
+
 	taskSchema = `
 		CREATE TABLE tasks (
-			short_id VARCHAR(16) NOT NULL,
+			short_id VARCHAR(16) NOT NULL UNIQUE,
 			
 			promotion VARCHAR(256) NOT NULL,
 			visibility ENUM('self', 'promotion', 'class', 'students') NOT NULL DEFAULT 'self',
@@ -33,6 +43,8 @@ const (
 
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+
+			deleted BOOLEAN NOT NULL DEFAULT 0,
 
 			PRIMARY KEY (short_id),
 			FOREIGN KEY (created_by_login) REFERENCES users (login),
@@ -59,6 +71,8 @@ const (
 			tasks.subject,
 			tasks.content,
 			tasks.due_date,
+			ct.task_id IS NOT NULL as completed,
+			ct.completed_at as completed_at,
 			tasks.created_by_login,
 			tasks.updated_by_login,
 			users.name as created_by,
@@ -72,7 +86,10 @@ const (
 		LEFT JOIN users as updated_user
 		ON
 			updated_user.login = tasks.updated_by_login
-		WHERE short_id = ?;
+		LEFT JOIN completed_tasks as ct
+		ON 
+			ct.task_id = tasks.short_id AND ct.login = ?
+		WHERE short_id = ? AND deleted=0;
 	`
 
 	getTasksRangeQuery = `
@@ -88,6 +105,8 @@ const (
 			tasks.content,
 			tasks.region,
 			tasks.due_date,
+			ct.task_id IS NOT NULL as completed,
+			ct.completed_at as completed_at,
 			users.name as created_by,
 			updated_user.name as updated_by,
 			tasks.created_by_login,
@@ -101,6 +120,9 @@ const (
 		LEFT JOIN users as updated_user
 		ON
 			updated_user.login = tasks.updated_by_login
+		LEFT JOIN completed_tasks as ct
+		ON
+			ct.task_id = tasks.short_id AND ct.login = ?
 		WHERE 
 			(
 				(
@@ -124,6 +146,7 @@ const (
 					AND (tasks.members LIKE ? OR tasks.created_by_login = ?)
 				)
 			)
+			AND deleted=0
 			AND due_date >= ? 
 			AND due_date <= ?;
 	`
@@ -155,7 +178,8 @@ const (
 		ON
 			updated_user.login = tasks.updated_by_login
 		WHERE 
-			due_date >= ? 
+			deleted=0
+			AND due_date >= ? 
 			AND due_date <= ?
 			AND (tasks.visibility = 'promotion' OR tasks.visibility = 'class');
 	`
@@ -178,7 +202,18 @@ const (
 	`
 
 	deleteTaskQuery = `
-		DELETE FROM tasks WHERE short_id=?
+		UPDATE tasks set deleted=1 WHERE short_id=?;
+	`
+
+	markTaskQuery = `
+		INSERT INTO completed_tasks 
+			(task_id, login)
+		VALUES
+			(?, ?);
+	`
+
+	unMarkTaskQuery = `
+		DELETE FROM completed_tasks WHERE task_id=? AND login=?;
 	`
 )
 
@@ -282,6 +317,11 @@ type Task struct {
 	Subject string    `json:"subject" db:"subject"`
 	Content string    `json:"content" db:"content"`
 	DueDate time.Time `json:"due_date" db:"due_date"`
+
+	Completed   bool       `json:"completed" db:"completed"`
+	CompletedAt *time.Time `json:"completed_at" db:"completed_at"`
+
+	Deleted bool `json:"-" db:"deleted"`
 
 	// Meta
 	CreatedByLogin string `json:"created_by_login" db:"created_by_login"`
@@ -422,6 +462,32 @@ func (t *Task) Insert() error {
 	return err
 }
 
+// Mark task as done by user
+func (t *Task) Mark(login string) error {
+	tx, err := db.DB.Beginx()
+	if err != nil {
+		return err
+	}
+
+	defer checkErr(tx, err)
+
+	_, err = tx.Exec(markTaskQuery, t.ShortID, login)
+	return err
+}
+
+// Unmark task by user
+func (t *Task) Unmark(login string) error {
+	tx, err := db.DB.Beginx()
+	if err != nil {
+		return err
+	}
+
+	defer checkErr(tx, err)
+
+	_, err = tx.Exec(unMarkTaskQuery, t.ShortID, login)
+	return err
+}
+
 // DeleteTask from db
 func DeleteTask(id string) error {
 	tx, err := db.DB.Beginx()
@@ -448,8 +514,8 @@ func UpdateTask(task Task) error {
 	return err
 }
 
-// GetTask by shortID
-func GetTask(id string) (*Task, error) {
+// GetUserTask by shortID
+func GetUserTask(id, login string) (*Task, error) {
 	tx, err := db.DB.Beginx()
 	if err != nil {
 		return nil, err
@@ -458,7 +524,7 @@ func GetTask(id string) (*Task, error) {
 	defer checkErr(tx, err)
 
 	var task Task
-	err = tx.Get(&task, getTaskQuery, id)
+	err = tx.Get(&task, getTaskQuery, login, id)
 	return &task, err
 }
 
@@ -472,7 +538,7 @@ func GetTasksRange(user User, start, end time.Time) ([]Task, error) {
 	defer checkErr(tx, err)
 
 	var tasks []Task
-	err = tx.Select(&tasks, getTasksRangeQuery, user.Login, user.Promotion, user.Class, user.Region, user.Semester, user.Promotion, user.Semester, "%"+user.Login+"%", user.Login, start, end)
+	err = tx.Select(&tasks, getTasksRangeQuery, user.Login, user.Login, user.Promotion, user.Class, user.Region, user.Semester, user.Promotion, user.Semester, "%"+user.Login+"%", user.Login, start, end)
 	return tasks, err
 }
 

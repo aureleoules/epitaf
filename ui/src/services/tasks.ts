@@ -36,5 +36,19 @@ export default {
         }).catch(err => {
             reject(err);
         });
-    })
+    }),
+    complete: (id: string) => new Promise((resolve, reject) => {
+        client.post('/tasks/' + id + '/complete').then(response => {
+            resolve();
+        }).catch(err => {
+            reject(err);
+        });
+    }),
+    incomplete: (id: string) => new Promise((resolve, reject) => {
+        client.delete('/tasks/' + id + '/complete').then(response => {
+            resolve();
+        }).catch(err => {
+            reject(err);
+        });
+    }),
 };

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import Calendar from '../../views/Calendar';
+import styles from './calendar.module.scss';
 
 export default function(props: any) {
 
@@ -8,7 +9,7 @@ export default function(props: any) {
     }, []);
 
     return (
-        <div className={"route"}>
+        <div className={"route " + styles.calendar}>
             <Calendar />
         </div>
     )

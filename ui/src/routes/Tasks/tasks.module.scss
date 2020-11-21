@@ -1,6 +1,7 @@
 .tasks {
     width: 60%!important;
-
+    margin-top: 0!important;	
+    
     @media screen and(max-width: 900px) {
         width: 90%!important;
     }

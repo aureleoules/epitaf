@@ -10,6 +10,12 @@ body,
 
 body {
     font-family: "Cabin", sans-serif;
+
+    &.noscroll {
+        @media screen and(max-width: 900px) {
+            overflow: hidden;
+        }
+    }
 }
 
 .page {

@@ -82,6 +82,11 @@ export default function(props: Props) {
     }, []);
 
     function toggleMenu() {
+        if(menu) {
+            document.body.classList.remove("noscroll");
+        } else {
+            document.body.classList.add("noscroll");
+        }
         setMenu(!menu);
     }
 
@@ -121,7 +126,7 @@ export default function(props: Props) {
                         
                     </div>
                     <div className={styles.wrapper}>
-                        <div className={styles.user}>
+                        <Link to="/me" className={styles.user}>
                             <div 
                                 className={styles.avatar} 
                                 style={{background: `url(${"https://photos.cri.epita.fr/square/" + user?.login})`}}
@@ -134,13 +139,13 @@ export default function(props: Props) {
                                 </>}
                                 {user.teacher && <p>{t('Teacher')}</p>}
                             </div>}
-                        </div>
+                        </Link>
 
                         <div className={styles.routes}>
                             <ul>
                                 {routes.map((r, i) => (
                                     <li key={i} className={isCurrentRoute(route, r.path) ? styles.active : ""}>
-                                        <Link onClick={() => setMenu(false)} to={r.path}>
+                                        <Link onClick={toggleMenu} to={r.path}>
                                             <r.icon/>
                                             {r.title}
                                         </Link>
@@ -150,7 +155,7 @@ export default function(props: Props) {
                             <ul className={styles.bottom}>
                                 {bottom_routes.map((r, i) => (
                                     <li key={i} className={isCurrentRoute(route, r.path) ? styles.active : ""}>
-                                        <Link onClick={() => setMenu(false)} to={r.path}>
+                                        <Link onClick={toggleMenu} to={r.path}>
                                             <r.icon/>
                                             {r.title}
                                         </Link>

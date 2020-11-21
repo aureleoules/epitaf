@@ -16,8 +16,7 @@
             }
         }
     }
-    
-    
+
     button.c {
         border: none;
         outline: none;
@@ -30,17 +29,17 @@
 
         &.light {
             svg {
-                transition: fill .2s;
+                transition: fill 0.2s;
                 fill: transparent;
             }
-            
+
             &:hover {
                 svg {
                     fill: var(--primary);
                 }
             }
         }
-        
+
         &.dark {
             svg {
                 fill: var(--primary);
@@ -53,7 +52,6 @@
         align-items: center;
         margin-top: 35px;
 
-        
         p {
             font-weight: bold;
             color: var(--header);
@@ -66,10 +64,9 @@
     .avatar {
         width: 50px;
         height: 50px;
-        background-size: cover!important;
-        background-position: center!important;
+        background-size: cover !important;
+        background-position: center !important;
         border-radius: 50%;
-        
     }
 
     @media screen and (max-width: 900px) {
@@ -78,13 +75,13 @@
         width: 100%;
         margin: 0;
         .container {
-            margin-left: 0!important;
-            margin: 0 auto!important;
-            background: white;
+            margin-left: 0 !important;
+            margin: 0 auto !important;
+            background: var(--background);
             position: fixed;
             z-index: 99;
-            width: 100%!important;
-            height: 100%!important;
+            width: 100% !important;
+            height: 100% !important;
             overflow: hidden;
         }
 
@@ -101,11 +98,19 @@
         }
 
         .logo {
-            display: none;
+            display: flex;
+            align-items: center;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            margin-top: 0;
+            p {
+                display: none;
+            }
         }
 
         .user {
-            margin-top: 80px!important;
+            margin-top: 80px !important;
         }
     }
 
@@ -121,15 +126,17 @@
         width: 30px;
         height: auto;
         z-index: 999;
+        color: var(--text);
         @media screen and(min-width: 900px) {
             display: none;
         }
     }
 
-    .container, .container-content {
+    .container,
+    .container-content {
         height: 98%;
     }
-    
+
     .container {
         width: 65%;
         margin-left: 50px;
@@ -159,7 +166,6 @@
                 margin-top: 4px;
             }
         }
-
     }
 
     .signout {
@@ -169,7 +175,7 @@
             width: 100%;
         }
     }
-    
+
     .routes {
         padding-top: 55px;
 
@@ -190,10 +196,10 @@
             li {
                 display: flex;
                 align-items: center;
-                
+
                 border-radius: 8px;
                 font-size: 1.1em;
-                transition: all .2s;
+                transition: all 0.2s;
                 &:hover {
                     // opacity: .8;
                     background-color: var(--menu-hover);
@@ -202,7 +208,8 @@
                     opacity: 1;
                     background-color: var(--menu-active);
 
-                    a, svg {
+                    a,
+                    svg {
                         color: var(--menu-active-color);
                         font-weight: var(--menu-active-boldness);
                     }
@@ -211,8 +218,8 @@
                 svg {
                     margin-bottom: 2px;
                     color: var(--menu-inactive);
-                    width: 20px!important;
-                    height: auto!important;
+                    width: 20px !important;
+                    height: auto !important;
                     margin-right: 25px;
                 }
 

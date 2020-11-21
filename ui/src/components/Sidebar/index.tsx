@@ -9,6 +9,7 @@ import {ReactComponent as MenuIcon} from '../../assets/svg/menu.svg';
 import {ReactComponent as MoonIcon} from '../../assets/svg/moon.svg';
 import {ReactComponent as FranceIcon} from '../../assets/svg/france.svg';
 import {ReactComponent as USAIcon} from '../../assets/svg/usa.svg';
+import {ReactComponent as HelpIcon} from '../../assets/svg/help.svg';
 
 import styles from './sidebar.module.scss';
 import history from '../../history';
@@ -55,6 +56,11 @@ export default function(props: Props) {
             title: t('Profile'),
             path: "/me",
             icon: UserIcon
+        },
+        {
+            title: t('Help'),
+            path: "/help",
+            icon: HelpIcon
         }
     ]
 

@@ -44,5 +44,11 @@
     "Me": "Moi",
     "Visibility": "Visibilité",
     "Shared with": "Partagé avec",
-    "Edit task": "Modifier la tâche"
+    "Edit task": "Modifier la tâche",
+    "Help": "Aide",
+    "Need help?": "Besoin d'aide ?",
+    "help_text": "Si vous avez trouvé un bug ou vous avez une idée de fonctionnalité, vous pouvez :",
+    "Create a": "Créer une",
+    "Contact me on Discord": "Me contacter sur Discord",
+    "Send me an email": "M'envoyer un mail"
 }

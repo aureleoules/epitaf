@@ -10,6 +10,7 @@ import Callback from './routes/Callback';
 import SignIn from './routes/SignIn';
 import Sidebar from './components/Sidebar';
 import Profile from './routes/Profile';
+import Help from './routes/Help';
 import { getTheme, isLoggedIn, logout, parseJwt } from './utils';
 
 export default function(props: any) {
@@ -57,6 +58,7 @@ export default function(props: any) {
                         <Route exact path="/t/:id" component={Tasks}/>
                         <Route exact path="/calendar" component={Calendar}/>
                         <Route exact path="/me" component={Profile}/>
+                        <Route exact path="/help" component={Help}/>
 
                     </>}
                     {!isLoggedIn() && <>

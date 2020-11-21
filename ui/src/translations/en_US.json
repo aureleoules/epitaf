@@ -29,6 +29,6 @@
     "Class": "Class",
     "Region": "Region",
     "Promotion": "Promotion",
-    "sidebar_user_region": "{{semester}} student in {{region}}"
-
+    "sidebar_user_region": "{{semester}} student in {{region}}",
+    "help_text": "If you found a bug or have a good feature you'd like to see, you can:"
 }

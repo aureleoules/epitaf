@@ -19,7 +19,7 @@ export default function(props: any) {
                         {t('Contact me on Discord')}: <code>Nuf#8229</code>
                     </li>
                     <li>
-                        {t('Send me an email')}: <a href="mailto:bug@epita.fr">bug@epita.fr</a>
+                        {t('Send me an email')}: <a href="mailto:bug@epitaf.fr">bug@epitaf.fr</a>
                     </li>
                 </ul>
             </div>

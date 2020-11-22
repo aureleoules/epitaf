@@ -24,6 +24,11 @@ export default function(props: any) {
                 <h2>{profile.name}</h2>
                 <p>
                     <span>
+                        {t('Email')} :
+                    </span>
+                    {profile.email}</p>
+                <p>
+                    <span>
                         {t('Promotion')} :
                     </span>
                     {profile.promotion}</p>

@@ -379,6 +379,11 @@ func (t Task) PrepareUpdate(def Task, user User) Task {
 				update.Members = t.Members
 			}
 		}
+	} else {
+		update.Promotion = t.Promotion
+		update.Semester = t.Semester
+		update.Class = t.Class
+		update.Region = t.Region
 	}
 
 	return update

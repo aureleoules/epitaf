@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"os"
@@ -52,8 +52,8 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-// Execute cmd
-func main() {
+// Run CMD
+func Run() {
 	if err := rootCmd.Execute(); err != nil {
 		_ = rootCmd.Help()
 		os.Exit(1)

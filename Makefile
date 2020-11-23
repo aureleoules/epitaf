@@ -1,10 +1,10 @@
 PACKAGE=github.com/aureleoules/epitaf
-MAIN_PACKAGE=$(PACKAGE)/cmd/epitaf
+MAIN_PACKAGE=$(PACKAGE)
 GOCMD=go
 GOBUILD=$(GOCMD) build
 GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
-BUILD_DIRECTORY=build
+BUILD_DIRECTORY=./
 BINARY_NAME=epitaf
 STATIC_ARGS=CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 VERSION=`git describe --always`

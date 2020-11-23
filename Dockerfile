@@ -23,5 +23,5 @@ RUN make
 # COPY --from=builder /app/build/epitaf /app/epitaf
 
 WORKDIR /app
-ENTRYPOINT ["/app/build/epitaf"]
+ENTRYPOINT ["/app/epitaf"]
 CMD ["start"]

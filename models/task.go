@@ -380,10 +380,11 @@ func (t Task) PrepareUpdate(def Task, user User) Task {
 			}
 		}
 	} else {
-		update.Promotion = t.Promotion
-		update.Semester = t.Semester
-		update.Class = t.Class
-		update.Region = t.Region
+		update.Visibility = def.Visibility
+		update.Promotion = def.Promotion
+		update.Semester = def.Semester
+		update.Class = def.Class
+		update.Region = def.Region
 	}
 
 	return update

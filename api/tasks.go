@@ -118,7 +118,7 @@ func editTaskHandler(c *gin.Context) {
 		return
 	}
 
-	if task.CreatedByLogin != u.Login && task.Visibility != t.Visibility {
+	if task.CreatedByLogin != u.Login && t.Visibility != "" && task.Visibility != t.Visibility {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}

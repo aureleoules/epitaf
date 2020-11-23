@@ -188,6 +188,49 @@ func Test_editTaskHandler(t *testing.T) {
 	fetched, err = models.GetUserTask(task.ShortID, u.Login)
 	assert.Nil(t, err)
 
+	/* Promotion task */
+	task = models.Task{
+		Subject:        "mathematics",
+		Content:        "This is a test",
+		DueDate:        time.Now().Add(time.Hour * 24 * 7),
+		Visibility:     models.PromotionVisibility,
+		CreatedByLogin: u.Login,
+		UpdatedByLogin: u.Login,
+		Title:          "Thing to do",
+		Promotion:      u.Promotion,
+		Semester:       u.Semester,
+	}
+	task.Validate()
+	task.Insert()
+
+	update = models.Task{
+		Subject: "english",
+	}
+
+	data, err = json.Marshal(update)
+	assert.Nil(t, err)
+
+	apitest.New().
+		Handler(createRouter()).
+		Put("/api/tasks/"+task.ShortID).
+		Header("Authorization", "Bearer "+token2).
+		Body(string(data)).
+		Expect(t).
+		Status(http.StatusOK).
+		End()
+
+	fetched, err = models.GetUserTask(task.ShortID, u.Login)
+	assert.Nil(t, err)
+
+	assert.Equal(t, update.Subject, fetched.Subject)
+	assert.Equal(t, task.Title, fetched.Title)
+	assert.Equal(t, task.Content, fetched.Content)
+	assert.Equal(t, task.Visibility, fetched.Visibility)
+	assert.Nil(t, fetched.Members)
+	assert.Equal(t, "", fetched.Class)
+	assert.Equal(t, "", fetched.Region)
+	assert.Equal(t, u.Promotion, fetched.Promotion)
+	assert.Equal(t, u.Semester, fetched.Semester)
 }
 
 func Test_deleteTaskHandler(t *testing.T) {

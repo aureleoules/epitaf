@@ -40,5 +40,4 @@ require (
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/dgrijalva/jwt-go.v3 v3.2.0 // indirect
 	gopkg.in/resty.v1 v1.12.0
-	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
 )

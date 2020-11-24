@@ -46,7 +46,7 @@ func Test_editTaskHandler(t *testing.T) {
 	// Unauthorized
 	apitest.New().
 		Handler(createRouter()).
-		Put("/api/tasks/" + task.ShortID).
+		Put("/v1/tasks/" + task.ShortID).
 		Body(string(data)).
 		Expect(t).
 		Status(http.StatusUnauthorized).
@@ -55,7 +55,7 @@ func Test_editTaskHandler(t *testing.T) {
 	// Unauthorized
 	apitest.New().
 		Handler(createRouter()).
-		Put("/api/tasks/"+task.ShortID).
+		Put("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token3).
 		Body(string(data)).
 		Expect(t).
@@ -65,7 +65,7 @@ func Test_editTaskHandler(t *testing.T) {
 	/* Small update */
 	apitest.New().
 		Handler(createRouter()).
-		Put("/api/tasks/"+task.ShortID).
+		Put("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token).
 		Body(string(data)).
 		Expect(t).
@@ -95,7 +95,7 @@ func Test_editTaskHandler(t *testing.T) {
 
 	apitest.New().
 		Handler(createRouter()).
-		Put("/api/tasks/"+task.ShortID).
+		Put("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token).
 		Body(string(data)).
 		Expect(t).
@@ -124,7 +124,7 @@ func Test_editTaskHandler(t *testing.T) {
 
 	apitest.New().
 		Handler(createRouter()).
-		Put("/api/tasks/"+task.ShortID).
+		Put("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token).
 		Body(string(data)).
 		Expect(t).
@@ -152,7 +152,7 @@ func Test_editTaskHandler(t *testing.T) {
 
 	apitest.New().
 		Handler(createRouter()).
-		Put("/api/tasks/"+task.ShortID).
+		Put("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token2).
 		Body(string(data)).
 		Expect(t).
@@ -161,7 +161,7 @@ func Test_editTaskHandler(t *testing.T) {
 
 	apitest.New().
 		Handler(createRouter()).
-		Put("/api/tasks/"+task.ShortID).
+		Put("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token3).
 		Body(string(data)).
 		Expect(t).
@@ -169,7 +169,7 @@ func Test_editTaskHandler(t *testing.T) {
 		End()
 	apitest.New().
 		Handler(createRouter()).
-		Put("/api/tasks/"+task.ShortID).
+		Put("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+tokenTeacher).
 		Body(string(data)).
 		Expect(t).
@@ -178,7 +178,7 @@ func Test_editTaskHandler(t *testing.T) {
 
 	apitest.New().
 		Handler(createRouter()).
-		Put("/api/tasks/"+task.ShortID).
+		Put("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+tokenc1).
 		Body(string(data)).
 		Expect(t).
@@ -212,7 +212,7 @@ func Test_editTaskHandler(t *testing.T) {
 
 	apitest.New().
 		Handler(createRouter()).
-		Put("/api/tasks/"+task.ShortID).
+		Put("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token2).
 		Body(string(data)).
 		Expect(t).
@@ -259,7 +259,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Check unauthorized
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/" + task.ShortID).
+		Delete("/v1/tasks/" + task.ShortID).
 		Expect(t).
 		Status(http.StatusUnauthorized).
 		End()
@@ -267,7 +267,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Check not found
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/").
+		Delete("/v1/tasks/").
 		Header("Authorization", "Bearer "+token2).
 		Expect(t).
 		Status(http.StatusNotFound).
@@ -276,7 +276,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Check not found
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/abcd1234").
+		Delete("/v1/tasks/abcd1234").
 		Header("Authorization", "Bearer "+token2).
 		Expect(t).
 		Status(http.StatusNotFound).
@@ -285,7 +285,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Other class cannot delete
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token2).
 		Expect(t).
 		Status(http.StatusUnauthorized).
@@ -294,7 +294,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Other promo cannot delete
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token3).
 		Expect(t).
 		Status(http.StatusUnauthorized).
@@ -303,7 +303,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Other class member cannot delete
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+tokenc1).
 		Expect(t).
 		Status(http.StatusUnauthorized).
@@ -312,7 +312,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// User can delete
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token).
 		Expect(t).
 		Status(http.StatusOK).
@@ -324,7 +324,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Check ok delete from teacher
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+tokenTeacher).
 		Expect(t).
 		Status(http.StatusOK).
@@ -333,7 +333,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Should not delete after delete
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+tokenTeacher).
 		Expect(t).
 		Status(http.StatusNotFound).
@@ -354,7 +354,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Other class cannot delete
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token2).
 		Expect(t).
 		Status(http.StatusUnauthorized).
@@ -363,7 +363,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Other promo cannot delete
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token3).
 		Expect(t).
 		Status(http.StatusUnauthorized).
@@ -372,7 +372,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Teacher cannot delete
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+tokenTeacher).
 		Expect(t).
 		Status(http.StatusUnauthorized).
@@ -381,7 +381,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Other class member cannot delete
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+tokenc1).
 		Expect(t).
 		Status(http.StatusUnauthorized).
@@ -390,7 +390,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// User can delete
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token).
 		Expect(t).
 		Status(http.StatusOK).
@@ -415,7 +415,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Other class cannot delete
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token2).
 		Expect(t).
 		Status(http.StatusUnauthorized).
@@ -424,7 +424,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Other promo cannot delete
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token3).
 		Expect(t).
 		Status(http.StatusUnauthorized).
@@ -433,7 +433,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Same class member cannot delete
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+tokenc1).
 		Expect(t).
 		Status(http.StatusUnauthorized).
@@ -442,7 +442,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Teacher can delete
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+tokenTeacher).
 		Expect(t).
 		Status(http.StatusOK).
@@ -452,7 +452,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Author can delete
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token).
 		Expect(t).
 		Status(http.StatusOK).
@@ -474,7 +474,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Other class cannot delete
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token2).
 		Expect(t).
 		Status(http.StatusUnauthorized).
@@ -483,7 +483,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Other promo cannot delete
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token3).
 		Expect(t).
 		Status(http.StatusUnauthorized).
@@ -492,7 +492,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Same class member cannot delete
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+tokenc1).
 		Expect(t).
 		Status(http.StatusUnauthorized).
@@ -501,7 +501,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Teacher cannot delete
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+tokenTeacher).
 		Expect(t).
 		Status(http.StatusUnauthorized).
@@ -511,7 +511,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Author can delete
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token).
 		Expect(t).
 		Status(http.StatusOK).
@@ -533,7 +533,7 @@ func Test_deleteTaskHandler(t *testing.T) {
 	// Teacher cannot delete
 	apitest.New().
 		Handler(createRouter()).
-		Delete("/api/tasks/"+task.ShortID).
+		Delete("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+tokenTeacher).
 		Expect(t).
 		Status(http.StatusUnauthorized).
@@ -566,7 +566,7 @@ func Test_getTaskHandler(t *testing.T) {
 	// Check unauthorized
 	apitest.New().
 		Handler(createRouter()).
-		Get("/api/tasks/" + task.ShortID).
+		Get("/v1/tasks/" + task.ShortID).
 		Expect(t).
 		Status(http.StatusUnauthorized).
 		End()
@@ -574,14 +574,14 @@ func Test_getTaskHandler(t *testing.T) {
 	// Check not found
 	apitest.New().
 		Handler(createRouter()).
-		Get("/api/tasks/1").
+		Get("/v1/tasks/1").
 		Header("Authorization", "Bearer "+token).
 		Expect(t).
 		Status(http.StatusNotFound).
 		End()
 	apitest.New().
 		Handler(createRouter()).
-		Get("/api/tasks/1234").
+		Get("/v1/tasks/1234").
 		Header("Authorization", "Bearer "+token).
 		Expect(t).
 		Status(http.StatusNotFound).
@@ -589,7 +589,7 @@ func Test_getTaskHandler(t *testing.T) {
 
 	r := apitest.New().
 		Handler(createRouter()).
-		Get("/api/tasks/"+task.ShortID).
+		Get("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token).
 		Expect(t).
 		Status(http.StatusOK).
@@ -610,7 +610,7 @@ func Test_getTaskHandler(t *testing.T) {
 
 	apitest.New().
 		Handler(createRouter()).
-		Get("/api/tasks/"+task.ShortID).
+		Get("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token2).
 		Expect(t).
 		Status(http.StatusOK).
@@ -618,7 +618,7 @@ func Test_getTaskHandler(t *testing.T) {
 
 	apitest.New().
 		Handler(createRouter()).
-		Get("/api/tasks/"+task.ShortID).
+		Get("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token3).
 		Expect(t).
 		Status(http.StatusUnauthorized).
@@ -626,7 +626,7 @@ func Test_getTaskHandler(t *testing.T) {
 
 	apitest.New().
 		Handler(createRouter()).
-		Get("/api/tasks/"+task.ShortID).
+		Get("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+tokenTeacher).
 		Expect(t).
 		Status(http.StatusOK).
@@ -646,7 +646,7 @@ func Test_getTaskHandler(t *testing.T) {
 
 	apitest.New().
 		Handler(createRouter()).
-		Get("/api/tasks/"+task.ShortID).
+		Get("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token).
 		Expect(t).
 		Status(http.StatusOK).
@@ -654,7 +654,7 @@ func Test_getTaskHandler(t *testing.T) {
 
 	apitest.New().
 		Handler(createRouter()).
-		Get("/api/tasks/"+task.ShortID).
+		Get("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token2).
 		Expect(t).
 		Status(http.StatusUnauthorized).
@@ -662,7 +662,7 @@ func Test_getTaskHandler(t *testing.T) {
 
 	apitest.New().
 		Handler(createRouter()).
-		Get("/api/tasks/"+task.ShortID).
+		Get("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+token3).
 		Expect(t).
 		Status(http.StatusUnauthorized).
@@ -670,7 +670,7 @@ func Test_getTaskHandler(t *testing.T) {
 
 	apitest.New().
 		Handler(createRouter()).
-		Get("/api/tasks/"+task.ShortID).
+		Get("/v1/tasks/"+task.ShortID).
 		Header("Authorization", "Bearer "+tokenTeacher).
 		Expect(t).
 		Status(http.StatusUnauthorized).
@@ -684,7 +684,7 @@ func Test_getTasksHandler(t *testing.T) {
 	// Check unauthorized
 	apitest.New().
 		Handler(createRouter()).
-		Get("/api/tasks").
+		Get("/v1/tasks").
 		Expect(t).
 		Status(http.StatusUnauthorized).
 		End()
@@ -692,7 +692,7 @@ func Test_getTasksHandler(t *testing.T) {
 	// Check without any data
 	apitest.New().
 		Handler(createRouter()).
-		Get("/api/tasks").
+		Get("/v1/tasks").
 		Header("Authorization", "Bearer "+token).
 		Expect(t).
 		Body("null").
@@ -716,7 +716,7 @@ func Test_getTasksHandler(t *testing.T) {
 	// Check if equal
 	r := apitest.New().
 		Handler(createRouter()).
-		Get("/api/tasks").
+		Get("/v1/tasks").
 		Header("Authorization", "Bearer "+token).
 		Expect(t).
 		Status(http.StatusOK).
@@ -741,7 +741,7 @@ func Test_getTasksHandler(t *testing.T) {
 
 	r = apitest.New().
 		Handler(createRouter()).
-		Get("/api/tasks").
+		Get("/v1/tasks").
 		Header("Authorization", "Bearer "+token).
 		Expect(t).
 		Status(http.StatusOK).
@@ -769,7 +769,7 @@ func Test_createTaskHandler(t *testing.T) {
 	// Check unauthorized
 	apitest.New().
 		Handler(createRouter()).
-		Post("/api/tasks").
+		Post("/v1/tasks").
 		Body(string(data)).
 		Expect(t).
 		Status(http.StatusUnauthorized).
@@ -778,7 +778,7 @@ func Test_createTaskHandler(t *testing.T) {
 	// Check ok
 	r := apitest.New().
 		Handler(createRouter()).
-		Post("/api/tasks").
+		Post("/v1/tasks").
 		Header("Authorization", "Bearer "+token).
 		Body(string(data)).
 		Expect(t).
@@ -815,7 +815,7 @@ func Test_createTaskHandler(t *testing.T) {
 	// Check impossible due date
 	apitest.New().
 		Handler(createRouter()).
-		Post("/api/tasks").
+		Post("/v1/tasks").
 		Header("Authorization", "Bearer "+token).
 		Body(string(data)).
 		Expect(t).
@@ -836,7 +836,7 @@ func Test_createTaskHandler(t *testing.T) {
 
 	r = apitest.New().
 		Handler(createRouter()).
-		Post("/api/tasks").
+		Post("/v1/tasks").
 		Header("Authorization", "Bearer "+token).
 		Body(string(data)).
 		Expect(t).

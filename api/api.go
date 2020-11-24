@@ -19,18 +19,6 @@ const version = "v1"
 var router *gin.RouterGroup
 var auth *jwt.GinJWTMiddleware
 
-func reverseProxy(target string) gin.HandlerFunc {
-	url, err := url.Parse(target)
-	if err != nil {
-		zap.S().Error(err)
-		return nil
-	}
-
-	proxy := httputil.NewSingleHostReverseProxy(url)
-	return func(c *gin.Context) {
-		proxy.ServeHTTP(c.Writer, c.Request)
-	}
-}
 
 func createRouter() *gin.Engine {
 	// Create router

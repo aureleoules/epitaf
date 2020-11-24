@@ -10,6 +10,8 @@ import (
 	"go.uber.org/zap"
 )
 
+const version = "v1"
+
 var router *gin.RouterGroup
 var auth *jwt.GinJWTMiddleware
 
@@ -21,7 +23,7 @@ func createRouter() *gin.Engine {
 	r.Use(cors())
 
 	// Default API route
-	router = r.Group("/api")
+	router = r.Group("/" + version)
 	// JWT middleware
 	auth = AuthMiddleware()
 

@@ -36,7 +36,7 @@ require (
 	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b // indirect
 	golang.org/x/sys v0.0.0-20201119102817-f84b799fce68 // indirect
 	golang.org/x/text v0.3.4 // indirect
-	golang.org/x/tools v0.0.0-20201123232213-4aa1a224cdb5 // indirect
+	golang.org/x/tools v0.0.0-20201124005743-911501bfb504 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/dgrijalva/jwt-go.v3 v3.2.0 // indirect
 	gopkg.in/resty.v1 v1.12.0

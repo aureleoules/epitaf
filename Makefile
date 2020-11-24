@@ -12,10 +12,15 @@ COMPILE_FLAGS=-ldflags="-w -s -X $(PACKAGE)/cmd.version=$(VERSION)"
 
 .PHONY: prep build
 
-all: prep build
+all: prep swag build
 
 prep:
 	@mkdir -p build
+
+swag:
+	@echo "Building swagger documentation..."
+	@swag init
+	@echo "Built swagger documentation."
 
 build:
 	@echo "Compiling $(PACKAGE)..."

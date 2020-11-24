@@ -1,4 +1,5 @@
 FROM golang AS builder
+RUN go get -u github.com/swaggo/swag/cmd/swag
 
 WORKDIR /app
 COPY go.mod go.mod

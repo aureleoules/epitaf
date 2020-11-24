@@ -1,8 +1,6 @@
 package main
 
-import (
-	cmd "github.com/aureleoules/epitaf/cmd"
-)
+import "github.com/aureleoules/epitaf/cmd"
 
 // @title Epitaf API v1 Docs
 // @version 1.0

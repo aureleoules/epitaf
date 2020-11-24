@@ -2,6 +2,7 @@ package api
 
 import (
 	jwt "github.com/appleboy/gin-jwt/v2"
+	// Import GoSwagger
 	_ "github.com/aureleoules/epitaf/docs"
 	"github.com/gin-gonic/gin"
 	ginSwagger "github.com/swaggo/gin-swagger"

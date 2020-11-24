@@ -2,8 +2,6 @@ package api
 
 import (
 	"net/http"
-	"net/http/httputil"
-	"net/url"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	// Import GoSwagger
@@ -18,7 +16,6 @@ const version = "v1"
 
 var router *gin.RouterGroup
 var auth *jwt.GinJWTMiddleware
-
 
 func createRouter() *gin.Engine {
 	// Create router

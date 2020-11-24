@@ -58,5 +58,11 @@
         "display_name": "Project",
         "icon": "project.svg",
         "classes": ["SUP", "SPE"]
+    },
+    {
+        "name": "other",
+        "display_name": "Other",
+        "icon": "document.svg",
+        "classes": ["SUP", "SPE", "ING"]
     }
 ]

@@ -1,0 +1,212 @@
+basePath: /v1
+definitions:
+  models.Task:
+    properties:
+      class:
+        description: Class
+        type: string
+      completed:
+        type: boolean
+      completed_at:
+        type: string
+      content:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      created_by_login:
+        description: Meta
+        type: string
+      due_date:
+        type: string
+      members:
+        description: Students
+        items:
+          type: string
+        type: array
+      promotion:
+        description: Promotion
+        type: integer
+      region:
+        type: string
+      semester:
+        type: string
+      short_id:
+        description: Meta
+        type: string
+      subject:
+        type: string
+      title:
+        description: Body
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      updated_by_login:
+        type: string
+      visibility:
+        type: string
+    type: object
+host: https://api.epitaf.fr
+info:
+  contact:
+    email: contact@epitaf.fr
+    name: Aurèle Oulès
+    url: https://www.aureleoules.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: Epitaf API v1 Docs
+  version: "1.0"
+paths:
+  /tasks:
+    get:
+      description: Get tasks
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+        "406":
+          description: Not acceptable
+        "500":
+          description: Server error" "Server error
+      summary: Get tasks
+    post:
+      consumes:
+      - application/json
+      description: Create a new task
+      parameters:
+      - description: Task
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/models.Task'
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+        "406":
+          description: Not acceptable
+        "500":
+          description: Server error
+      summary: Create task
+  /tasks/{short_id}:
+    delete:
+      description: Delete a specific task
+      parameters:
+      - description: short_id
+        in: path
+        name: short_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+        "406":
+          description: Not acceptable
+        "500":
+          description: Server error
+      summary: Delete task
+    get:
+      description: Get a specific task
+      parameters:
+      - description: short_id
+        in: path
+        name: short_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+        "406":
+          description: Not acceptable
+        "500":
+          description: Server error" "Server error
+      summary: Get task
+    put:
+      consumes:
+      - application/json
+      description: Edit a specific task
+      parameters:
+      - description: short_id
+        in: path
+        name: short_id
+        required: true
+        type: string
+      - description: Task
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/models.Task'
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+        "406":
+          description: Not acceptable
+        "500":
+          description: Server error
+      summary: Update task
+  /tasks/{short_id}/complete:
+    delete:
+      description: Mark a specific task as uncompleted
+      parameters:
+      - description: short_id
+        in: path
+        name: short_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+        "406":
+          description: Not acceptable
+        "500":
+          description: Server error
+      summary: Uncomplete task
+    post:
+      description: Mark a specific task as completed
+      parameters:
+      - description: short_id
+        in: path
+        name: short_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+        "406":
+          description: Not acceptable
+        "500":
+          description: Server error
+      summary: Complete task
+swagger: "2.0"

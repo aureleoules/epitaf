@@ -5,3 +5,4 @@ tmp
 docker-compose.prod.yml
 epitaf_test.db
 epitaf
+docs

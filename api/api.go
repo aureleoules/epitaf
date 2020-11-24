@@ -1,6 +1,10 @@
 package api
 
 import (
+	"net/http"
+	"net/http/httputil"
+	"net/url"
+
 	jwt "github.com/appleboy/gin-jwt/v2"
 	// Import GoSwagger
 	_ "github.com/aureleoules/epitaf/docs"
@@ -15,12 +19,32 @@ const version = "v1"
 var router *gin.RouterGroup
 var auth *jwt.GinJWTMiddleware
 
+func reverseProxy(target string) gin.HandlerFunc {
+	url, err := url.Parse(target)
+	if err != nil {
+		zap.S().Error(err)
+		return nil
+	}
+
+	proxy := httputil.NewSingleHostReverseProxy(url)
+	return func(c *gin.Context) {
+		proxy.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
 func createRouter() *gin.Engine {
 	// Create router
 	r := gin.Default()
 
 	// Use CORS
 	r.Use(cors())
+
+	// Swagger
+	url := ginSwagger.URL("/swagger/doc.json")
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
+	r.GET("/", func(c *gin.Context) {
+		c.Redirect(http.StatusPermanentRedirect, "/swagger/index.html")
+	})
 
 	// Default API route
 	router = r.Group("/" + version)
@@ -29,8 +53,6 @@ func createRouter() *gin.Engine {
 
 	// Do not apply auth middleware here
 	handleAuth()
-	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json") // The url pointing to API definition
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
 	// Apply auth middleware on these routes
 	router.Use(auth.MiddlewareFunc())

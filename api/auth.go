@@ -18,6 +18,13 @@ func handleAuth() {
 	users.POST("/callback", auth.LoginHandler)
 }
 
+// @Summary Authenticate URL
+// @Tags users
+// @Description Build Microsoft oauth url
+// @Param   redirect_uri	body	string	true	"redirect_uri"
+// @Success 200	"OK"
+// @Failure 406	"Not acceptable"
+// @Router /users/authenticate [POST]
 func authenticateHandler(c *gin.Context) {
 	var data struct {
 		RedirectURI string `json:"redirect_uri"`
@@ -31,6 +38,19 @@ func authenticateHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, microsoft.SignInURL(data.RedirectURI))
 }
 
+// @Summary OAuth Callback
+// @Description Authenticate user and return JWT
+// @Tags users
+// @Param   code	body	string	true	"code"
+// @Param   redirect_uri	body	string	true	"redirect_uri"
+// @Accept  json
+// @Produce  json
+// @Success 200
+// @Failure 401	"Unauthorized"
+// @Failure 404	"Not found"
+// @Failure 406	"Not acceptable"
+// @Failure 500 "Server error"
+// @Router /users/callback [POST]
 func callbackHandler(c *gin.Context) (interface{}, error) {
 	var m map[string]string
 	err := c.Bind(&m)

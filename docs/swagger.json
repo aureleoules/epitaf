@@ -16,9 +16,32 @@
     "host": "https://api.epitaf.fr",
     "basePath": "/v1",
     "paths": {
+        "/classes": {
+            "get": {
+                "description": "Get list of all registered classes",
+                "tags": [
+                    "classes"
+                ],
+                "summary": "Get classes",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                }
+            }
+        },
         "/tasks": {
             "get": {
                 "description": "Get tasks",
+                "tags": [
+                    "tasks"
+                ],
                 "summary": "Get tasks",
                 "responses": {
                     "200": {
@@ -42,6 +65,9 @@
                 "description": "Create a new task",
                 "consumes": [
                     "application/json"
+                ],
+                "tags": [
+                    "tasks"
                 ],
                 "summary": "Create task",
                 "parameters": [
@@ -77,6 +103,9 @@
         "/tasks/{short_id}": {
             "get": {
                 "description": "Get a specific task",
+                "tags": [
+                    "tasks"
+                ],
                 "summary": "Get task",
                 "parameters": [
                     {
@@ -109,6 +138,9 @@
                 "description": "Edit a specific task",
                 "consumes": [
                     "application/json"
+                ],
+                "tags": [
+                    "tasks"
                 ],
                 "summary": "Update task",
                 "parameters": [
@@ -149,6 +181,9 @@
             },
             "delete": {
                 "description": "Delete a specific task",
+                "tags": [
+                    "tasks"
+                ],
                 "summary": "Delete task",
                 "parameters": [
                     {
@@ -181,6 +216,9 @@
         "/tasks/{short_id}/complete": {
             "post": {
                 "description": "Mark a specific task as completed",
+                "tags": [
+                    "tasks"
+                ],
                 "summary": "Complete task",
                 "parameters": [
                     {
@@ -211,6 +249,9 @@
             },
             "delete": {
                 "description": "Mark a specific task as uncompleted",
+                "tags": [
+                    "tasks"
+                ],
                 "summary": "Uncomplete task",
                 "parameters": [
                     {
@@ -224,6 +265,86 @@
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "406": {
+                        "description": "Not acceptable"
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                }
+            }
+        },
+        "/users/authenticate": {
+            "post": {
+                "description": "Build Microsoft oauth url",
+                "tags": [
+                    "users"
+                ],
+                "summary": "Authenticate URL",
+                "parameters": [
+                    {
+                        "description": "redirect_uri",
+                        "name": "redirect_uri",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "406": {
+                        "description": "Not acceptable"
+                    }
+                }
+            }
+        },
+        "/users/callback": {
+            "post": {
+                "description": "Authenticate user and return JWT",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "OAuth Callback",
+                "parameters": [
+                    {
+                        "description": "code",
+                        "name": "code",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "redirect_uri",
+                        "name": "redirect_uri",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
                     },
                     "401": {
                         "description": "Unauthorized"

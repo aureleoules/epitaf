@@ -61,6 +61,19 @@ info:
   title: Epitaf API v1 Docs
   version: "1.0"
 paths:
+  /classes:
+    get:
+      description: Get list of all registered classes
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+        "500":
+          description: Server error
+      summary: Get classes
+      tags:
+      - classes
   /tasks:
     get:
       description: Get tasks
@@ -76,6 +89,8 @@ paths:
         "500":
           description: Server error" "Server error
       summary: Get tasks
+      tags:
+      - tasks
     post:
       consumes:
       - application/json
@@ -99,6 +114,8 @@ paths:
         "500":
           description: Server error
       summary: Create task
+      tags:
+      - tasks
   /tasks/{short_id}:
     delete:
       description: Delete a specific task
@@ -120,6 +137,8 @@ paths:
         "500":
           description: Server error
       summary: Delete task
+      tags:
+      - tasks
     get:
       description: Get a specific task
       parameters:
@@ -140,6 +159,8 @@ paths:
         "500":
           description: Server error" "Server error
       summary: Get task
+      tags:
+      - tasks
     put:
       consumes:
       - application/json
@@ -168,6 +189,8 @@ paths:
         "500":
           description: Server error
       summary: Update task
+      tags:
+      - tasks
   /tasks/{short_id}/complete:
     delete:
       description: Mark a specific task as uncompleted
@@ -189,6 +212,8 @@ paths:
         "500":
           description: Server error
       summary: Uncomplete task
+      tags:
+      - tasks
     post:
       description: Mark a specific task as completed
       parameters:
@@ -209,4 +234,58 @@ paths:
         "500":
           description: Server error
       summary: Complete task
+      tags:
+      - tasks
+  /users/authenticate:
+    post:
+      description: Build Microsoft oauth url
+      parameters:
+      - description: redirect_uri
+        in: body
+        name: redirect_uri
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+        "406":
+          description: Not acceptable
+      summary: Authenticate URL
+      tags:
+      - users
+  /users/callback:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT
+      parameters:
+      - description: code
+        in: body
+        name: code
+        required: true
+        schema:
+          type: string
+      - description: redirect_uri
+        in: body
+        name: redirect_uri
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+        "406":
+          description: Not acceptable
+        "500":
+          description: Server error
+      summary: OAuth Callback
+      tags:
+      - users
 swagger: "2.0"

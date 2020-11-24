@@ -23,6 +23,7 @@ func handleTasks() {
 }
 
 // @Summary Complete task
+// @Tags tasks
 // @Description Mark a specific task as completed
 // @Param   short_id	path	string	true	"short_id"
 // @Success 200	"OK"
@@ -68,6 +69,7 @@ func completeTaskHandler(c *gin.Context) {
 }
 
 // @Summary Uncomplete task
+// @Tags tasks
 // @Description Mark a specific task as uncompleted
 // @Param   short_id	path	string	true	"short_id"
 // @Success 200	"OK"
@@ -113,6 +115,7 @@ func unCompleteTaskHandler(c *gin.Context) {
 }
 
 // @Summary Update task
+// @Tags tasks
 // @Description Edit a specific task
 // @Accept  json
 // @Param   short_id	path	string	true	"short_id"
@@ -180,6 +183,7 @@ func editTaskHandler(c *gin.Context) {
 }
 
 // @Summary Delete task
+// @Tags tasks
 // @Description Delete a specific task
 // @Param   short_id	path	string	true	"short_id"
 // @Success 200	"OK"
@@ -221,6 +225,7 @@ func deleteTaskHandler(c *gin.Context) {
 }
 
 // @Summary Get task
+// @Tags tasks
 // @Description Get a specific task
 // @Param   short_id	path	string	true	"short_id"
 // @Success 200	"OK"
@@ -254,6 +259,7 @@ func getTaskHandler(c *gin.Context) {
 }
 
 // @Summary Get tasks
+// @Tags tasks
 // @Description Get tasks
 // @Success 200	"OK"
 // @Failure 401	"Unauthorized"
@@ -293,6 +299,7 @@ func getTasksHandler(c *gin.Context) {
 }
 
 // @Summary Create task
+// @Tags tasks
 // @Description Create a new task
 // @Accept  json
 // @Param   task body    models.Task     true        "Task"

@@ -11,6 +11,13 @@ func handleClasses() {
 	router.GET("/classes", getClassesHandler)
 }
 
+// @Summary Get classes
+// @Tags classes
+// @Description Get list of all registered classes
+// @Success 200	"OK"
+// @Failure 401	"Unauthorized"
+// @Failure 500 "Server error"
+// @Router /classes [GET]
 func getClassesHandler(c *gin.Context) {
 	classes, err := models.GetClasses()
 	if err != nil {

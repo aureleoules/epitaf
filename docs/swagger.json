@@ -1,7 +1,317 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "title": "Epitaf API v1 Docs",
+        "contact": {
+            "name": "Aurèle Oulès",
+            "url": "https://www.aureleoules.com",
+            "email": "contact@epitaf.fr"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0"
     },
-    "paths": {}
+    "host": "https://api.epitaf.fr",
+    "basePath": "/v1",
+    "paths": {
+        "/tasks": {
+            "get": {
+                "description": "Get tasks",
+                "summary": "Get tasks",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "406": {
+                        "description": "Not acceptable"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new task",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "Create task",
+                "parameters": [
+                    {
+                        "description": "Task",
+                        "name": "task",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Task"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "406": {
+                        "description": "Not acceptable"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/tasks/{short_id}": {
+            "get": {
+                "description": "Get a specific task",
+                "summary": "Get task",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "short_id",
+                        "name": "short_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "406": {
+                        "description": "Not acceptable"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "put": {
+                "description": "Edit a specific task",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "Update task",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "short_id",
+                        "name": "short_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Task",
+                        "name": "task",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Task"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "406": {
+                        "description": "Not acceptable"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a specific task",
+                "summary": "Delete task",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "short_id",
+                        "name": "short_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "406": {
+                        "description": "Not acceptable"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/tasks/{short_id}/complete": {
+            "post": {
+                "description": "Mark a specific task as completed",
+                "summary": "Complete task",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "short_id",
+                        "name": "short_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "406": {
+                        "description": "Not acceptable"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "delete": {
+                "description": "Mark a specific task as uncompleted",
+                "summary": "Uncomplete task",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "short_id",
+                        "name": "short_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "406": {
+                        "description": "Not acceptable"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.Task": {
+            "type": "object",
+            "properties": {
+                "class": {
+                    "description": "Class",
+                    "type": "string"
+                },
+                "completed": {
+                    "type": "boolean"
+                },
+                "completed_at": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "created_by_login": {
+                    "description": "Meta",
+                    "type": "string"
+                },
+                "due_date": {
+                    "type": "string"
+                },
+                "members": {
+                    "description": "Students",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "promotion": {
+                    "description": "Promotion",
+                    "type": "integer"
+                },
+                "region": {
+                    "type": "string"
+                },
+                "semester": {
+                    "type": "string"
+                },
+                "short_id": {
+                    "description": "Meta",
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "title": {
+                    "description": "Body",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                },
+                "updated_by_login": {
+                    "type": "string"
+                },
+                "visibility": {
+                    "type": "string"
+                }
+            }
+        }
+    }
 }

@@ -22,6 +22,15 @@ func handleTasks() {
 	router.DELETE("/tasks/:id/complete", unCompleteTaskHandler)
 }
 
+// @Summary Complete task
+// @Description Mark a specific task as completed
+// @Param   short_id	path	string	true	"short_id"
+// @Success 200	"OK"
+// @Failure 401	"Unauthorized"
+// @Failure 404	"Not found"
+// @Failure 406	"Not acceptable"
+// @Failure 500	"Internal server error"
+// @Router /tasks/{short_id}/complete [POST]
 func completeTaskHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	u, err := models.GetUser(claims["login"].(string))
@@ -58,6 +67,15 @@ func completeTaskHandler(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+// @Summary Uncomplete task
+// @Description Mark a specific task as uncompleted
+// @Param   short_id	path	string	true	"short_id"
+// @Success 200	"OK"
+// @Failure 401	"Unauthorized"
+// @Failure 404	"Not found"
+// @Failure 406	"Not acceptable"
+// @Failure 500	"Internal server error"
+// @Router /tasks/{short_id}/complete [DELETE]
 func unCompleteTaskHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	u, err := models.GetUser(claims["login"].(string))
@@ -94,6 +112,17 @@ func unCompleteTaskHandler(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+// @Summary Update task
+// @Description Edit a specific task
+// @Accept  json
+// @Param   short_id	path	string	true	"short_id"
+// @Param 	task		body	models.Task	true "Task"
+// @Success 200	"OK"
+// @Failure 401	"Unauthorized"
+// @Failure 404	"Not found"
+// @Failure 406	"Not acceptable"
+// @Failure 500	"Internal server error"
+// @Router /tasks/{short_id} [PUT]
 func editTaskHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	u, err := models.GetUser(claims["login"].(string))
@@ -150,6 +179,15 @@ func editTaskHandler(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+// @Summary Delete task
+// @Description Delete a specific task
+// @Param   short_id	path	string	true	"short_id"
+// @Success 200	"OK"
+// @Failure 401	"Unauthorized"
+// @Failure 404	"Not found"
+// @Failure 406	"Not acceptable"
+// @Failure 500	"Internal server error"
+// @Router /tasks/{short_id} [DELETE]
 func deleteTaskHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	u, err := models.GetUser(claims["login"].(string))
@@ -182,6 +220,14 @@ func deleteTaskHandler(c *gin.Context) {
 
 }
 
+// @Summary Get tasks
+// @Description Get tasks
+// @Success 200	"OK"
+// @Failure 401	"Unauthorized"
+// @Failure 404	"Not found"
+// @Failure 406	"Not acceptable"
+// @Failure 500	"Internal server error"
+// @Router /tasks [GET]
 func getTaskHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	u, err := models.GetUser(claims["login"].(string))
@@ -206,6 +252,15 @@ func getTaskHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, task)
 }
 
+// @Summary Get task
+// @Description Get a specific task
+// @Param   short_id	path	string	true	"short_id"
+// @Success 200	"OK"
+// @Failure 401	"Unauthorized"
+// @Failure 404	"Not found"
+// @Failure 406	"Not acceptable"
+// @Failure 500	"Internal server error"
+// @Router /tasks/{short_id} [GET]
 func getTasksHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 
@@ -237,6 +292,16 @@ func getTasksHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, tasks)
 }
 
+// @Summary Create task
+// @Description Create a new task
+// @Accept  json
+// @Param   task body    models.Task     true        "Task"
+// @Success 200	"OK"
+// @Failure 401	"Unauthorized"
+// @Failure 404	"Not found"
+// @Failure 406	"Not acceptable"
+// @Failure 500	"Internal server error"
+// @Router /tasks [POST]
 func createTaskHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 

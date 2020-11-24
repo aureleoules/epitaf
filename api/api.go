@@ -2,7 +2,10 @@ package api
 
 import (
 	jwt "github.com/appleboy/gin-jwt/v2"
+	_ "github.com/aureleoules/epitaf/docs"
 	"github.com/gin-gonic/gin"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/swaggo/gin-swagger/swaggerFiles"
 	"go.uber.org/zap"
 )
 
@@ -23,6 +26,8 @@ func createRouter() *gin.Engine {
 
 	// Do not apply auth middleware here
 	handleAuth()
+	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json") // The url pointing to API definition
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
 	// Apply auth middleware on these routes
 	router.Use(auth.MiddlewareFunc())

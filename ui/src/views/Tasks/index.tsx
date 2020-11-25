@@ -14,7 +14,7 @@ import TaskView from '../Task';
 import Modal from '../../components/Modal';
 import Client from '../../services/client';
 import { useTranslation } from 'react-i18next';
-import { capitalize, deleteFilters, getSubjects, getUser, loadFilters, saveFilters } from '../../utils';
+import { capitalize, getSubjects, getUser, loadFilters, saveFilters } from '../../utils';
 import { RotateSpinner  } from "react-spinners-kit";
 import history from '../../history';
 import Datetime from 'react-datetime';
@@ -33,7 +33,6 @@ type Props = {
 export default function(props: any) {
     const {t} = useTranslation();
 
-    
     const [tasks, setTasks] = useState<Array<Task>>(new Array<Task>());
     const [open, setOpen] = useState<boolean>(false);
     const [task, setTask] = useState<Task | null>(null);
@@ -180,12 +179,25 @@ export default function(props: any) {
         }
     }
 
+    function countFilters(): number {
+        let c = 0;
+        if(startDate) c++;
+        if(endDate) c++;
+        if(status) c++;
+        if(subject) c++;
+        if(visibility) c++;
+
+        return c;
+    }
+
     return (
         <div className={styles.tasks}>
             <div className={styles.header}>
                 <h1>{t('Tasks')}</h1>
                 <Button onClick={() => setFilters(!filters)} className={styles.filtersbtn} title={t('Filters')}>
-                    {activeFilters && <span className={styles.bullet}>1</span>}
+                    {activeFilters && <span className={styles.bullet}>
+                        {countFilters()}    
+                    </span>}
                 </Button>
                 <Button className={styles.addbtn} onClick={createTask} icon={PlusIcon} title={t('New')}/>
             </div>

@@ -5,6 +5,7 @@ import { Subject } from "../types/subject";
 import frLocale from 'dayjs/locale/fr';
 import enLocale from 'dayjs/locale/en';
 import dayjs from "dayjs";
+import moment from 'moment';
 import { Filters } from "../types/filters";
 
 export const getQueryVariable = (variable: string) => {
@@ -93,8 +94,10 @@ export const setLanguage = (lang: string) => {
     localStorage.setItem("language", lang);
     if(lang === "fr-FR") {
         dayjs.locale(frLocale);
+        moment.locale('fr');
     } else {
         dayjs.locale(enLocale);
+        moment.locale('en');
     }
 }
 

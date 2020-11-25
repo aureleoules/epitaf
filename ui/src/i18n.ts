@@ -5,7 +5,13 @@ import fr from './translations/fr_FR.json';
 import en from './translations/en_US.json';
 
 import LanguageDetector from 'i18next-browser-languagedetector';
+
+
+// TODO : remove dayjs from project
 import dayjs from "dayjs";
+import moment from 'moment'
+import 'moment/locale/fr'
+
 import frLocale from 'dayjs/locale/fr';
 import enLocale from 'dayjs/locale/en';
 
@@ -26,8 +32,10 @@ const languageDetector = new LanguageDetector(null, {
 
 if(localStorage.getItem("language")?.startsWith("fr")) {
 	dayjs.locale(frLocale);
+	moment.locale('fr')
 } else {
 	dayjs.locale(enLocale);
+	moment.locale('en');
 }
 
 i18n

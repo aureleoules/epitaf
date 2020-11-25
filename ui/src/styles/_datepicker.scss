@@ -1,0 +1,55 @@
+
+
+.rdtPicker {
+    border-radius: 4px;
+    position: absolute;
+    min-width: 250px;
+    padding: 4px;
+    margin-top: 1px;
+    z-index: 99999 !important;
+    background: var(--date-picker-background);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--date-picker-background);
+    color: var(--text);
+
+    .rdtActive {
+        background-color: var(--primary);
+    }
+    * {
+        transition: all 0.2s;
+    }
+
+    th {
+        font-weight: 100;
+        border: none;
+    }
+}
+
+.rdtDay {
+    &:hover {
+        background: var(--date-picker-hover) !important;
+    }
+
+    &.rdtActive {
+        background: var(--primary) !important;
+    }
+}
+
+.rdtPicker td.rdtActive,
+.rdtPicker td {
+    border-radius: 4px;
+}
+
+.rdtPicker td {
+    &::before {
+        border-bottom: 7px solid var(--primary)!important;
+    }
+}
+
+.rdtPicker thead tr:first-of-type th {
+    border-radius: 4px;
+}
+
+.rdtPicker thead tr:first-of-type th:hover {
+    background: var(--date-picker-hover) !important;
+}

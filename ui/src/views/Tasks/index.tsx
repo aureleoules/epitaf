@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
+import "react-datetime/css/react-datetime.css";
 import styles from './tasks.module.scss';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { Task } from '../../types/task';
@@ -18,7 +19,6 @@ import { capitalize, getSubjects, getUser, loadFilters, saveFilters } from '../.
 import { RotateSpinner  } from "react-spinners-kit";
 import history from '../../history';
 import Datetime from 'react-datetime';
-import "react-datetime/css/react-datetime.css";
 import { Filters } from '../../types/filters';
 import Select from '../../components/Select';
 import Checkbox from '../../components/Checkbox';

@@ -118,23 +118,6 @@
                     opacity: 0.6;
                 }
             }
-
-            div {
-                // display: none;
-                position: absolute;
-                min-width: 250px;
-                padding: 4px;
-                margin-top: 1px;
-                z-index: 99999 !important;
-                background: #181a1b;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-                border: 1px solid #141617;
-                color: white;
-
-                .rdtActive {
-                    background-color: var(--primary);
-                }
-            }
         }
     }
 

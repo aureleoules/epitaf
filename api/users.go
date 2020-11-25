@@ -20,6 +20,16 @@ func handleUsers() {
 	users.GET("/search", searchUserHandler)
 }
 
+// @Summary Search user
+// @Tags users
+// @Description Search user by name or login
+// @Param   query	query	string	true	"query"
+// @Success 200	"OK"
+// @Failure 401	"Unauthorized"
+// @Failure 404	"Not found"
+// @Failure 406	"Not acceptable"
+// @Failure 500 "Server error" "Server error"
+// @Router /users/calendar [GET]
 func searchUserHandler(c *gin.Context) {
 	q := c.Query("query")
 	users, err := models.SearchUser(q)
@@ -31,6 +41,15 @@ func searchUserHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
+// @Summary Get calendar
+// @Tags users
+// @Description Get user calendar
+// @Success 200	"OK"
+// @Failure 401	"Unauthorized"
+// @Failure 404	"Not found"
+// @Failure 406	"Not acceptable"
+// @Failure 500 "Server error" "Server error"
+// @Router /users/calendar [GET]
 func getCalendarHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	u, err := models.GetUser(claims["login"].(string))
@@ -75,6 +94,16 @@ func getCalendarHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, models.FormatCalendar(*cal))
 }
+
+// @Summary Get self
+// @Tags users
+// @Description Retrieve data about current user
+// @Success 200	"OK"
+// @Failure 401	"Unauthorized"
+// @Failure 404	"Not found"
+// @Failure 406	"Not acceptable"
+// @Failure 500 "Server error"
+// @Router /users/me [GET]
 func getUserHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	u, err := models.GetUser(claims["login"].(string))

@@ -14,10 +14,14 @@ import TaskView from '../Task';
 import Modal from '../../components/Modal';
 import Client from '../../services/client';
 import { useTranslation } from 'react-i18next';
-import { capitalize, getSubjects, getUser } from '../../utils';
+import { capitalize, deleteFilters, getSubjects, getUser, loadFilters, saveFilters } from '../../utils';
 import { RotateSpinner  } from "react-spinners-kit";
 import history from '../../history';
-
+import Datetime from 'react-datetime';
+import "react-datetime/css/react-datetime.css";
+import { Filters } from '../../types/filters';
+import Select from '../../components/Select';
+import Checkbox from '../../components/Checkbox';
 
 dayjs.extend(relativeTime)
 
@@ -28,6 +32,7 @@ type Props = {
 }
 export default function(props: any) {
     const {t} = useTranslation();
+
     
     const [tasks, setTasks] = useState<Array<Task>>(new Array<Task>());
     const [open, setOpen] = useState<boolean>(false);
@@ -35,8 +40,43 @@ export default function(props: any) {
     const [created_task, setCreateTask] = useState<boolean>(false);
     const [fetched, setFetched]= useState<boolean>(false);
     
+
+    // Filters
+    const [filters, setFilters] = useState<boolean>(false);
+
+    // Defaults
+    const f = loadFilters();
+
+    const [startDate, setStartDate] = useState<Date>(new Date());
+    const [endDate, setEndDate] = useState<Date>(dayjs(new Date()).add(2, 'month').toDate());
+    const [subject, setSubject] = useState<string | undefined>(f.subject);
+    const [visibility, setVisibility] = useState<string | undefined>(f.visibility);
+    const [status, setStatus] = useState<string | undefined>(f.status);
+
+    const [save_filters, setSaveFilters] = useState<boolean>(localStorage.getItem("save_filters") === "true");
+    const [activeFilters, setActiveFilters] = useState<boolean>(f.active! || false);
+    
+    function getFilters(): Filters {
+        let completed;
+        if(status === "completed") completed = true;
+        else if(status === "todo") completed = false;
+        else completed = undefined;
+
+        return {
+            start_date: startDate,
+            end_date: endDate,
+            status: status || undefined,
+            completed: completed,
+            visibility: visibility || undefined,
+            subject: subject || undefined,
+            active: activeFilters || false 
+        };
+    }
+    
     function fetchTasks() {
-        Client.Tasks.list().then(tasks => {
+        const filters = activeFilters ? getFilters() : undefined;
+
+        Client.Tasks.list(filters).then(tasks => {
             setTasks(tasks);
             setFetched(true);
         });
@@ -54,7 +94,26 @@ export default function(props: any) {
                 if(err) throw err;
             });
         }
-    }, [props.match]);
+    }, [props.match, startDate, endDate, status, subject, visibility, activeFilters]);
+
+    useEffect(() => {
+        localStorage.setItem("save_filters", save_filters.toString());
+        if(!save_filters) return;
+
+        const filters = getFilters();
+        saveFilters(filters);
+        
+    }, [save_filters, startDate, endDate, status, subject, visibility, activeFilters]);
+
+    function resetFilters() {
+        setStartDate(new Date());
+        setEndDate(dayjs(new Date()).add(2, 'month').toDate());
+        setSubject("");
+        setVisibility("");
+        setStatus("");
+
+        if(!save_filters) deleteFilters();
+    }
 
     function openTask(t: Task) {
         setTask(t);
@@ -129,8 +188,90 @@ export default function(props: any) {
         <div className={styles.tasks}>
             <div className={styles.header}>
                 <h1>{t('Tasks')}</h1>
-                <Button onClick={createTask} icon={PlusIcon} title={t('New')}/>
+                <Button onClick={() => setFilters(!filters)} className={styles.filtersbtn} title={t('Filters')}>
+                    {activeFilters && <span className={styles.bullet}>1</span>}
+                </Button>
+                <Button className={styles.addbtn} onClick={createTask} icon={PlusIcon} title={t('New')}/>
             </div>
+            
+            {filters && <div className={styles.filters}>
+                <div className={styles.row}>
+                    <div className={styles.dateinput}>
+                        <p>{t('Start date')}</p>
+                        <Datetime 
+                            inputProps={{
+                                placeholder: t('Start date')
+                            }} 
+                            dateFormat="DD MMMM YYYY" 
+                            timeFormat={false} 
+                            className={styles.datepicker} 
+                            value={startDate}
+                            onChange={(value: any) => setStartDate(value.toDate())}
+                            closeOnSelect
+                        />
+                    </div>
+
+                    <div className={styles.dateinput}>
+                        <p>{t('End date')}</p>
+                        <Datetime 
+                            inputProps={{
+                                placeholder: t('End date')
+                            }} 
+                            dateFormat="DD MMMM YYYY" 
+                            timeFormat={false} 
+                            className={styles.datepicker} 
+                            initialValue={dayjs(new Date()).add(1, 'month').toDate()}
+                            value={endDate}
+                            onChange={(value: any) => setEndDate(value.toDate())}
+                            closeOnSelect
+                        />
+                    </div>
+                </div>
+                <div className={styles.row}>
+                    <Select 
+                        className={styles.visibility} 
+                        value={visibility} 
+                        onChange={(e: any) => setVisibility(e.target.value)}    
+                        title={t('Visibility')}>
+                        <option value={""}>{t('Any')}</option>
+                        <option value={'self'}>{t('Me')}</option>
+                        <option value={'students'}>{t('Students')}</option>
+                        <option value={'class'}>{t('Classe') + (!getUser().teacher ? ` (${getUser().class})` : "")}</option>
+                        <option value={'promotion'}>{t('Promotion') + (!getUser().teacher ? ` (${getUser().promotion})` : "")}</option>
+                    </Select>
+                    <Select value={subject} onChange={(e:any) => setSubject(e.target.value)} title={t("Subject")}>
+                        <option value={""}>{t('Any')}</option>
+                        {getSubjects(getUser().teacher)
+                            .sort((a, b) => t(a.display_name).localeCompare(t(b.display_name)))
+                            .map((s, i) => <option key={i} value={s.name}>
+                            {t(s.display_name)}
+                        </option>)}
+                    </Select>
+                    <Select value={status} onChange={(e:any) => setStatus(e.target.value)} title={t("Status")}>
+                        <option value={""}>{t('Any')}</option>
+                        <option value={"completed"}>{t('Completed')}</option>
+                        <option value={"todo"}>{t('To do')}</option>
+                    </Select> 
+                </div>
+                <div className={styles.row}>
+                    {/* <Button title={t('Apply')}/> */}
+                    <Checkbox 
+                        color="green" 
+                        className={styles.checkbox} 
+                        title={t('Active')}
+                        checked={activeFilters} 
+                        onChange={(e: any) => setActiveFilters(e.target.checked)}
+                    />
+                    <Checkbox 
+                        className={styles.checkbox} 
+                        checked={save_filters} 
+                        onChange={(e: any) => setSaveFilters(e.target.checked)} 
+                        title={t("Save filters")}
+                    />
+                    <Button onClick={resetFilters} className={styles.reset} color="red" title={t('Reset')}/>
+                </div>
+            </div>}
+
 
             {!fetched && <div style={{position: "absolute", left: "40%", top: "45%"}}>
                 <RotateSpinner size={50} color="var(--primary)"/>
@@ -170,6 +311,10 @@ export default function(props: any) {
                     </div>
                 );
             })}
+            {/* TODO: show more */}
+            {/* <div>
+                <Button className={styles.showmore} title={t('Show more')}/>
+            </div> */}
             {open && <Modal close={closeModal}>
                 <TaskView close={() => {
                     fetchTasks();

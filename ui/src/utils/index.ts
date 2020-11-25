@@ -5,6 +5,7 @@ import { Subject } from "../types/subject";
 import frLocale from 'dayjs/locale/fr';
 import enLocale from 'dayjs/locale/en';
 import dayjs from "dayjs";
+import { Filters } from "../types/filters";
 
 export const getQueryVariable = (variable: string) => {
     const query = window.location.search.substring(1);
@@ -95,4 +96,19 @@ export const setLanguage = (lang: string) => {
     } else {
         dayjs.locale(enLocale);
     }
+}
+
+export const loadFilters = (): Filters => {
+    const data = localStorage.getItem("filters");
+    if(!data) return {};
+    return JSON.parse(data);
+}
+
+export const saveFilters = (filters: Filters) => {
+    const data = JSON.stringify(filters);
+    localStorage.setItem("filters", data);
+}
+
+export const deleteFilters = () => {
+    localStorage.removeItem("filters");
 }

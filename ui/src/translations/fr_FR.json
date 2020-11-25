@@ -51,5 +51,15 @@
     "Create a": "Créer une",
     "Contact me on Discord": "Me contacter sur Discord",
     "Send me an email": "M'envoyer un mail",
-    "Other": "Autre"
+    "Other": "Autre",
+    "Filters": "Filtres",
+    "Start date": "Date de début",
+    "End date": "Date de fin",
+    "Completed": "Complété",
+    "To do": "À faire",
+    "Any": "Tout",
+    "Status": "Statut",
+    "Apply": "Appliquer",
+    "Save filters": "Garder en mémoire",
+    "Active": "Actif"
 }

@@ -124,6 +124,12 @@ const (
 		ON
 			ct.task_id = tasks.short_id AND ct.login = ?
 		WHERE 
+			tasks.visibility=COALESCE(?, tasks.visibility)
+			AND tasks.subject=COALESCE(?, tasks.subject)
+			AND (
+				COALESCE(?, ct.task_id IS NOT NULL) = (ct.task_id IS NOT NULL)
+			)
+			AND 
 			(
 				(
 					tasks.visibility = 'self'
@@ -535,7 +541,7 @@ func GetUserTask(id, login string) (*Task, error) {
 }
 
 // GetTasksRange returns list of tasks in a time for a specific class promotion
-func GetTasksRange(user User, start, end time.Time) ([]Task, error) {
+func GetTasksRange(user User, filters Filters) ([]Task, error) {
 	tx, err := db.DB.Beginx()
 	if err != nil {
 		return nil, err
@@ -544,7 +550,7 @@ func GetTasksRange(user User, start, end time.Time) ([]Task, error) {
 	defer checkErr(tx, err)
 
 	var tasks []Task
-	err = tx.Select(&tasks, getTasksRangeQuery, user.Login, user.Login, user.Promotion, user.Class, user.Region, user.Semester, user.Promotion, user.Semester, "%"+user.Login+"%", user.Login, start, end)
+	err = tx.Select(&tasks, getTasksRangeQuery, user.Login, filters.Visibility, filters.Subject, filters.Completed, user.Login, user.Promotion, user.Class, user.Region, user.Semester, user.Promotion, user.Semester, "%"+user.Login+"%", user.Login, filters.StartDate, filters.EndDate)
 	return tasks, err
 }
 

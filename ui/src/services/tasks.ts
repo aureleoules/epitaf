@@ -1,5 +1,6 @@
 import { client } from './client';
 import { Task } from '../types/task';
+import { Filters } from '../types/filters';
 
 export default {
     create: (task: Task) => new Promise<string>((resolve, reject) => {
@@ -23,8 +24,10 @@ export default {
             reject(err);
         });
     }),
-    list: () => new Promise<Array<Task>>((resolve, reject) => {
-        client.get('/tasks').then(response => {
+    list: (filters?: Filters) => new Promise<Array<Task>>((resolve, reject) => {
+        client.get('/tasks', {
+            params: filters
+        }).then(response => {
             resolve(response.data || []);
         }).catch(err => {
             reject(err);

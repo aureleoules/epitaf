@@ -19,9 +19,9 @@ func handleAuth() {
 }
 
 // @Summary Authenticate URL
-// @Tags users
+// @Tags auth
 // @Description Build Microsoft oauth url
-// @Param   redirect_uri	body	string	true	"redirect_uri"
+// @Param   redirect_uri	body	string	true	"redirect_uri"  default(https://www.epitaf.fr/callback)
 // @Success 200	"OK"
 // @Failure 406	"Not acceptable"
 // @Router /users/authenticate [POST]
@@ -40,7 +40,7 @@ func authenticateHandler(c *gin.Context) {
 
 // @Summary OAuth Callback
 // @Description Authenticate user and return JWT
-// @Tags users
+// @Tags auth
 // @Param   code	body	string	true	"code"
 // @Param   redirect_uri	body	string	true	"redirect_uri"
 // @Accept  json

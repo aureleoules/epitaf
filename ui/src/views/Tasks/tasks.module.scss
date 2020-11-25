@@ -4,15 +4,121 @@
     width: 100%;
     margin-top: 0;
 
+    .filters {
+        display: flex;
+        margin-bottom: 35px;
+        margin-top: -10px;
+        flex-direction: column;
+        background: var(--filters-background);
+        padding: 15px;
+        border-radius: 8px;
+        animation: fadeIn 0.2s;
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+
+            margin-top: 15px;
+
+            &:first-child {
+                margin-top: 0;
+            }
+
+            button.reset {
+                margin-left: auto;
+            }
+
+            .checkbox {
+                margin-right: 15px;
+            }
+        }
+
+        select {
+            width: 178px;
+            margin-right: 15px;
+        }
+
+        .dateinput {
+            display: flex;
+            flex-direction: column;
+            height: 55px;
+            p {
+                margin: 0;
+                margin-bottom: 5px;
+            }
+
+            &.checkbox {
+                margin-left: 15px;
+                span {
+                    margin-top: 5px;
+                }
+            }
+        }
+        .datepicker {
+            margin-right: 15px;
+            display: flex;
+
+            input {
+                background-color: var(--input-background);
+                cursor: pointer;
+                border: none;
+                border-radius: 8px;
+                padding: 5px 10px;
+                width: auto;
+                min-height: 20px;
+                color: var(--text);
+                border: solid 2px var(--primary);
+                outline: none;
+                width: auto;
+
+                resize: vertical;
+
+                &:disabled {
+                    opacity: 0.6;
+                }
+            }
+        }
+    }
+
     .header {
+        margin-top: 70px;
+        margin-bottom: 25px;
         h1 {
-            margin-top: 70px;
-            margin-bottom: 35px;
+            margin: 0;
         }
         display: flex;
         align-items: center;
 
-        button {
+        button.filtersbtn {
+            margin-left: 15px;
+            font-size: 12px;
+            min-width: 80px;
+            min-height: 26px;
+            padding: 0;
+
+            span.bullet {
+                width: 15px;
+                height: 15px;
+                background-color: #e74c3c;
+                border-radius: 50%;
+                margin-left: 5px;
+                font-size: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        button.addbtn {
             margin-left: auto;
         }
     }
@@ -20,6 +126,10 @@
     h2 {
         margin-top: 0;
         margin-bottom: 25px;
+    }
+
+    .showmore {
+        margin-top: 50px;
     }
 
     .task {
@@ -34,7 +144,7 @@
             background: var(--task-hover);
 
             .infos span.incompleted {
-                opacity: .3;
+                opacity: 0.3;
             }
         }
         .icon-container {
@@ -88,8 +198,8 @@
             .complete {
                 position: absolute;
                 right: 80px;
-                opacity: .2;
-                transition: all .2s;
+                opacity: 0.2;
+                transition: all 0.2s;
                 display: flex;
                 height: 40px;
                 width: 40px;

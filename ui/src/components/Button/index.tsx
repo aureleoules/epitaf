@@ -9,6 +9,7 @@ type Props = {
     large?: boolean
     disabled?: boolean
     className?: string
+    children?: any
 }
 export default function(props: Props) {
     if(!props.color) props = Object.assign({}, props, {color: "primary"});
@@ -25,6 +26,8 @@ export default function(props: Props) {
             onClick={props.onClick}>
             {props.icon && <props.icon/>}
             {props.title}
+
+            {props.children}
         </button>
     )
 }

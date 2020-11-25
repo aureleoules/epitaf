@@ -301,11 +301,12 @@ var doc = `{
             "post": {
                 "description": "Build Microsoft oauth url",
                 "tags": [
-                    "users"
+                    "auth"
                 ],
                 "summary": "Authenticate URL",
                 "parameters": [
                     {
+                        "default": "https://www.epitaf.fr/callback",
                         "description": "redirect_uri",
                         "name": "redirect_uri",
                         "in": "body",
@@ -325,6 +326,32 @@ var doc = `{
                 }
             }
         },
+        "/users/calendar": {
+            "get": {
+                "description": "Get user calendar",
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get calendar",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "406": {
+                        "description": "Not acceptable"
+                    },
+                    "500": {
+                        "description": "Server error\" \"Server error"
+                    }
+                }
+            }
+        },
         "/users/callback": {
             "post": {
                 "description": "Authenticate user and return JWT",
@@ -335,7 +362,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "auth"
                 ],
                 "summary": "OAuth Callback",
                 "parameters": [
@@ -361,6 +388,32 @@ var doc = `{
                 "responses": {
                     "200": {
                         "description": ""
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "406": {
+                        "description": "Not acceptable"
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                }
+            }
+        },
+        "/users/me": {
+            "get": {
+                "description": "Retrieve data about current user",
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get self",
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     },
                     "401": {
                         "description": "Unauthorized"

@@ -2,11 +2,9 @@ package api
 
 import (
 	"net/http"
-	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/aureleoules/epitaf/models"
-	"github.com/aureleoules/epitaf/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -279,13 +277,24 @@ func getTasksHandler(c *gin.Context) {
 
 	var tasks []models.Task
 
-	start := utils.TruncateDate(time.Now())
-	// TODO: client chosen time ranges
-	end := utils.TruncateDate(time.Now().Add(time.Hour * 24 * 365))
+	var query models.Filters
+	err = c.BindQuery(&query)
+	if err != nil {
+		zap.S().Error(err)
+		c.AbortWithStatus(http.StatusNotAcceptable)
+		return
+	}
+	err = query.Validate()
+	if err != nil {
+		zap.S().Error(err)
+		c.AbortWithStatus(http.StatusNotAcceptable)
+		return
+	}
+
 	if u.Teacher {
-		tasks, err = models.GetTeacherTasksRange(start, end)
+		tasks, err = models.GetTeacherTasksRange(query.StartDate, query.EndDate)
 	} else {
-		tasks, err = models.GetTasksRange(*u, start, end)
+		tasks, err = models.GetTasksRange(*u, query)
 	}
 
 	if err != nil {

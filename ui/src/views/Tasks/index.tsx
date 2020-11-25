@@ -94,6 +94,7 @@ export default function(props: any) {
                 if(err) throw err;
             });
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.match, startDate, endDate, status, subject, visibility, activeFilters]);
 
     useEffect(() => {
@@ -103,6 +104,7 @@ export default function(props: any) {
         const filters = getFilters();
         saveFilters(filters);
         
+     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [save_filters, startDate, endDate, status, subject, visibility, activeFilters]);
 
     function resetFilters() {

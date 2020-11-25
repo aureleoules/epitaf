@@ -237,7 +237,7 @@ export default function(props: any) {
                 </div>
                 <div className={styles.row}>
                     <Select 
-                        className={styles.visibility} 
+                        className={styles.s} 
                         value={visibility} 
                         onChange={(e: any) => setVisibility(e.target.value)}    
                         title={t('Visibility')}>
@@ -247,7 +247,7 @@ export default function(props: any) {
                         <option value={'class'}>{t('Classe') + (!getUser().teacher ? ` (${getUser().class})` : "")}</option>
                         <option value={'promotion'}>{t('Promotion') + (!getUser().teacher ? ` (${getUser().promotion})` : "")}</option>
                     </Select>
-                    <Select value={subject} onChange={(e:any) => setSubject(e.target.value)} title={t("Subject")}>
+                    <Select className={styles.s}  value={subject} onChange={(e:any) => setSubject(e.target.value)} title={t("Subject")}>
                         <option value={""}>{t('Any')}</option>
                         {getSubjects(getUser().teacher)
                             .sort((a, b) => t(a.display_name).localeCompare(t(b.display_name)))
@@ -255,7 +255,7 @@ export default function(props: any) {
                             {t(s.display_name)}
                         </option>)}
                     </Select>
-                    <Select value={status} onChange={(e:any) => setStatus(e.target.value)} title={t("Status")}>
+                    <Select className={styles.s}  value={status} onChange={(e:any) => setStatus(e.target.value)} title={t("Status")}>
                         <option value={""}>{t('Any')}</option>
                         <option value={"completed"}>{t('Completed')}</option>
                         <option value={"todo"}>{t('To do')}</option>

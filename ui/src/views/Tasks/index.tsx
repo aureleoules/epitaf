@@ -53,7 +53,6 @@ export default function(props: any) {
     const [visibility, setVisibility] = useState<string | undefined>(f.visibility);
     const [status, setStatus] = useState<string | undefined>(f.status);
 
-    const [save_filters, setSaveFilters] = useState<boolean>(localStorage.getItem("save_filters") === "true");
     const [activeFilters, setActiveFilters] = useState<boolean>(f.active! || false);
     
     function getFilters(): Filters {
@@ -98,14 +97,11 @@ export default function(props: any) {
     }, [props.match, startDate, endDate, status, subject, visibility, activeFilters]);
 
     useEffect(() => {
-        localStorage.setItem("save_filters", save_filters.toString());
-        if(!save_filters) return;
-
         const filters = getFilters();
         saveFilters(filters);
         
      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [save_filters, startDate, endDate, status, subject, visibility, activeFilters]);
+    }, [startDate, endDate, status, subject, visibility, activeFilters]);
 
     function resetFilters() {
         setStartDate(new Date());
@@ -113,8 +109,6 @@ export default function(props: any) {
         setSubject("");
         setVisibility("");
         setStatus("");
-
-        if(!save_filters) deleteFilters();
     }
 
     function openTask(t: Task) {
@@ -263,12 +257,6 @@ export default function(props: any) {
                         title={t('Active')}
                         checked={activeFilters} 
                         onChange={(e: any) => setActiveFilters(e.target.checked)}
-                    />
-                    <Checkbox 
-                        className={styles.checkbox} 
-                        checked={save_filters} 
-                        onChange={(e: any) => setSaveFilters(e.target.checked)} 
-                        title={t("Save filters")}
                     />
                     <Button onClick={resetFilters} className={styles.reset} color="red" title={t('Reset')}/>
                 </div>

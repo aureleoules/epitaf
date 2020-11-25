@@ -52,7 +52,7 @@ export default function(props: any) {
     const [visibility, setVisibility] = useState<string | undefined>(f.visibility);
     const [status, setStatus] = useState<string | undefined>(f.status);
 
-    const [activeFilters, setActiveFilters] = useState<boolean>(f.active! || false);
+    const [activeFilters, setActiveFilters] = useState<boolean>(f.active! || true);
     
     function getFilters(): Filters {
         let completed;

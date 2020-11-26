@@ -18,6 +18,9 @@ type Filters struct {
 
 // Validate filters
 func (f *Filters) Validate() error {
+	f.StartDate = f.StartDate.Local()
+	f.EndDate = f.EndDate.Local()
+
 	// Default values
 	if f.StartDate.IsZero() {
 		f.StartDate = time.Now()

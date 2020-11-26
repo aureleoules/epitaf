@@ -290,8 +290,8 @@ export default function(props: any) {
                                     <img alt={ta.subject} width={30} src={require('../../assets/svg/subjects/' + getIcon(ta.subject!))}/>
                                 </div>
                                 <div className={styles.content}>
-                                    <h4>{t(capitalize(getSubject(ta.subject!)))}</h4>
-                                    <p>{ta.title?.substr(0, 50)} · {t('Edited')} {dayjs(ta.updated_at).fromNow()}</p>
+                                    <h4>{ta.title?.substr(0, 50)}</h4>
+                                    <p>{t(capitalize(getSubject(ta.subject!)))} · {t('Edited')} {dayjs(ta.updated_at).fromNow()}</p>
                                 </div>
                                 <div className={styles.infos}>
                                     <span onClick={(e: any) => complete(e, ta)} className={[styles.complete, ta.completed ? styles.completed : styles.incompleted].join(" ")}><CheckIcon/></span>

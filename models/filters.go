@@ -20,11 +20,14 @@ type Filters struct {
 func (f *Filters) Validate() error {
 	// Default values
 	if f.StartDate.IsZero() {
-		f.StartDate = utils.TruncateDate(time.Now())
+		f.StartDate = time.Now()
 	}
 	if f.EndDate.IsZero() {
-		f.EndDate = utils.TruncateDate(time.Now().Add(time.Hour * 24 * 365))
+		f.EndDate = time.Now().Add(time.Hour * 24 * 365)
 	}
+
+	f.StartDate = utils.TruncateDate(f.StartDate)
+	f.EndDate = utils.TruncateDate(f.EndDate)
 
 	return nil
 }

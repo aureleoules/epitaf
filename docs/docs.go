@@ -437,7 +437,7 @@ var doc = `{
             "properties": {
                 "class": {
                     "description": "Class",
-                    "type": "string"
+                    "$ref": "#/definitions/nulltype.NullString"
                 },
                 "completed": {
                     "type": "boolean"
@@ -470,13 +470,13 @@ var doc = `{
                 },
                 "promotion": {
                     "description": "Promotion",
-                    "type": "integer"
+                    "$ref": "#/definitions/nulltype.NullInt64"
                 },
                 "region": {
-                    "type": "string"
+                    "$ref": "#/definitions/nulltype.NullString"
                 },
                 "semester": {
-                    "type": "string"
+                    "$ref": "#/definitions/nulltype.NullString"
                 },
                 "short_id": {
                     "description": "Meta",
@@ -502,6 +502,12 @@ var doc = `{
                     "type": "string"
                 }
             }
+        },
+        "nulltype.NullInt64": {
+            "type": "object"
+        },
+        "nulltype.NullString": {
+            "type": "object"
         }
     }
 }`

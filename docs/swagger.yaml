@@ -3,8 +3,8 @@ definitions:
   models.Task:
     properties:
       class:
+        $ref: '#/definitions/nulltype.NullString'
         description: Class
-        type: string
       completed:
         type: boolean
       completed_at:
@@ -26,12 +26,12 @@ definitions:
           type: string
         type: array
       promotion:
+        $ref: '#/definitions/nulltype.NullInt64'
         description: Promotion
-        type: integer
       region:
-        type: string
+        $ref: '#/definitions/nulltype.NullString'
       semester:
-        type: string
+        $ref: '#/definitions/nulltype.NullString'
       short_id:
         description: Meta
         type: string
@@ -48,6 +48,10 @@ definitions:
         type: string
       visibility:
         type: string
+    type: object
+  nulltype.NullInt64:
+    type: object
+  nulltype.NullString:
     type: object
 host: https://api.epitaf.fr
 info:

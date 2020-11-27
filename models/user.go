@@ -8,6 +8,7 @@ import (
 	jwt "github.com/appleboy/gin-jwt"
 	"github.com/aureleoules/epitaf/db"
 	"github.com/aureleoules/epitaf/lib/cri"
+	"github.com/mattn/go-nulltype"
 	"go.uber.org/zap"
 )
 
@@ -18,10 +19,10 @@ const (
 
 			name VARCHAR(256) NOT NULL,
 			email VARCHAR(256) NOT NULL UNIQUE,
-			promotion VARCHAR(256) NOT NULL DEFAULT 0,
-			class VARCHAR(256) NOT NULL DEFAULT "",
-			region VARCHAR(256) NOT NULL DEFAULT "",
-			semester VARCHAR(256) NOT NULL DEFAULT "",
+			promotion VARCHAR(256),
+			class VARCHAR(256),
+			region VARCHAR(256),
+			semester VARCHAR(256),
 			teacher BOOLEAN DEFAULT 0,
 			
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
@@ -92,14 +93,14 @@ const (
 type User struct {
 	base
 
-	Login     string `json:"login" db:"login"`
-	Name      string `json:"name" db:"name"`
-	Promotion int    `json:"promotion" db:"promotion"`
-	Class     string `json:"class" db:"class"`
-	Region    string `json:"region" db:"region"`
-	Semester  string `json:"semester" db:"semester"`
-	Email     string `json:"email" db:"email"`
-	Teacher   bool   `json:"teacher" db:"teacher"`
+	Login     string              `json:"login" db:"login"`
+	Name      string              `json:"name" db:"name"`
+	Promotion nulltype.NullInt64  `json:"promotion" db:"promotion"`
+	Class     nulltype.NullString `json:"class" db:"class"`
+	Region    nulltype.NullString `json:"region" db:"region"`
+	Semester  nulltype.NullString `json:"semester" db:"semester"`
+	Email     string              `json:"email" db:"email"`
+	Teacher   bool                `json:"teacher" db:"teacher"`
 }
 
 // GetUserByEmail retrives user by email
@@ -197,7 +198,7 @@ func PrepareUser(email string) (User, error) {
 		g := r.GroupsHistory[i]
 		if g.IsCurrent {
 			slug = g.Group.Slug
-			user.Promotion = g.GraduationYear
+			user.Promotion.Set(g.GraduationYear)
 			break
 		}
 	}
@@ -212,10 +213,10 @@ func PrepareUser(email string) (User, error) {
 	}
 
 	g := strings.Split(group.Name, " ")
-	user.Semester = g[0]
-	user.Region = g[1]
+	user.Semester.Set(g[0])
+	user.Region.Set(g[1])
 	if len(g) > 2 {
-		user.Class = g[2]
+		user.Class.Set(g[2])
 	}
 
 	zap.S().Info("Prepared user data.")

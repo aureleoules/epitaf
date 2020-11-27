@@ -8,6 +8,7 @@ import (
 
 	"github.com/aureleoules/epitaf/models"
 	"github.com/aureleoules/epitaf/utils"
+	"github.com/mattn/go-nulltype"
 	"github.com/steinfletcher/apitest"
 	"github.com/stretchr/testify/assert"
 )
@@ -81,8 +82,8 @@ func Test_editTaskHandler(t *testing.T) {
 	assert.Equal(t, task.Content, fetched.Content)
 	assert.Equal(t, task.Visibility, fetched.Visibility)
 	assert.Nil(t, fetched.Members)
-	assert.Equal(t, "", fetched.Class)
-	assert.Equal(t, "", fetched.Region)
+	assert.False(t, fetched.Class.Valid())
+	assert.False(t, fetched.Region.Valid())
 	assert.Equal(t, u.Promotion, fetched.Promotion)
 	assert.Equal(t, u.Semester, fetched.Semester)
 
@@ -111,9 +112,9 @@ func Test_editTaskHandler(t *testing.T) {
 	assert.Equal(t, models.SelfVisibility, fetched.Visibility)
 	assert.Nil(t, fetched.Members)
 	assert.Zero(t, fetched.Promotion)
-	assert.Equal(t, "", fetched.Semester)
-	assert.Equal(t, "", fetched.Class)
-	assert.Equal(t, "", fetched.Region)
+	assert.False(t, fetched.Semester.Valid())
+	assert.False(t, fetched.Class.Valid())
+	assert.False(t, fetched.Region.Valid())
 
 	/* Class visibility */
 	update.Visibility = models.ClassVisibility
@@ -142,7 +143,7 @@ func Test_editTaskHandler(t *testing.T) {
 	assert.Equal(t, u.Promotion, fetched.Promotion)
 	assert.Equal(t, u.Semester, fetched.Semester)
 	assert.Equal(t, u.Class, fetched.Class)
-	assert.Equal(t, u.Region, fetched.Region)
+	assert.Equal(t, u.Region.String(), fetched.Region.String())
 	assert.Equal(t, task.DueDate.Unix(), fetched.DueDate.Unix())
 
 	update = models.Task{}
@@ -227,8 +228,8 @@ func Test_editTaskHandler(t *testing.T) {
 	assert.Equal(t, task.Content, fetched.Content)
 	assert.Equal(t, task.Visibility, fetched.Visibility)
 	assert.Nil(t, fetched.Members)
-	assert.Equal(t, "", fetched.Class)
-	assert.Equal(t, "", fetched.Region)
+	assert.False(t, fetched.Class.Valid())
+	assert.False(t, fetched.Region.Valid())
 	assert.Equal(t, u.Promotion, fetched.Promotion)
 	assert.Equal(t, u.Semester, fetched.Semester)
 }
@@ -708,8 +709,8 @@ func Test_getTasksHandler(t *testing.T) {
 		CreatedByLogin: u.Login,
 		UpdatedByLogin: u.Login,
 		Visibility:     models.PromotionVisibility,
-		Semester:       "S3",
-		Promotion:      2024,
+		Semester:       nulltype.NullStringOf("S3"),
+		Promotion:      nulltype.NullInt64Of(2024),
 	}
 	task.Insert()
 
@@ -856,6 +857,6 @@ func Test_createTaskHandler(t *testing.T) {
 	assert.Equal(t, u.Login, ta.CreatedByLogin)
 	assert.Equal(t, u.Login, ta.UpdatedByLogin)
 	assert.Equal(t, task.Visibility, ta.Visibility)
-	assert.Equal(t, "", ta.Semester)
-	assert.Equal(t, 0, ta.Promotion)
+	assert.Equal(t, "", ta.Semester.String())
+	assert.False(t, ta.Promotion.Valid())
 }

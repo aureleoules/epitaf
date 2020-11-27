@@ -9,6 +9,7 @@ import (
 
 	"github.com/aureleoules/epitaf/db"
 	"github.com/aureleoules/epitaf/utils"
+	"github.com/mattn/go-nulltype"
 	"github.com/teris-io/shortid"
 	"go.uber.org/zap"
 )
@@ -28,12 +29,14 @@ const (
 		CREATE TABLE tasks (
 			short_id VARCHAR(16) NOT NULL UNIQUE,
 			
-			promotion VARCHAR(256) NOT NULL,
 			visibility ENUM('self', 'promotion', 'class', 'students') NOT NULL DEFAULT 'self',
 			members VARCHAR(10000) DEFAULT NULL,
-			class VARCHAR(256) NOT NULL,
-			region VARCHAR(256) NOT NULL,
-			semester VARCHAR(256) NOT NULL,
+
+			promotion VARCHAR(256),
+			class VARCHAR(256),
+			region VARCHAR(256),
+			semester VARCHAR(256),
+
 			title VARCHAR(256) NOT NULL,
 			subject VARCHAR(256) NOT NULL,
 			content TEXT NOT NULL DEFAULT "",
@@ -308,12 +311,12 @@ type Task struct {
 
 	Visibility Visibility `json:"visibility" db:"visibility"`
 	// Promotion
-	Promotion int    `json:"promotion" db:"promotion"`
-	Semester  string `json:"semester" db:"semester"`
+	Promotion nulltype.NullInt64  `json:"promotion" db:"promotion"`
+	Semester  nulltype.NullString `json:"semester" db:"semester"`
 
 	// Class
-	Class  string `json:"class" db:"class"`
-	Region string `json:"region" db:"region"`
+	Class  nulltype.NullString `json:"class" db:"class"`
+	Region nulltype.NullString `json:"region" db:"region"`
 
 	// Students
 	Members Members `json:"members" db:"members"`
@@ -351,25 +354,24 @@ func (t Task) PrepareUpdate(def Task, user User) Task {
 	update.Content = setValueDefaultString(t.Content, def.Content)
 	update.Title = setValueDefaultString(t.Title, def.Title)
 	update.Subject = setValueDefaultString(t.Subject, def.Subject)
-	update.Subject = setValueDefaultString(t.Subject, def.Subject)
 
 	// Visibility has changed
 	if user.Login == def.CreatedByLogin {
 		update.Visibility = Visibility(setValueDefaultString(string(t.Visibility), string(def.Visibility)))
 		if update.Visibility == PromotionVisibility {
 			if user.Teacher {
-				update.Promotion = setValueDefaultInt(t.Promotion, def.Promotion)
-				update.Semester = setValueDefaultString(t.Semester, def.Semester)
+				update.Promotion = setValueDefaultNInt64(t.Promotion, def.Promotion)
+				update.Semester = setValueDefaultNString(t.Semester, def.Semester)
 			} else {
 				update.Promotion = user.Promotion
 				update.Semester = user.Semester
 			}
 		} else if t.Visibility == ClassVisibility {
 			if user.Teacher {
-				update.Promotion = setValueDefaultInt(t.Promotion, def.Promotion)
-				update.Semester = setValueDefaultString(t.Semester, def.Semester)
-				update.Class = setValueDefaultString(t.Class, def.Class)
-				update.Region = setValueDefaultString(t.Region, def.Region)
+				update.Promotion = setValueDefaultNInt64(t.Promotion, def.Promotion)
+				update.Semester = setValueDefaultNString(t.Semester, def.Semester)
+				update.Class = setValueDefaultNString(t.Class, def.Class)
+				update.Region = setValueDefaultNString(t.Region, def.Region)
 			} else {
 				update.Promotion = user.Promotion
 				update.Semester = user.Semester
@@ -411,10 +413,10 @@ func (t *Task) Validate() error {
 	}
 
 	if t.Visibility == PromotionVisibility {
-		if t.Promotion == 0 {
+		if !t.Promotion.Valid() {
 			return errors.New("no promotion")
 		}
-		if t.Semester == "" {
+		if !t.Semester.Valid() {
 			return errors.New("no semester")
 		}
 
@@ -424,16 +426,16 @@ func (t *Task) Validate() error {
 	}
 
 	if t.Visibility == ClassVisibility {
-		if t.Promotion == 0 {
+		if !t.Promotion.Valid() {
 			return errors.New("no promotion")
 		}
-		if t.Semester == "" {
+		if !t.Semester.Valid() {
 			return errors.New("no semester")
 		}
-		if t.Region == "" {
+		if !t.Region.Valid() {
 			return errors.New("no region")
 		}
-		if t.Class == "" {
+		if !t.Class.Valid() {
 			return errors.New("no class")
 		}
 		if len(t.Members) > 0 {
@@ -448,9 +450,17 @@ func (t *Task) Validate() error {
 		return errors.New("invalid due date")
 	}
 
-	t.Semester = strings.ToUpper(t.Semester)
-	t.Class = strings.ToUpper(t.Class)
-	t.Region = strings.Title(strings.ToLower(t.Region))
+	if t.Semester.Valid() {
+		t.Semester.Set(strings.ToUpper(t.Semester.String()))
+	}
+
+	if t.Class.Valid() {
+		t.Class.Set(strings.ToUpper(t.Class.String()))
+	}
+
+	if t.Region.Valid() {
+		t.Region.Set(strings.Title(strings.ToLower(t.Region.String())))
+	}
 
 	if len(t.Members) == 0 {
 		t.Members = nil

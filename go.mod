@@ -21,6 +21,7 @@ require (
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/joho/godotenv v1.3.0
 	github.com/json-iterator/go v1.1.10 // indirect
+	github.com/mattn/go-nulltype v0.0.0-20200221160555-75ae8a76f2e9
 	github.com/mattn/go-sqlite3 v1.9.0
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect

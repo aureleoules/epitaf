@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/aureleoules/epitaf/db"
 	"github.com/aureleoules/epitaf/models"
+	"github.com/mattn/go-nulltype"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )
@@ -44,11 +45,11 @@ var registerAdminCmd = &cobra.Command{
 			Name:      args[0],
 			Login:     args[1],
 			Email:     args[2],
-			Class:     "",
-			Promotion: 0,
+			Class:     nulltype.NullString{},
+			Promotion: nulltype.NullInt64{},
 			Teacher:   true,
-			Region:    "",
-			Semester:  "",
+			Region:    nulltype.NullString{},
+			Semester:  nulltype.NullString{},
 		}
 
 		err := user.Insert()

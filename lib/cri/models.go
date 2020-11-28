@@ -19,7 +19,7 @@ type ProfileSearchReq struct {
 		} `json:"group"`
 		BeginAt        string `json:"begin_at"`
 		EndAt          string `json:"end_at"`
-		GraduationYear int    `json:"graduation_year"`
+		GraduationYear int64  `json:"graduation_year"`
 		IsCurrent      bool   `json:"is_current"`
 	} `json:"groups_history"`
 	CurrentGroups []struct {

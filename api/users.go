@@ -71,17 +71,17 @@ func getCalendarHandler(c *gin.Context) {
 	// Class mapping
 	// TODO clean
 	var slug string
-	if strings.HasPrefix(u.Semester, "S1") || strings.HasPrefix(u.Semester, "S2") || strings.HasPrefix(u.Semester, "S3") || strings.HasPrefix(u.Semester, "S4") {
-		slug = "INFO" + strings.ReplaceAll(u.Semester, "#", "%23") + u.Class
+	if strings.HasPrefix(u.Semester.String(), "S1") || strings.HasPrefix(u.Semester.String(), "S2") || strings.HasPrefix(u.Semester.String(), "S3") || strings.HasPrefix(u.Semester.String(), "S4") {
+		slug = "INFO" + strings.ReplaceAll(u.Semester.String(), "#", "%23") + u.Class.String()
 	} else {
-		if u.Class == "BING" {
+		if u.Class.String() == "BING" {
 			slug = "BING B"
-		} else if strings.HasPrefix(u.Class, "A") {
-			slug = "RIEMANN " + u.Class
-		} else if strings.HasPrefix(u.Class, "C") {
-			slug = "SHANNON " + u.Class
-		} else if strings.HasPrefix(u.Class, "D") {
-			slug = "TANENBAUM " + u.Class
+		} else if strings.HasPrefix(u.Class.String(), "A") {
+			slug = "RIEMANN " + u.Class.String()
+		} else if strings.HasPrefix(u.Class.String(), "C") {
+			slug = "SHANNON " + u.Class.String()
+		} else if strings.HasPrefix(u.Class.String(), "D") {
+			slug = "TANENBAUM " + u.Class.String()
 		}
 	}
 

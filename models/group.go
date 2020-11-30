@@ -11,7 +11,7 @@ const (
 			id VARCHAR(16) NOT NULL UNIQUE,
 			realm_id VARCHAR(16) NOT NULL,
 			usable BOOLEAN NOT NULL,
-			slug VARCHAR(256) NOT NULL UNIQUE,
+			slug VARCHAR(256) NOT NULL,
 			name VARCHAR(256) NOT NULL,
 
 			parent_id VARCHAR(16),
@@ -21,7 +21,9 @@ const (
 			
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
-			PRIMARY KEY (short_id)
+			PRIMARY KEY (short_id),
+			FOREIGN KEY (realm_id) REFERENCES realms (id),
+			FOREIGN KEY (parent_id) REFERENCES groups (id)
 		);
 	`
 )

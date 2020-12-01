@@ -251,7 +251,8 @@ export default function(props: Props) {
                     onChange={(e:any) => setContent(e.target.value)}
                     multiline 
                     value={content} 
-                    placeholder={t("Content")} 
+                    placeholder={t("Content")}
+                    title={<span>{t("Content")} <small>(markdown)</small></span>} 
                     rows={10}
                 />
                 <MuiPickersUtilsProvider utils={DateDayjsUtils} locale={"fr"}>

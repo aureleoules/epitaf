@@ -3,12 +3,12 @@ import React from 'react';
 import styles from './input.module.scss';
 
 type Props = {
-    placeholder?: string
+    placeholder?: any
     value?: any
     onChange?: any
     multiline?: boolean
     rows?: number
-    title?: string
+    title?: any
     className?: string
     type?: string
     disabled?: boolean

@@ -32,13 +32,13 @@ func getClassesHandler(c *gin.Context) {
 	var formatted f = make(f)
 
 	for _, c := range classes {
-		if formatted[c.Promotion] == nil {
-			formatted[c.Promotion] = make(semester)
+		if formatted[int(c.Promotion.Int64Value())] == nil {
+			formatted[int(c.Promotion.Int64Value())] = make(semester)
 		}
-		if formatted[c.Promotion][c.Semester] == nil {
-			formatted[c.Promotion][c.Semester] = make(region)
+		if formatted[int(c.Promotion.Int64Value())][c.Semester.String()] == nil {
+			formatted[int(c.Promotion.Int64Value())][c.Semester.String()] = make(region)
 		}
-		formatted[c.Promotion][c.Semester][c.Region] = append(formatted[c.Promotion][c.Semester][c.Region], c.Class)
+		formatted[int(c.Promotion.Int64Value())][c.Semester.String()][c.Region.String()] = append(formatted[int(c.Promotion.Int64Value())][c.Semester.String()][c.Region.String()], c.Class.String())
 	}
 
 	c.JSON(http.StatusOK, formatted)

@@ -1,13 +1,16 @@
 package models
 
-import "github.com/aureleoules/epitaf/db"
+import (
+	"github.com/aureleoules/epitaf/db"
+	"github.com/mattn/go-nulltype"
+)
 
 // Class struct
 type Class struct {
-	Promotion int    `json:"promotion" db:"promotion"`
-	Semester  string `json:"semester" db:"semester"`
-	Region    string `json:"region" db:"region"`
-	Class     string `json:"class" db:"class"`
+	Promotion nulltype.NullInt64  `json:"promotion" db:"promotion"`
+	Semester  nulltype.NullString `json:"semester" db:"semester"`
+	Region    nulltype.NullString `json:"region" db:"region"`
+	Class     nulltype.NullString `json:"class" db:"class"`
 }
 
 const (

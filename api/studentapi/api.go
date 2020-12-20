@@ -1,14 +1,11 @@
-package api
+package studentapi
 
 import (
-	"net/http"
+	"os"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
-	// Import GoSwagger
-	_ "github.com/aureleoules/epitaf/docs"
+	"github.com/aureleoules/epitaf/api/middleware"
 	"github.com/gin-gonic/gin"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"github.com/swaggo/gin-swagger/swaggerFiles"
 	"go.uber.org/zap"
 )
 
@@ -22,19 +19,12 @@ func createRouter() *gin.Engine {
 	r := gin.Default()
 
 	// Use CORS
-	r.Use(cors())
-
-	// Swagger
-	url := ginSwagger.URL("/swagger/doc.json")
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
-	r.GET("/", func(c *gin.Context) {
-		c.Redirect(http.StatusPermanentRedirect, "/swagger/index.html")
-	})
+	r.Use(middleware.Cors())
 
 	// Default API route
 	router = r.Group("/" + version)
 	// JWT middleware
-	auth = AuthMiddleware()
+	auth = middleware.AuthMiddleware(authenticator)
 
 	// Do not apply auth middleware here
 	handleAuth()
@@ -44,7 +34,6 @@ func createRouter() *gin.Engine {
 
 	handleUsers()
 	handleTasks()
-	handleClasses()
 
 	return r
 }
@@ -53,7 +42,7 @@ func createRouter() *gin.Engine {
 func Serve() {
 	r := createRouter()
 
-	if err := r.Run(); err != nil {
+	if err := r.Run(":" + os.Getenv("API_STUDENT_PORT")); err != nil {
 		zap.S().Panic(err)
 	}
 }

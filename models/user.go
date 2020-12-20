@@ -2,32 +2,26 @@ package models
 
 import (
 	"errors"
-	"os"
-	"strings"
 
-	jwt "github.com/appleboy/gin-jwt"
+	"github.com/asaskevich/govalidator"
 	"github.com/aureleoules/epitaf/db"
-	"github.com/aureleoules/epitaf/lib/cri"
-	"github.com/mattn/go-nulltype"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
 	userSchema = `
 		CREATE TABLE users (
-			login VARCHAR(256) NOT NULL UNIQUE,
+			uuid BINARY(16) NOT NULL UNIQUE,
+			realm_id BINARY(16) NOT NULL,
+			login VARCHAR(256) NOT NULL,
 
 			name VARCHAR(256) NOT NULL,
-			email VARCHAR(256) NOT NULL UNIQUE,
-			promotion VARCHAR(256),
-			class VARCHAR(256),
-			region VARCHAR(256),
-			semester VARCHAR(256),
-			teacher BOOLEAN DEFAULT 0,
+			email VARCHAR(256),
 			
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
-			PRIMARY KEY (login)
+			PRIMARY KEY (uuid)
 		);
 	`
 
@@ -43,11 +37,6 @@ const (
 			login,
 			name, 
 			email, 
-			promotion,
-			class,
-			region,
-			semester,
-			teacher,
 			created_at,
 			updated_at
 		FROM users
@@ -59,15 +48,10 @@ const (
 			login,
 			name, 
 			email, 
-			promotion,
-			class,
-			region,
-			semester,
-			teacher,
 			created_at,
 			updated_at
 		FROM users
-		WHERE login = ?;
+		WHERE login = ? AND realm_id=?;
 	`
 
 	searchUserQuery = `
@@ -75,17 +59,13 @@ const (
 			login,
 			name, 
 			email, 
-			promotion,
-			class,
-			region,
-			semester,
-			teacher,
+
 			created_at,
 			updated_at
 		FROM users
 		WHERE 
-			name LIKE ?
-			OR login LIKE ?;
+			(name LIKE ?
+			OR login LIKE ?) AND realm_id=?;
 	`
 )
 
@@ -93,14 +73,36 @@ const (
 type User struct {
 	base
 
-	Login     string              `json:"login" db:"login"`
-	Name      string              `json:"name" db:"name"`
-	Promotion nulltype.NullInt64  `json:"promotion" db:"promotion"`
-	Class     nulltype.NullString `json:"class" db:"class"`
-	Region    nulltype.NullString `json:"region" db:"region"`
-	Semester  nulltype.NullString `json:"semester" db:"semester"`
-	Email     string              `json:"email" db:"email"`
-	Teacher   bool                `json:"teacher" db:"teacher"`
+	UUID     UUID   `json:"uuid" db:"uuid"`
+	RealmID  UUID   `json:"realm_id" db:"realm_id"`
+	Login    string `json:"login" db:"login"`
+	Name     string `json:"name" db:"name"`
+	Email    string `json:"email" db:"email"`
+	Password string `json:"password" db:"password"`
+
+	Groups []UserGroup `json:"groups" db:"-"`
+}
+
+// Validate user data
+func (u *User) Validate() error {
+	if !govalidator.IsEmail(u.Email) {
+		return errors.New("invalid email")
+	}
+	if !govalidator.IsLowerCase(u.Login) {
+		return errors.New("login should be lowercase")
+	}
+
+	if len(u.Password) < 8 {
+		return errors.New("password is not long enough")
+	}
+
+	return nil
+}
+
+// HashPassword hash user's password
+func (u *User) HashPassword() {
+	password, _ := bcrypt.GenerateFromPassword([]byte(u.Password), 12)
+	u.Password = string(password)
 }
 
 // GetUserByEmail retrives user by email
@@ -171,102 +173,4 @@ func (u *User) Insert() error {
 
 	zap.S().Info("User ", u.Name, " just created. ("+u.Email+")")
 	return nil
-}
-
-// PrepareUser data
-func PrepareUser(email string) (User, error) {
-	zap.S().Info("Preparing user data...")
-	user := User{
-		Email: email,
-	}
-	// CRI req
-	client := cri.NewClient(os.Getenv("CRI_USERNAME"), os.Getenv("CRI_PASSWORD"), nil)
-	r, err := client.SearchUser(email)
-	if err != nil {
-		return user, errors.New("not found")
-	}
-
-	user.Name = r.FirstName + " " + r.LastName
-	user.Login = r.Login
-
-	if r.PrimaryGroup.Slug == "teachers" {
-		user.Teacher = true
-	}
-
-	var slug string
-	for i := len(r.GroupsHistory) - 1; i >= 0; i-- {
-		g := r.GroupsHistory[i]
-		if g.IsCurrent {
-			slug = g.Group.Slug
-			user.Promotion.Set(g.GraduationYear)
-			break
-		}
-	}
-
-	if slug == "" {
-		return user, nil
-	}
-
-	group, err := client.GetGroup(slug)
-	if err != nil {
-		return user, jwt.ErrFailedAuthentication
-	}
-
-	g := strings.Split(group.Name, " ")
-	user.Semester.Set(g[0])
-	user.Region.Set(g[1])
-	if len(g) > 2 {
-		user.Class.Set(g[2])
-	}
-
-	zap.S().Info("Prepared user data.")
-	return user, nil
-}
-
-// CanViewTask checks if an user can view a task
-func (u User) CanViewTask(task Task) bool {
-	// Author
-	if task.CreatedByLogin == u.Login {
-		return true
-	}
-	// Student is included in visibility
-	if task.Visibility == StudentsVisibility && task.Members.Includes(u.Login) {
-		return true
-	}
-
-	// Student is in promotion
-	if task.Visibility == PromotionVisibility && u.Promotion == task.Promotion && u.Semester == task.Semester {
-		return true
-	}
-
-	// Student is in class
-	if task.Visibility == ClassVisibility && u.Promotion == task.Promotion && u.Semester == task.Semester && task.Class == u.Class && task.Region == u.Region {
-		return true
-	}
-
-	// If teacher : can view class & promo
-	if u.Teacher && (task.Visibility == ClassVisibility || task.Visibility == PromotionVisibility) {
-		return true
-	}
-
-	return false
-}
-
-// CanEditTask checks if an user can edit a task
-func (u User) CanEditTask(task Task) bool {
-	// Permission is the same for now
-	return u.CanViewTask(task)
-}
-
-// CanDeleteTask checks if an user can delete a task
-func (u User) CanDeleteTask(task Task) bool {
-	if task.CreatedByLogin == u.Login {
-		return true
-	}
-
-	if u.Teacher && (task.Visibility == ClassVisibility || task.Visibility == PromotionVisibility) {
-		return true
-	}
-
-	return false
 }

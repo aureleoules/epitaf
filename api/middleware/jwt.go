@@ -1,4 +1,4 @@
-package api
+package middleware
 
 import (
 	"errors"
@@ -11,7 +11,7 @@ import (
 )
 
 // AuthMiddleware handles JWT authentications
-func AuthMiddleware() *jwt.GinJWTMiddleware {
+func AuthMiddleware(authenticator func(c *gin.Context) (interface{}, error)) *jwt.GinJWTMiddleware {
 	// the jwt middleware
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:      "epitaf",
@@ -20,19 +20,13 @@ func AuthMiddleware() *jwt.GinJWTMiddleware {
 		MaxRefresh: time.Hour * 48,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			u := data.(*models.User)
-			// What we put in the JWT claims
 			return jwt.MapClaims{
-				"email":     u.Email,
-				"name":      u.Name,
-				"login":     u.Login,
-				"promotion": u.Promotion,
-				"class":     u.Class,
-				"region":    u.Region,
-				"semester":  u.Semester,
-				"teacher":   u.Teacher,
+				"email": u.Email,
+				"name":  u.Name,
+				"login": u.Login,
 			}
 		},
-		Authenticator: callbackHandler,
+		Authenticator: authenticator,
 		Authorizator: func(data interface{}, c *gin.Context) bool {
 			return true
 		},

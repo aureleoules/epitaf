@@ -9,7 +9,6 @@ import (
 
 	"github.com/aureleoules/epitaf/db"
 	"github.com/aureleoules/epitaf/utils"
-	"github.com/mattn/go-nulltype"
 	"github.com/teris-io/shortid"
 	"go.uber.org/zap"
 )
@@ -190,7 +189,7 @@ const (
 			deleted=0
 			AND due_date >= ? 
 			AND due_date <= ?
-			AND (tasks.visibility = 'promotion' OR tasks.visibility = 'class');
+			AND (tasks.visibility = 'promotion' OR tasks.visibility = 'class' OR tasks.created_by_login = ?);
 	`
 
 	updateTaskQuery = `
@@ -294,10 +293,8 @@ type Visibility string
 const (
 	// SelfVisibility only the author of task can access it
 	SelfVisibility Visibility = "self"
-	// PromotionVisibility only the promotion of the author of the task can access it
-	PromotionVisibility Visibility = "promotion"
-	// ClassVisibility only the class of the author of the task can access it
-	ClassVisibility Visibility = "class"
+	// GroupVisibility users part of group or child groups can access it
+	GroupVisibility Visibility = "group"
 	// StudentsVisibility only selected students can access it
 	StudentsVisibility Visibility = "students"
 )
@@ -307,19 +304,12 @@ type Task struct {
 	base
 
 	// Meta
+	RealmID UUID   `json:"realm_id" db:"realm_id"`
 	ShortID string `json:"short_id" db:"short_id"`
 
 	Visibility Visibility `json:"visibility" db:"visibility"`
-	// Promotion
-	Promotion nulltype.NullInt64  `json:"promotion" db:"promotion"`
-	Semester  nulltype.NullString `json:"semester" db:"semester"`
-
-	// Class
-	Class  nulltype.NullString `json:"class" db:"class"`
-	Region nulltype.NullString `json:"region" db:"region"`
-
-	// Students
-	Members Members `json:"members" db:"members"`
+	GroupID    UUID       `json:"group_id" db:"group_id"`
+	Members    Members    `json:"members" db:"members"`
 
 	// Body
 	Title   string    `json:"title" db:"title"`
@@ -355,48 +345,7 @@ func (t Task) PrepareUpdate(def Task, user User) Task {
 	update.Title = setValueDefaultString(t.Title, def.Title)
 	update.Subject = setValueDefaultString(t.Subject, def.Subject)
 
-	// Visibility has changed
-	if user.Login == def.CreatedByLogin {
-		update.Visibility = Visibility(setValueDefaultString(string(t.Visibility), string(def.Visibility)))
-		if update.Visibility == PromotionVisibility {
-			if user.Teacher {
-				update.Promotion = setValueDefaultNInt64(t.Promotion, def.Promotion)
-				update.Semester = setValueDefaultNString(t.Semester, def.Semester)
-			} else {
-				update.Promotion = user.Promotion
-				update.Semester = user.Semester
-			}
-		} else if t.Visibility == ClassVisibility {
-			if user.Teacher {
-				update.Promotion = setValueDefaultNInt64(t.Promotion, def.Promotion)
-				update.Semester = setValueDefaultNString(t.Semester, def.Semester)
-				update.Class = setValueDefaultNString(t.Class, def.Class)
-				update.Region = setValueDefaultNString(t.Region, def.Region)
-			} else {
-				update.Promotion = user.Promotion
-				update.Semester = user.Semester
-				update.Class = user.Class
-				update.Region = user.Region
-			}
-		} else if t.Visibility == SelfVisibility {
-			// Nothing to do
-		} else if t.Visibility == StudentsVisibility {
-			if len(t.Members) == 0 {
-				update.Members = def.Members
-			} else {
-				update.Members = t.Members
-			}
-		}
-	} else {
-		update.Visibility = def.Visibility
-		update.Promotion = def.Promotion
-		update.Semester = def.Semester
-		update.Class = def.Class
-		update.Region = def.Region
-	}
-
 	return update
-
 }
 
 // Validate task data
@@ -412,54 +361,11 @@ func (t *Task) Validate() error {
 		return errors.New("content empty")
 	}
 
-	if t.Visibility == PromotionVisibility {
-		if !t.Promotion.Valid() {
-			return errors.New("no promotion")
-		}
-		if !t.Semester.Valid() {
-			return errors.New("no semester")
-		}
-
-		if len(t.Members) > 0 {
-			return errors.New("members incompatible")
-		}
-	}
-
-	if t.Visibility == ClassVisibility {
-		if !t.Promotion.Valid() {
-			return errors.New("no promotion")
-		}
-		if !t.Semester.Valid() {
-			return errors.New("no semester")
-		}
-		if !t.Region.Valid() {
-			return errors.New("no region")
-		}
-		if !t.Class.Valid() {
-			return errors.New("no class")
-		}
-		if len(t.Members) > 0 {
-			return errors.New("members incompatible")
-		}
-	}
-
 	// Truncate minutes and seconds of due date
 	t.DueDate = utils.TruncateDate(t.DueDate)
 
 	if t.DueDate.Before(utils.TruncateDate(time.Now())) {
 		return errors.New("invalid due date")
-	}
-
-	if t.Semester.Valid() {
-		t.Semester.Set(strings.ToUpper(t.Semester.String()))
-	}
-
-	if t.Class.Valid() {
-		t.Class.Set(strings.ToUpper(t.Class.String()))
-	}
-
-	if t.Region.Valid() {
-		t.Region.Set(strings.Title(strings.ToLower(t.Region.String())))
 	}
 
 	if len(t.Members) == 0 {
@@ -560,20 +466,6 @@ func GetTasksRange(user User, filters Filters) ([]Task, error) {
 	defer checkErr(tx, err)
 
 	var tasks []Task
-	err = tx.Select(&tasks, getTasksRangeQuery, user.Login, filters.Visibility, filters.Subject, filters.Completed, user.Login, user.Promotion, user.Class, user.Region, user.Semester, user.Promotion, user.Semester, "%"+user.Login+"%", user.Login, filters.StartDate, filters.EndDate)
-	return tasks, err
-}
-
-// GetTeacherTasksRange returns list of tasks in a time range (for teachers)
-func GetTeacherTasksRange(start, end time.Time) ([]Task, error) {
-	tx, err := db.DB.Beginx()
-	if err != nil {
-		return nil, err
-	}
-
-	defer checkErr(tx, err)
-
-	var tasks []Task
-	err = tx.Select(&tasks, getTeacherTasksRangeQuery, start, end)
+	err = tx.Select(&tasks, getTasksRangeQuery, user.Login, filters.Visibility, filters.Subject, filters.Completed, user.Login, "%"+user.Login+"%", user.Login, filters.StartDate, filters.EndDate)
 	return tasks, err
 }

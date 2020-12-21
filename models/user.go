@@ -15,7 +15,7 @@ const (
 			uuid BINARY(16) NOT NULL UNIQUE,
 			realm_id BINARY(16) NOT NULL,
 			login VARCHAR(256) NOT NULL,
-
+			password VARCHAR(128) NOT NULL,
 			name VARCHAR(256) NOT NULL,
 			email VARCHAR(256),
 			

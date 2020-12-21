@@ -21,3 +21,7 @@ export const logout = () => {
 export const getUser = (): User => {
     return parseJwt(localStorage.getItem("jwt")!);
 }
+
+export const getRealmFromUrl = (): string => {
+    return window.location.hostname.split(".")[0];
+}

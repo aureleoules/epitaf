@@ -1,13 +1,14 @@
 import { client } from './client';
 
 const users = {
-    authenticate: (token: string) => new Promise((resolve, reject) => {
-        client.post('/users/callback', {
-            code: token,
-            redirect_uri: process.env.REACT_APP_REDIRECT_URI
+    login: (realm: string, username: string, password: string) => new Promise((resolve, reject) => {
+        client.post('/users/login', {
+            realm,
+            username,
+            password
         }).then(response => {
             localStorage.setItem("jwt", response.data.token);
-            localStorage.setItem("loginAnimation", "true");
+            
             setTimeout(() => window.location.replace('/'), 100);
             resolve(response.data);
         }).catch(err => {

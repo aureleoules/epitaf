@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -11,6 +11,8 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { useTranslation } from 'react-i18next';
+import Client from '../../services/client';
+import { getRealmFromUrl } from '../../utils';
 
 function Copyright() {
     return (
@@ -49,6 +51,20 @@ export default function SignIn() {
     const classes = useStyles();
 
     const {t} = useTranslation();
+    const [username, setUsername] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
+
+    function onSubmit(e: any) {
+        e.preventDefault();
+
+        console.log("test");
+
+        Client.Users.login(getRealmFromUrl(), username, password).then(() => {
+            console.log("Authenticated.");
+        }).catch(err => {
+            console.log(err);
+        });
+    }
     
     return (
         <Container component="main" maxWidth="xs">
@@ -60,7 +76,7 @@ export default function SignIn() {
                 <Typography component="h1" variant="h5">
                     {t('Sign in')}
                 </Typography>
-                <form className={classes.form} noValidate>
+                <form className={classes.form} onSubmit={onSubmit}>
                     <TextField
                         variant="outlined"
                         margin="normal"
@@ -71,6 +87,7 @@ export default function SignIn() {
                         name="email"
                         autoComplete="email"
                         autoFocus
+                        onChange={e => setUsername(e.target.value)}
                     />
                     <TextField
                         variant="outlined"
@@ -82,6 +99,7 @@ export default function SignIn() {
                         type="password"
                         id="password"
                         autoComplete="current-password"
+                        onChange={e => setPassword(e.target.value)}
                     />
                     <Button
                         type="submit"

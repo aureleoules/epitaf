@@ -27,13 +27,14 @@ const (
 			uuid BINARY(16) NOT NULL UNIQUE,
 			realm_id BINARY(16) NOT NULL,
 			login VARCHAR(256) NOT NULL,
-
+			password VARCHAR(128) NOT NULL,
 			name VARCHAR(256) NOT NULL,
 			email VARCHAR(256) NOT NULL UNIQUE,
 			
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
-			PRIMARY KEY (uuid)
+			PRIMARY KEY (uuid),
+			FOREIGN KEY (realm_id) REFERENCES realms (uuid)
 		);
 	`
 
@@ -69,6 +70,8 @@ func (a *Admin) HashPassword() {
 
 // Insert user in DB
 func (a *Admin) Insert() error {
+	a.UUID = NewUUID()
+
 	tx, err := db.DB.Beginx()
 	if err != nil {
 		return err

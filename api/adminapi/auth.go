@@ -1,6 +1,7 @@
 package adminapi
 
 import (
+	"fmt"
 	"net/http"
 
 	jwt "github.com/appleboy/gin-jwt"
@@ -11,19 +12,29 @@ import (
 )
 
 func handleAuth() {
-	users := router.Group("/users")
-
-	users.POST("/", registerHandler)
-	users.POST("/login", auth.LoginHandler)
+	router.POST("/users", registerHandler)
+	router.POST("/users/login", auth.LoginHandler)
 }
 
 func registerHandler(c *gin.Context) {
-	var admin models.Admin
-	err := c.BindJSON(&admin)
+	req := struct {
+		Login    string `json:"login"`
+		Name     string `json:"name" `
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}{}
+
+	err := c.BindJSON(&req)
 	if err != nil {
 		zap.S().Warn(err)
 		c.AbortWithStatus(http.StatusNotAcceptable)
 		return
+	}
+	admin := models.Admin{
+		Login:    req.Login,
+		Name:     req.Name,
+		Email:    req.Email,
+		Password: req.Password,
 	}
 
 	err = admin.Validate()
@@ -46,20 +57,25 @@ func registerHandler(c *gin.Context) {
 }
 
 func authenticator(c *gin.Context) (interface{}, error) {
-	var user models.User
-	err := c.BindJSON(&user)
+	req := struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}{}
+
+	err := c.BindJSON(&req)
 	if err != nil {
 		zap.S().Warn(err)
 		c.AbortWithStatus(http.StatusNotAcceptable)
 		return nil, jwt.ErrFailedAuthentication
 	}
 
-	u, err := models.GetUserByEmail(user.Email)
+	u, err := models.GetAdminByEmail(req.Username)
 	if err != nil {
+		fmt.Println(err)
 		return nil, jwt.ErrFailedAuthentication
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(user.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(req.Password))
 	if err != nil {
 		return nil, jwt.ErrFailedAuthentication
 	}

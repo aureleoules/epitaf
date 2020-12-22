@@ -18,7 +18,7 @@ type Admin struct {
 	Login    string `json:"login" db:"login"`
 	Name     string `json:"name" db:"name"`
 	Email    string `json:"email" db:"email"`
-	Password string `json:"password" db:"password"`
+	Password string `json:"-" db:"password"`
 }
 
 const (
@@ -43,6 +43,19 @@ const (
 			(uuid, realm_id, login, name, email, password) 
 		VALUES 
 			(:uuid, :realm_id, :login, :name, :email, :password);
+	`
+
+	getAdminByEmailQuery = `
+		SELECT 
+			uuid,
+			login,
+			name, 
+			email,
+			password,
+			created_at,
+			updated_at
+		FROM admins
+		WHERE email = ?;
 	`
 )
 
@@ -86,4 +99,21 @@ func (a *Admin) Insert() error {
 
 	zap.S().Info("User ", a.Name, " just created. ("+a.Email+")")
 	return nil
+}
+
+// GetAdminByEmail retrieves admin by email
+func GetAdminByEmail(email string) (*Admin, error) {
+	tx, err := db.DB.Beginx()
+	if err != nil {
+		return nil, err
+	}
+
+	defer checkErr(tx, err)
+
+	var admin Admin
+	err = tx.Get(&admin, getAdminByEmailQuery, email)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+	return &admin, err
 }

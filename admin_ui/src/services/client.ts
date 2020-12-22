@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 import Users from './users';
+import Realms from './realms';
 
 let headers = {};
 if(localStorage.getItem("jwt")) {
@@ -18,6 +19,7 @@ export { client };
 
 const Client = {
     Users,
+    Realms
 };
 
 export default Client;

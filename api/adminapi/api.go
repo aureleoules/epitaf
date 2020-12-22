@@ -35,6 +35,7 @@ func createRouter() *gin.Engine {
 	handleUsers()
 	handleTasks()
 	handleGroups()
+	handleRealms()
 
 	return r
 }

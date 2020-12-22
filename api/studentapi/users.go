@@ -5,8 +5,7 @@ import (
 )
 
 func handleUsers() {
-	users := router.Group("/users")
-	users.GET("/me", getUserHandler)
+	router.GET("/users/me", getUserHandler)
 }
 
 func getUserHandler(c *gin.Context) {

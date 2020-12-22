@@ -49,6 +49,21 @@ const (
 		FROM realms
 		WHERE slug=?;
 	`
+
+	getRealmOfAdminQuery = `
+		SELECT
+			r.uuid,
+			r.name,
+			r.slug,
+			r.website_url,
+			r.created_at,
+			r.updated_at
+		FROM 
+			admins AS u
+		RIGHT JOIN realms AS r
+			ON r.uuid = u.realm_id
+		WHERE u.uuid = ?;
+	`
 )
 
 // Insert realm into db
@@ -81,5 +96,19 @@ func GetRealmBySlug(slug string) (*Realm, error) {
 
 	var realm Realm
 	err = tx.Get(&realm, getRealmBySlugQuery, slug)
+	return &realm, err
+}
+
+// GetRealmOfUser retrieves realm informations of user
+func GetRealmOfUser(userID UUID) (*Realm, error) {
+	tx, err := db.DB.Beginx()
+	if err != nil {
+		return nil, err
+	}
+
+	defer checkErr(tx, err)
+
+	var realm Realm
+	err = tx.Get(&realm, getRealmOfAdminQuery, userID)
 	return &realm, err
 }

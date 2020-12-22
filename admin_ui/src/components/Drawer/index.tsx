@@ -13,15 +13,19 @@ import AccountBox from "@material-ui/icons/AccountBox";
 import Dashboard from "@material-ui/icons/Dashboard";
 import MenuIcon from "@material-ui/icons/Menu";
 import Settings from "@material-ui/icons/Settings";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import Link from "@material-ui/core/Link";
 import AccountCircle from "@material-ui/icons/AccountCircle";
+import Assignment from "@material-ui/icons/Assignment";
+import SupervisedUserCircle from "@material-ui/icons/SupervisedUserCircle";
+import GroupIcon from "@material-ui/icons/Group";
 import Menu from "@material-ui/core/Menu";
 import { useTranslation } from 'react-i18next';
 import { ClickAwayListener } from "@material-ui/core";
 import clsx from 'clsx';
-
+import { PermIdentity } from "@material-ui/icons";
+import Client from '../../services/client';
 
 const drawerWidth = 240;
 
@@ -76,9 +80,10 @@ const useStyles = makeStyles((theme: Theme) =>
         drawerPaper: {
             borderRight: "none",
             overflow: "hidden",
+            boxShadow:  "-3px 0 5px 0 #555"
         },
         drawerContainer: {
-            overflow: "auto",
+            overflow: "auto",  
         },
         toolbar: {
             display: "flex",
@@ -127,6 +132,14 @@ export default function Drawer(props: Props) {
 
     const { t } = useTranslation();
 
+    useEffect(() => {
+        Client.Realms.current().then(r => {
+            console.log(r);
+        }).catch(err => {
+            if(err) throw err;
+        });
+    }, []);
+
     const handleDrawerToggle = () => {
         setOpen(!open);
     };
@@ -141,20 +154,42 @@ export default function Drawer(props: Props) {
 
     const routes = [
         {
-            name: "Home",
+            name: "Dashboard",
             icon: Dashboard,
             path: "/",
+        },
+        {
+            name: 'Tasks',
+            icon: Assignment,
+            path: '/tasks'
+        },
+        {
+            name: 'Users',
+            icon: AccountBox,
+            path: '/users'
+        },
+        {
+            name: 'Groups',
+            icon: GroupIcon,
+            path: '/groups'
         }
     ];
 
     const bottomRoutes = [
         {
-            name: "Users",
-            icon: AccountBox,
+            name: "Admins",
+            icon: SupervisedUserCircle,
+            path: '/admins'
+        },
+        {
+            name: "Roles",
+            icon: PermIdentity,
+            path: '/roles'
         },
         {
             name: "Settings",
             icon: Settings,
+            path: '/settings'
         },
     ];
 
@@ -235,12 +270,19 @@ export default function Drawer(props: Props) {
                 </List>
                 <List className={classes.bottomItems}>
                     {bottomRoutes.map((r) => (
-                        <ListItem className={classes.listItem} button key={r.name}>
-                            <ListItemIcon>
-                                <r.icon />
-                            </ListItemIcon>
-                            <ListItemText primary={r.name} />
-                        </ListItem>
+                        <Link
+                            className={classes.itemLink}
+                            component={RouterLink}
+                            to={r.path}
+                            key={r.name}
+                        >
+                            <ListItem className={classes.listItem} button key={r.name}>
+                                <ListItemIcon>
+                                    <r.icon />
+                                </ListItemIcon>
+                                <ListItemText primary={r.name} />
+                            </ListItem>
+                        </Link>
                     ))}
                 </List>
             </DrawerMenu>

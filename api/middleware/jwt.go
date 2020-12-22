@@ -21,6 +21,7 @@ func AuthMiddleware(authenticator func(c *gin.Context) (interface{}, error)) *jw
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			u := data.(*models.User)
 			return jwt.MapClaims{
+				"uuid":  u.UUID,
 				"email": u.Email,
 				"name":  u.Name,
 				"login": u.Login,

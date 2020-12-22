@@ -1,15 +1,9 @@
+import { User } from '../types/user';
 import { client } from './client';
 
 const users = {
-    login: (realm: string, username: string, password: string) => new Promise((resolve, reject) => {
-        client.post('/users/login', {
-            realm,
-            username,
-            password
-        }).then(response => {
-            localStorage.setItem("jwt", response.data.token);
-            
-            setTimeout(() => window.location.replace('/'), 100);
+    list: () => new Promise<Array<User>>((resolve, reject) => {
+        client.get('/users').then(response => {
             resolve(response.data);
         }).catch(err => {
             reject(err);

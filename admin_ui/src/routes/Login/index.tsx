@@ -59,7 +59,7 @@ export default function SignIn() {
 
         console.log("test");
 
-        Client.Users.login(getRealmFromUrl(), username, password).then(() => {
+        Client.Admins.login(getRealmFromUrl(), username, password).then(() => {
             console.log("Authenticated.");
         }).catch(err => {
             console.log(err);

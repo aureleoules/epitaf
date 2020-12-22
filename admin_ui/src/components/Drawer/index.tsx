@@ -26,6 +26,7 @@ import { ClickAwayListener } from "@material-ui/core";
 import clsx from 'clsx';
 import { PermIdentity } from "@material-ui/icons";
 import Client from '../../services/client';
+import { Realm } from "../../types/realm";
 
 const drawerWidth = 240;
 
@@ -132,9 +133,11 @@ export default function Drawer(props: Props) {
 
     const { t } = useTranslation();
 
+    const [realm, setRealm] = useState<Realm | null>(null);
+    
     useEffect(() => {
         Client.Realms.current().then(r => {
-            console.log(r);
+            setRealm(r);
         }).catch(err => {
             if(err) throw err;
         });
@@ -208,7 +211,7 @@ export default function Drawer(props: Props) {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" noWrap>
-                        {props.title || t('Dashboard')}
+                        {realm?.name?.toUpperCase()}
                     </Typography>
                     <div className={classes.userMenu}>
                         <ClickAwayListener onClickAway={closeMenu}>

@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+import Admins from './admins';
 import Users from './users';
 import Realms from './realms';
 
@@ -18,8 +19,9 @@ const client = axios.create({
 export { client };
 
 const Client = {
-    Users,
-    Realms
+    Admins,
+    Realms,
+    Users
 };
 
 export default Client;

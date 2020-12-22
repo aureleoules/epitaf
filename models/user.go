@@ -67,6 +67,20 @@ const (
 			(name LIKE ?
 			OR login LIKE ?) AND realm_id=?;
 	`
+
+	getRealmUsersQuery = `
+		SELECT 
+			uuid,
+			login,
+			name, 
+			email, 
+
+			created_at,
+			updated_at
+		FROM users
+		WHERE 
+			realm_id=?;
+	`
 )
 
 // User struct
@@ -173,4 +187,22 @@ func (u *User) Insert() error {
 
 	zap.S().Info("User ", u.Name, " just created. ("+u.Email+")")
 	return nil
+}
+
+// GetRealmUsers return all users of a realm
+func GetRealmUsers(realmID UUID) ([]*User, error) {
+	tx, err := db.DB.Beginx()
+	if err != nil {
+		return nil, err
+	}
+
+	defer checkErr(tx, err)
+
+	var users []*User
+
+	err = tx.Select(&users, getRealmUsersQuery, realmID)
+	if err != nil {
+		zap.S().Error(err)
+	}
+	return users, err
 }

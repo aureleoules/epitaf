@@ -11,10 +11,8 @@ import (
 )
 
 func handleAuth() {
-	users := router.Group("/users")
-
-	users.POST("/", registerHandler)
-	users.POST("/login", auth.LoginHandler)
+	router.POST("/auth", registerHandler)
+	router.POST("/auth/login", auth.LoginHandler)
 }
 
 func registerHandler(c *gin.Context) {

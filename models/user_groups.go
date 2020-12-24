@@ -18,7 +18,9 @@ const (
 
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
-			PRIMARY KEY (uuid)
+			PRIMARY KEY (uuid),
+			FOREIGN KEY (user_id) REFERENCES users (uuid),
+			FOREIGN KEY (group_id) REFERENCES groups (uuid)
 		);
 	`
 )

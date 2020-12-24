@@ -1,3 +1,5 @@
+import { RawNodeDatum } from "react-d3-tree/lib/types/common";
+import { Group } from "../types/group";
 import { User } from "../types/user";
 
 export const isLoggedIn = (): boolean => {
@@ -24,4 +26,21 @@ export const getUser = (): User => {
 
 export const getRealmFromUrl = (): string => {
     return window.location.hostname.split(".")[0];
+}
+
+export const convertGroupTreeToD3Tree = (group: Group): RawNodeDatum => {
+    let node: RawNodeDatum = {
+        name: group.name!,
+        attributes: {
+            "uuid": group.uuid!,
+            "slug": group.slug!,
+        },
+        children: new Array<RawNodeDatum>()
+    };
+
+    group.subgroups?.forEach(g => {
+        node.children?.push(convertGroupTreeToD3Tree(g));
+    });
+
+    return node;
 }

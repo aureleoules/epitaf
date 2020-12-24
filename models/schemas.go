@@ -5,7 +5,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var schemas = []string{realmSchema, adminSchema, userSchema}
+var schemas = []string{realmSchema, adminSchema, userSchema, groupSchema}
 
 // InjectSQLSchemas injects sql schemas in db
 func InjectSQLSchemas() error {

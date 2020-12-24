@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"time"
+
 	"github.com/aureleoules/epitaf/db"
 	"github.com/aureleoules/epitaf/models"
+	"github.com/mattn/go-nulltype"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )
@@ -26,6 +29,21 @@ var createRealmCmd = &cobra.Command{
 		err := realm.Insert()
 		if err != nil {
 			zap.S().Error(err)
+			return
+		}
+
+		rootGroup := models.Group{
+			Name:     realm.Name,
+			Slug:     realm.Slug,
+			Usable:   nulltype.NullBoolOf(true),
+			ActiveAt: time.Now(),
+			RealmID:  realm.UUID,
+		}
+
+		err = rootGroup.Insert()
+		if err != nil {
+			zap.S().Error(err)
+			return
 		}
 	},
 }

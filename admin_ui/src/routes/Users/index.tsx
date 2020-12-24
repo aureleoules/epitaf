@@ -3,6 +3,7 @@ import { AddIcon, DataGrid } from '@material-ui/data-grid';
 import Client from '../../services/client';
 import { Fab, makeStyles } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
+import history from '../../history';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -85,7 +86,7 @@ export default function Users(props: any) {
             </div>
 
             <Fab aria-label={t('Add user')} className={classes.fab} color="primary">
-                <AddIcon/>
+                <AddIcon onClick={() => history.push('/users/new')}/>
             </Fab>
         </>
     );

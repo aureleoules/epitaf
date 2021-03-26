@@ -5,18 +5,12 @@ import (
 
 	"github.com/asaskevich/govalidator"
 	"github.com/aureleoules/epitaf/db"
+	"github.com/mattn/go-nulltype"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )
 
 const (
-	insertUserQuery = `
-		INSERT INTO users 
-			(login, name, email, promotion, class, region, semester, teacher) 
-		VALUES 
-			(:login, :name, :email, :promotion, :class, :region, :semester, :teacher);
-	`
-
 	getUserByEmailQuery = `
 		SELECT 
 			login,
@@ -58,12 +52,18 @@ const (
 type User struct {
 	base
 
-	ID       UUID   `json:"id" db:"id"`
-	RealmID  UUID   `json:"realm_id" db:"realm_id"`
-	Login    string `json:"login" db:"login"`
-	Name     string `json:"name" db:"name"`
-	Email    string `json:"email" db:"email"`
-	Password string `json:"password" db:"password"`
+	ID       UUID                `json:"id" db:"id"`
+	RealmID  UUID                `json:"realm_id" db:"realm_id"`
+	Login    string              `json:"login" db:"login"`
+	Name     string              `json:"name" db:"name"`
+	Email    string              `json:"email" db:"email"`
+	Password nulltype.NullString `json:"password" db:"password"`
+}
+
+type UserFilters struct {
+	Filters
+
+	ExcludeGroup string `query:"exclude_group"`
 }
 
 // Validate user data
@@ -75,7 +75,7 @@ func (u *User) Validate() error {
 		return errors.New("login should be lowercase")
 	}
 
-	if len(u.Password) < 8 {
+	if u.Password.Valid() && len(u.Password.String()) < 8 {
 		return errors.New("password is not long enough")
 	}
 
@@ -84,8 +84,8 @@ func (u *User) Validate() error {
 
 // HashPassword hash user's password
 func (u *User) HashPassword() {
-	password, _ := bcrypt.GenerateFromPassword([]byte(u.Password), 12)
-	u.Password = string(password)
+	password, _ := bcrypt.GenerateFromPassword([]byte(u.Password.String()), 12)
+	u.Password = nulltype.NullStringOf(string(password))
 }
 
 // GetUserByEmail retrives user by email
@@ -168,34 +168,57 @@ func SearchUser(query string) ([]User, error) {
 
 // Insert user in DB
 func (u *User) Insert() error {
+	u.ID = NewUUID()
+
+	q, args, err := psql.
+		Insert("users").
+		Columns("id", "realm_id", "login", "name", "email", "password").
+		Values(u.ID, u.RealmID, u.Login, u.Name, u.Email, u.Password).
+		ToSql()
+
+	if err != nil {
+		return err
+	}
+
 	tx, err := db.DB.Beginx()
+
 	if err != nil {
 		return err
 	}
 
 	defer checkErr(tx, err)
 
-	_, err = tx.NamedExec(insertUserQuery, u)
-	if err != nil {
-		return err
-	}
-
-	zap.S().Info("User ", u.Name, " just created. ("+u.Email+")")
-	return nil
+	_, err = tx.Exec(q, args...)
+	return err
 }
 
 // GetRealmUsers return all users of a realm
-func GetRealmUsers(realmID UUID) ([]User, error) {
-	q, args, err := psql.
+func GetRealmUsers(realmID UUID, filters UserFilters) ([]User, error) {
+	filters.Defaults()
+
+	// select u.name from users as u where not exists (select 1 from group_users as gu where gu.group_id = '\xab02c45e2018475770cd29852571de90'::bytea and gu.user_id = u.id);
+	query := psql.
 		Select("u.*").
 		From("users AS u").
-		Where("u.realm_id = ?", realmID).
-		ToSql()
+		Where("u.realm_id = ?", realmID)
 
+	filters.ApplyBase(&query, "u")
+
+	if filters.Query != "" {
+		query = query.Where("LOWER(u.name) LIKE '%' || ? || '%'", filters.Query)
+	}
+	if filters.ExcludeGroup != "" {
+		groupID, err := FromUUID(filters.ExcludeGroup)
+		if err != nil {
+			return nil, err
+		}
+		query = query.Where("NOT EXISTS (SELECT 1 FROM group_users AS gu WHERE gu.group_id = ? AND gu.user_id = u.id)", groupID)
+	}
+
+	q, args, err := query.ToSql()
 	if err != nil {
 		return nil, err
 	}
-
 	tx, err := db.DB.Beginx()
 
 	if err != nil {

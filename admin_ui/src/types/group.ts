@@ -1,3 +1,5 @@
+import { User } from './user';
+
 export type Group = {
 	id?: string,
 	realm_id?: string,
@@ -9,6 +11,7 @@ export type Group = {
 	archived_at?: Date,
 	active_at?: Date,
 	subgroups?: Array<Group>,
+	users?: Array<User>,
 	created_at?: Date,
 	updated_at?: Date,
 };

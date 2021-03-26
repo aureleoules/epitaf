@@ -1,36 +1,58 @@
 package models
 
 import (
+	"strings"
 	"time"
 
-	"github.com/aureleoules/epitaf/utils"
+	"github.com/Masterminds/squirrel"
 )
 
-// Filters struct
+// Filters struct stores informations about a search query
 type Filters struct {
-	StartDate time.Time `json:"start_date" form:"start_date"`
-	EndDate   time.Time `json:"end_date" form:"end_date"`
+	Query string `query:"query"`
 
-	Completed  *bool       `json:"completed" form:"completed"`
-	Visibility *Visibility `json:"visibility" form:"visibility"`
-	Subject    *string     `json:"subject" form:"subject"`
+	StartDate string `query:"start_date"`
+	EndDate   string `query:"end_date"`
+
+	Limit  int `query:"limit"`
+	Offset int `query:"offset"`
+
+	Order string `query:"sort"`
 }
 
-// Validate filters
-func (f *Filters) Validate() error {
-	f.StartDate = f.StartDate.Local()
-	f.EndDate = f.EndDate.Local()
+// ApplyBase applies basic filters such as `created_at`, `limit` and `offset` to the SQL query
+func (f *Filters) ApplyBase(q *squirrel.SelectBuilder, table string) {
+	*q = q.
+		OrderByClause(table + ".created_at " + f.OrderBy()).
+		Limit(uint64(f.Limit)).
+		Offset(uint64(f.Offset))
 
-	// Default values
-	if f.StartDate.IsZero() {
-		f.StartDate = time.Now()
+	if f.StartDate != "" {
+		*q = q.Where(table+".created_at >= ?", f.StartDate)
 	}
-	if f.EndDate.IsZero() {
-		f.EndDate = time.Now().Add(time.Hour * 24 * 365)
+	if f.EndDate != "" {
+		*q = q.Where(table+".created_at <= ?", f.EndDate)
+	}
+}
+
+// Defaults sets default values of query
+func (f *Filters) Defaults() {
+	if f.Limit == 0 {
+		f.Limit = 50
+	}
+	if f.StartDate == "" {
+		f.StartDate = time.Now().Add(-time.Hour * 24 * 30).Format(time.RFC3339)
 	}
 
-	f.StartDate = utils.TruncateDate(f.StartDate)
-	f.EndDate = utils.TruncateDate(f.EndDate)
+	if f.EndDate == "" {
+		f.EndDate = time.Now().Add(time.Hour * 24).Format(time.RFC3339)
+	}
+}
 
-	return nil
+// OrderBy returns order of query
+func (f Filters) OrderBy() string {
+	if strings.ToLower(f.Order) == "asc" {
+		return "ASC"
+	}
+	return "DESC"
 }

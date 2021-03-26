@@ -30,6 +30,13 @@ const groups = {
 			reject(err);
 		});
 	}),
+	addUsers: (id: string, user_ids: string) => new Promise<string>((resolve, reject) => {
+		client.post(`/groups/${id}/users`, {user_ids}).then(response => {
+			resolve(response.data);
+		}).catch(err => {
+			reject(err);
+		});
+	}),
 };
 
 export default groups;

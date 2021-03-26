@@ -26,7 +26,7 @@ CREATE TABLE users (
     name VARCHAR(256) NOT NULL,
     login VARCHAR(256) NOT NULL,
     email VARCHAR(256),
-    password VARCHAR(256) NOT NULL,
+    password VARCHAR(256),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),

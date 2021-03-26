@@ -10,3 +10,7 @@ export class SearchQuery {
 		this.sort = 'asc';
 	}
 }
+
+export type UsersSearchQuery = SearchQuery & {
+	exclude_group?: string
+};

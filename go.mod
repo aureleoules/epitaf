@@ -7,6 +7,7 @@ require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/appleboy/gin-jwt/v2 v2.6.4
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-resty/resty/v2 v2.5.0
 	github.com/gosimple/slug v1.9.0 // indirect
@@ -16,6 +17,7 @@ require (
 	github.com/lib/pq v1.10.0
 	github.com/mattn/go-nulltype v0.0.0-20200221160555-75ae8a76f2e9
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d
+	github.com/sethvargo/go-password v0.2.0 // indirect
 	github.com/spf13/cobra v1.1.3
 	github.com/swaggo/swag v1.7.0
 	github.com/teris-io/shortid v0.0.0-20201117134242-e59966efd125

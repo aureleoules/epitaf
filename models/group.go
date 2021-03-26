@@ -221,3 +221,54 @@ func deleteGroup(realmID, id UUID) error {
 	_, err = tx.Exec(q, args...)
 	return err
 }
+
+// AddGroupUsers add users to a specific group
+func AddGroupUsers(id UUID, userIDs []UUID) error {
+	q := psql.Insert("group_users").
+		Columns("group_id", "user_id")
+
+	for _, userID := range userIDs {
+		q = q.Values(id, userID)
+	}
+
+	query, args, err := q.ToSql()
+
+	if err != nil {
+		return err
+	}
+
+	tx, err := db.DB.Beginx()
+
+	if err != nil {
+		return err
+	}
+
+	defer checkErr(tx, err)
+
+	_, err = tx.Exec(query, args...)
+	return err
+}
+
+// IsUserInGroup checks if a user is already in a group
+func IsUserInGroup(groupID, userID UUID) (bool, error) {
+	q, args, err := psql.Select("COUNT(*)").
+		From("group_users AS gu").
+		Where("gu.group_id = ? AND gu.user_id = ?", groupID, userID).
+		Limit(1).
+		ToSql()
+
+	if err != nil {
+		return false, err
+	}
+
+	tx, err := db.DB.Beginx()
+	if err != nil {
+		return false, err
+	}
+
+	defer checkErr(tx, err)
+
+	var c int
+	err = tx.Get(&c, q, args...)
+	return c > 0, err
+}

@@ -3,6 +3,7 @@ package adminapi
 import (
 	"database/sql"
 	"net/http"
+	"strings"
 
 	"github.com/aureleoules/epitaf/models"
 	"github.com/dgrijalva/jwt-go"
@@ -15,7 +16,69 @@ func handleGroups() {
 	router.GET("/groups", getGroupsHandler)
 	router.GET("/groups/:id", getGroupHandler)
 	router.POST("/groups/:id", createSubGroupHandler)
+	router.POST("/groups/:id/users", addGroupUsersHandler)
 	router.DELETE("/groups/:id", deleteGroupHandler)
+}
+
+func addGroupUsersHandler(c echo.Context) error {
+	// user := c.Get("user").(*jwt.Token)
+	// claims := user.Claims.(jwt.MapClaims)
+	// userID, err := models.FromUUID(claims["id"].(string))
+	// if err != nil {
+	// 	return c.JSON(http.StatusNotAcceptable, resp{"error": "invalid jwt"})
+	// }
+
+	// r, err := models.GetRealmOfAdmin(userID)
+	// if err != nil {
+	// 	zap.S().Error(err)
+	// 	return c.JSON(http.StatusInternalServerError, resp{"error": err.Error()})
+	// }
+
+	groupID, err := models.FromUUID(c.Param("id"))
+	if err != nil {
+		zap.S().Warn(err)
+		return c.JSON(http.StatusNotAcceptable, resp{"error": err.Error()})
+	}
+
+	req := struct {
+		UserIDs string `json:"user_ids"`
+	}{}
+
+	err = c.Bind(&req)
+	if err != nil {
+		zap.S().Warn(err)
+		return c.JSON(http.StatusNotAcceptable, resp{"error": err.Error()})
+	}
+
+	var l []models.UUID
+	for _, id := range strings.Split(req.UserIDs, ",") {
+		i, err := models.FromUUID(id)
+		if err != nil {
+			zap.S().Warn(err)
+			return c.JSON(http.StatusNotAcceptable, resp{"error": err.Error()})
+		}
+
+		inGroup, err := models.IsUserInGroup(groupID, i)
+		if err != nil {
+			zap.S().Error(err)
+			return c.JSON(http.StatusInternalServerError, resp{"error": err.Error()})
+		}
+
+		if inGroup {
+			zap.S().Warn(err)
+			return c.JSON(http.StatusNotAcceptable, resp{"error": "user " + id + " is already in group"})
+		}
+
+		l = append(l, i)
+	}
+
+	err = models.AddGroupUsers(groupID, l)
+	if err != nil {
+		zap.S().Error(err)
+		return c.JSON(http.StatusInternalServerError, resp{"error": err.Error()})
+	}
+
+	return c.NoContent(http.StatusOK)
 }
 
 func deleteGroupHandler(c echo.Context) error {

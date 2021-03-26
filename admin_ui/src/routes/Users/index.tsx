@@ -15,15 +15,25 @@ export default function Users(props: any) {
 	const [createUserModal, setCreateUserModal] = useState<boolean>(false);
 	
 	useEffect(() => {
+		fetchUsers();
+	}, []);
+
+	function fetchUsers() {
 		Client.Users.list().then(u => {
 			setUsers(u);
 		}).catch(err => {
 			if (err) throw err;
 		});
-	}, []);
+	}
 
 	function createUser() {
-
+		Client.Users.create(user.name!, user.email!, user.login!, user.password).then(id => {
+			console.log(id);
+			fetchUsers();
+			setCreateUserModal(false);
+		}).catch(err => {
+			if (err) throw err;
+		});
 	}
 	
 	return (
@@ -45,10 +55,13 @@ export default function Users(props: any) {
 					<HeaderCell>{t('Name')}</HeaderCell>
 					<Cell dataKey="name" />
 				</Column>
-
+				<Column width={200}>
+					<HeaderCell>{t('Login')}</HeaderCell>
+					<Cell dataKey="login" />
+				</Column>
 				<Column width={200}>
 					<HeaderCell>{t('Email')}</HeaderCell>
-					<Cell dataKey="name" />
+					<Cell dataKey="email" />
 				</Column>
 				{/* <Column width={120} fixed="right">
 					<HeaderCell>Action</HeaderCell>

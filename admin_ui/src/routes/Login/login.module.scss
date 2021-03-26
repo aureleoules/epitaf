@@ -1,0 +1,39 @@
+.login {
+	display: flex;
+
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	height: 100vh;
+
+	h1 {
+		font-size: 5em;
+	}
+
+	svg {
+		margin-bottom: 35px;
+	}
+
+	h2 {
+		font-size: 4em;
+		margin: 0;
+		margin-bottom: 25px;
+	}
+
+	form {
+		display: flex;
+		flex-direction: column;
+		width: 300px;
+	}
+
+	.step {
+		margin-top: -50px;
+		display: flex;
+		align-items: center;
+		flex-direction: column;
+
+		button {
+			margin-top: 25px;
+		}
+	}
+}

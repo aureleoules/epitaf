@@ -1,0 +1,14 @@
+version: "2.1"
+services:
+  db:
+    container_name: "db"
+    image: "postgres:latest"
+    environment:
+      - TZ="Europe/Paris"
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=root
+    volumes:
+      - ../../tmp/db:/var/lib/mysql
+      - ../../db.sql:/db.sql
+    ports:
+      - 5432:5432

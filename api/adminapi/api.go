@@ -3,48 +3,53 @@ package adminapi
 import (
 	"os"
 
-	jwt "github.com/appleboy/gin-jwt/v2"
-	"github.com/aureleoules/epitaf/api/middleware"
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
 )
 
 const version = "v1"
 
-var router *gin.RouterGroup
-var auth *jwt.GinJWTMiddleware
+var router *echo.Group
 
-func createRouter() *gin.Engine {
+// Response type
+type resp map[string]interface{}
+
+func createRouter() *echo.Echo {
 	// Create router
-	r := gin.Default()
+	e := echo.New()
 
 	// Use CORS
-	r.Use(middleware.Cors())
+	e.Use(middleware.CORS())
 
 	// Default API route
-	router = r.Group("/" + version)
-	// JWT middleware
-	auth = middleware.AuthMiddleware(authenticator)
+	router = e.Group("/" + version)
 
 	// Do not apply auth middleware here
 	handleAuth()
+	jwtConfig := middleware.DefaultJWTConfig
+	jwtConfig.TokenLookup = "header:" + echo.HeaderAuthorization
+	jwtConfig.ContextKey = "user"
+	jwtConfig.SigningKey = []byte(os.Getenv("JWT_SECRET"))
+	jwtConfig.AuthScheme = "Bearer"
+	jwtConfig.SigningMethod = "HS256"
+	// Apply auth middleware
+	router.Use(middleware.JWTWithConfig(jwtConfig))
 
-	// Apply auth middleware on these routes
-	router.Use(auth.MiddlewareFunc())
-
+	handleAdmins()
 	handleUsers()
 	handleTasks()
 	handleGroups()
 	handleRealms()
 
-	return r
+	return e
 }
 
 // Serve private api
 func Serve() {
 	r := createRouter()
 
-	if err := r.Run(":" + os.Getenv("API_ADMIN_PORT")); err != nil {
+	if err := r.Start(":" + os.Getenv("API_ADMIN_PORT")); err != nil {
 		zap.S().Panic(err)
 	}
 }

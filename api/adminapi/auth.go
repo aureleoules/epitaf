@@ -1,89 +1,62 @@
 package adminapi
 
 import (
-	"fmt"
 	"net/http"
+	"os"
+	"time"
 
-	jwt "github.com/appleboy/gin-jwt"
 	"github.com/aureleoules/epitaf/models"
-	"github.com/gin-gonic/gin"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func handleAuth() {
-	router.POST("/auth", registerHandler)
-	router.POST("/auth/login", auth.LoginHandler)
+	router.POST("/auth/login", loginHandler)
 }
 
-func registerHandler(c *gin.Context) {
+func generateToken(id models.UUID) (string, error) {
+	token := jwt.New(jwt.SigningMethodHS256)
+	claims := token.Claims.(jwt.MapClaims)
+	claims["id"] = id.String()
+	claims["exp"] = time.Now().Add(time.Hour * 48).Unix()
+
+	t, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	if err != nil {
+		return "", err
+	}
+	return t, nil
+}
+
+func loginHandler(c echo.Context) error {
 	req := struct {
-		Login    string `json:"login"`
-		Name     string `json:"name" `
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}{}
 
-	err := c.BindJSON(&req)
+	err := c.Bind(&req)
 	if err != nil {
 		zap.S().Warn(err)
-		c.AbortWithStatus(http.StatusNotAcceptable)
-		return
-	}
-	admin := models.Admin{
-		Login:    req.Login,
-		Name:     req.Name,
-		Email:    req.Email,
-		Password: req.Password,
+		return c.JSON(http.StatusNotAcceptable, resp{"error": "not acceptable"})
 	}
 
-	err = admin.Validate()
+	u, err := models.GetAdminByEmail(req.Email)
 	if err != nil {
-		zap.S().Warn(err)
-		c.AbortWithStatusJSON(http.StatusNotAcceptable, err)
-		return
-	}
-
-	admin.HashPassword()
-
-	err = admin.Insert()
-	if err != nil {
-		zap.S().Error(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	c.Status(http.StatusOK)
-}
-
-func authenticator(c *gin.Context) (interface{}, error) {
-	req := struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}{}
-
-	err := c.BindJSON(&req)
-	if err != nil {
-		zap.S().Warn(err)
-		c.AbortWithStatus(http.StatusNotAcceptable)
-		return nil, jwt.ErrFailedAuthentication
-	}
-
-	u, err := models.GetAdminByEmail(req.Username)
-	if err != nil {
-		fmt.Println(err)
-		return nil, jwt.ErrFailedAuthentication
+		return c.JSON(http.StatusUnauthorized, resp{"error": "wrong email or password"})
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(req.Password))
 	if err != nil {
-		return nil, jwt.ErrFailedAuthentication
+		return c.JSON(http.StatusUnauthorized, resp{"error": "wrong email or password"})
 	}
 
-	return &models.User{
-		UUID:    u.UUID,
-		Login:   u.Login,
-		RealmID: u.RealmID,
-		Email:   u.Email,
-	}, nil
+	t, err := generateToken(u.ID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, resp{"error": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, resp{
+		"token": t,
+	})
 }

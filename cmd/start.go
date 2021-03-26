@@ -6,7 +6,6 @@ import (
 	"syscall"
 
 	"github.com/aureleoules/epitaf/api/adminapi"
-	"github.com/aureleoules/epitaf/api/studentapi"
 	"github.com/aureleoules/epitaf/db"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -39,7 +38,7 @@ var startCmd = &cobra.Command{
 		db.Connect()
 		defer db.Close()
 
-		go adminapi.Serve()
-		studentapi.Serve()
+		adminapi.Serve()
+		// studentapi.Serve()
 	},
 }

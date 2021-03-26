@@ -9,7 +9,7 @@ import (
 type Realm struct {
 	base
 
-	UUID UUID   `json:"uuid" db:"uuid"`
+	ID   UUID   `json:"id" db:"id"`
 	Name string `json:"name" db:"name"`
 	Slug string `json:"slug" db:"slug"`
 	URL  string `json:"url" db:"-"`
@@ -17,58 +17,18 @@ type Realm struct {
 	WebsiteURL string `json:"website_url" db:"website_url"`
 }
 
-const (
-	realmSchema = `
-		CREATE TABLE realms (
-			uuid BINARY(16) NOT NULL UNIQUE,
-			name VARCHAR(256) NOT NULL,
-			slug VARCHAR(256) NOT NULL UNIQUE,
-
-			website_url VARCHAR(1024),
-			
-			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
-			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
-			PRIMARY KEY (uuid)
-		);
-	`
-	insertRealmQuery = `
-		INSERT INTO realms 
-			(uuid, name, slug, website_url) 
-		VALUES 
-			(:uuid, :name, :slug, :website_url);
-	`
-
-	getRealmBySlugQuery = `
-		SELECT
-			uuid,
-			name,
-			slug,
-			website_url,
-			created_at,
-			updated_at
-		FROM realms
-		WHERE slug=?;
-	`
-
-	getRealmOfAdminQuery = `
-		SELECT
-			r.uuid,
-			r.name,
-			r.slug,
-			r.website_url,
-			r.created_at,
-			r.updated_at
-		FROM 
-			admins AS u
-		RIGHT JOIN realms AS r
-			ON r.uuid = u.realm_id
-		WHERE u.uuid = ?;
-	`
-)
-
 // Insert realm into db
 func (r *Realm) Insert() error {
-	r.UUID = NewUUID()
+	r.ID = NewUUID()
+
+	q, args, err := psql.Insert("realms").
+		Columns("id", "name", "slug", "website_url").
+		Values(r.ID, r.Name, r.Slug, r.WebsiteURL).
+		ToSql()
+
+	if err != nil {
+		return err
+	}
 
 	tx, err := db.DB.Beginx()
 	if err != nil {
@@ -77,7 +37,7 @@ func (r *Realm) Insert() error {
 
 	defer checkErr(tx, err)
 
-	_, err = tx.NamedExec(insertRealmQuery, r)
+	_, err = tx.Exec(q, args...)
 	if err != nil {
 		return err
 	}
@@ -87,7 +47,17 @@ func (r *Realm) Insert() error {
 
 // GetRealmBySlug retrieve realm by slug
 func GetRealmBySlug(slug string) (*Realm, error) {
+	q, args, err := psql.Select("r.*").
+		From("realms AS r").
+		Where("slug = ?", slug).
+		ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+
 	tx, err := db.DB.Beginx()
+
 	if err != nil {
 		return nil, err
 	}
@@ -95,13 +65,25 @@ func GetRealmBySlug(slug string) (*Realm, error) {
 	defer checkErr(tx, err)
 
 	var realm Realm
-	err = tx.Get(&realm, getRealmBySlugQuery, slug)
+	err = tx.Get(&realm, q, args...)
+
 	return &realm, err
 }
 
-// GetRealmOfUser retrieves realm informations of user
-func GetRealmOfUser(userID UUID) (*Realm, error) {
+// GetRealmOfAdmin retrieves realm informations of admin
+func GetRealmOfAdmin(id UUID) (*Realm, error) {
+	q, args, err := psql.Select("r.*").
+		From("admins AS u").
+		InnerJoin("realms AS r ON r.id = u.realm_id").
+		Where("u.id = ?", id).
+		ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+
 	tx, err := db.DB.Beginx()
+
 	if err != nil {
 		return nil, err
 	}
@@ -109,6 +91,7 @@ func GetRealmOfUser(userID UUID) (*Realm, error) {
 	defer checkErr(tx, err)
 
 	var realm Realm
-	err = tx.Get(&realm, getRealmOfAdminQuery, userID)
+	err = tx.Get(&realm, q, args...)
+
 	return &realm, err
 }

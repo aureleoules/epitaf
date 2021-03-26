@@ -10,21 +10,6 @@ import (
 )
 
 const (
-	userSchema = `
-		CREATE TABLE users (
-			uuid BINARY(16) NOT NULL UNIQUE,
-			realm_id BINARY(16) NOT NULL,
-			login VARCHAR(256) NOT NULL,
-			password VARCHAR(128) NOT NULL,
-			name VARCHAR(256) NOT NULL,
-			email VARCHAR(256),
-			
-			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
-			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
-			PRIMARY KEY (uuid)
-		);
-	`
-
 	insertUserQuery = `
 		INSERT INTO users 
 			(login, name, email, promotion, class, region, semester, teacher) 
@@ -67,34 +52,18 @@ const (
 			(name LIKE ?
 			OR login LIKE ?) AND realm_id=?;
 	`
-
-	getRealmUsersQuery = `
-		SELECT 
-			uuid,
-			login,
-			name, 
-			email, 
-
-			created_at,
-			updated_at
-		FROM users
-		WHERE 
-			realm_id=?;
-	`
 )
 
 // User struct
 type User struct {
 	base
 
-	UUID     UUID   `json:"uuid" db:"uuid"`
+	ID       UUID   `json:"id" db:"id"`
 	RealmID  UUID   `json:"realm_id" db:"realm_id"`
 	Login    string `json:"login" db:"login"`
 	Name     string `json:"name" db:"name"`
 	Email    string `json:"email" db:"email"`
 	Password string `json:"password" db:"password"`
-
-	Groups []UserGroup `json:"groups" db:"-"`
 }
 
 // Validate user data
@@ -136,6 +105,32 @@ func GetUserByEmail(email string) (*User, error) {
 	}
 	zap.S().Info("Retrieved user by email.")
 	return &user, err
+}
+
+func GetGroupUsers(realmID, groupID UUID) ([]User, error) {
+	q, args, err := psql.
+		Select("u.*").
+		From("users AS u").
+		InnerJoin("group_users AS gu ON gu.user_id = u.id").
+		Where("u.realm_id = ? AND gu.group_id = ?", realmID, groupID).
+		ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err := db.DB.Beginx()
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer checkErr(tx, err)
+
+	var users []User
+	err = tx.Select(&users, q, args...)
+
+	return users, err
 }
 
 // GetUser retrives user by login
@@ -190,19 +185,27 @@ func (u *User) Insert() error {
 }
 
 // GetRealmUsers return all users of a realm
-func GetRealmUsers(realmID UUID) ([]*User, error) {
+func GetRealmUsers(realmID UUID) ([]User, error) {
+	q, args, err := psql.
+		Select("u.*").
+		From("users AS u").
+		Where("u.realm_id = ?", realmID).
+		ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+
 	tx, err := db.DB.Beginx()
+
 	if err != nil {
 		return nil, err
 	}
 
 	defer checkErr(tx, err)
 
-	var users []*User
+	var users []User
+	err = tx.Select(&users, q, args...)
 
-	err = tx.Select(&users, getRealmUsersQuery, realmID)
-	if err != nil {
-		zap.S().Error(err)
-	}
 	return users, err
 }

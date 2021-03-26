@@ -1,12 +1,13 @@
 package db
 
 import (
+	"fmt"
 	"os"
 	"time"
 
-	// Import SQL driver
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	// Import postgres driver
+	_ "github.com/lib/pq"
 	"go.uber.org/zap"
 )
 
@@ -16,23 +17,29 @@ var (
 	tries = 0
 )
 
-// Connect to DB
+// Open DB
 func Connect() {
-	connect(os.Getenv("DB_HOST"), os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_NAME"))
+	connect(os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_NAME"))
 }
 
-func connect(host, user, pass, database string) {
+func connect(host, port, user, pass, database string) {
 	if tries > 3 {
 		zap.S().Fatal("could not connect to database.")
 	}
 	zap.S().Info("Connecting to database...")
+
+	connInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, pass, database)
+	zap.S().Info(connInfo)
+
 	var err error
-	DB, err = sqlx.Connect("mysql", user+":"+pass+"@("+host+")/"+database+"?charset=utf8mb4,utf8&parseTime=true&loc=Europe%2FParis&time_zone=%27Europe%2FParis%27")
+	DB, err = sqlx.Connect("postgres", connInfo)
 	if err != nil {
 		zap.S().Error(err)
+
 		time.Sleep(5 * time.Second)
-		connect(host, user, pass, database)
+		connect(host, port, user, pass, database)
 	}
+
 	zap.S().Info("Connected to database.")
 }
 
@@ -56,8 +63,8 @@ func Delete() {
 		return
 	}
 
-	zap.S().Info("Deleting epitaf...")
-	_, err := DB.Exec("DROP DATABASE " + os.Getenv("DB_NAME"))
+	zap.S().Info("Deleting...")
+	_, err := DB.Exec("DROP DATABASE IF EXISTS " + os.Getenv("DB_NAME"))
 	if err != nil {
 		zap.S().Fatal(err)
 	}

@@ -14,46 +14,6 @@ import (
 )
 
 const (
-	completedTaskSchema = `
-		CREATE TABLE completed_tasks (
-			task_id VARCHAR(16) NOT NULL,
-			login VARCHAR(256) NOT NULL,
-			completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
-			
-			FOREIGN KEY (task_id) REFERENCES tasks (short_id)
-		);
-	`
-
-	taskSchema = `
-		CREATE TABLE tasks (
-			short_id VARCHAR(16) NOT NULL UNIQUE,
-			
-			visibility ENUM('self', 'promotion', 'class', 'students') NOT NULL DEFAULT 'self',
-			members VARCHAR(10000) DEFAULT NULL,
-
-			promotion VARCHAR(256),
-			class VARCHAR(256),
-			region VARCHAR(256),
-			semester VARCHAR(256),
-
-			title VARCHAR(256) NOT NULL,
-			subject VARCHAR(256) NOT NULL,
-			content TEXT NOT NULL DEFAULT "",
-			due_date TIMESTAMP NOT NULL,
-			created_by_login VARCHAR(256) NOT NULL,
-			updated_by_login VARCHAR(256) NOT NULL,
-
-			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
-			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
-
-			deleted BOOLEAN NOT NULL DEFAULT 0,
-
-			PRIMARY KEY (short_id),
-			FOREIGN KEY (created_by_login) REFERENCES users (login),
-			FOREIGN KEY (updated_by_login) REFERENCES users (login)
-		);
-	`
-
 	insertTaskQuery = `
 		INSERT INTO tasks 
 			(short_id, promotion, visibility, members, class, region, semester, title, subject, content, due_date, created_by_login, updated_by_login) 
@@ -302,6 +262,8 @@ const (
 // Task truct
 type Task struct {
 	base
+
+	ID uint `json:"id" db:"id"`
 
 	// Meta
 	RealmID UUID   `json:"realm_id" db:"realm_id"`

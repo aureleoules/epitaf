@@ -1,0 +1,30 @@
+version: "2.1"
+services:
+  db_test:
+    container_name: "db_test"
+    image: "postgres:latest"
+    volumes:
+      - ./postgres.conf:/test-config.conf
+    command: -c "config_file=/test-config.conf"
+    environment:
+      - TZ="Europe/Paris"
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=root
+    logging:
+      driver: none
+  core_test:
+    container_name: "core_test"
+    build: 
+      context: ../..
+      dockerfile: ./docker/test/Dockerfile
+    links:
+      - db_test:db_test
+    environment:
+      - PRIVATE_API_PORT=8081
+      - TEST=true
+      - JWT_SECRET=test
+      - DB_NAME=core
+      - DB_HOST=db_test
+      - DB_PORT=5432
+      - DB_USER=root
+      - DB_PASS=root

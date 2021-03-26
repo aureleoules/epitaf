@@ -13,7 +13,7 @@ import (
 type Admin struct {
 	base
 
-	UUID     UUID   `json:"uuid" db:"uuid"`
+	ID       UUID   `json:"id" db:"id"`
 	RealmID  UUID   `json:"realm_id" db:"realm_id"`
 	Login    string `json:"login" db:"login"`
 	Name     string `json:"name" db:"name"`
@@ -22,29 +22,6 @@ type Admin struct {
 }
 
 const (
-	adminSchema = `
-		CREATE TABLE admins (
-			uuid BINARY(16) NOT NULL UNIQUE,
-			realm_id BINARY(16) NOT NULL,
-			login VARCHAR(256) NOT NULL,
-			password VARCHAR(128) NOT NULL,
-			name VARCHAR(256) NOT NULL,
-			email VARCHAR(256) NOT NULL UNIQUE,
-			
-			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
-			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
-			PRIMARY KEY (uuid),
-			FOREIGN KEY (realm_id) REFERENCES realms (uuid)
-		);
-	`
-
-	insertAdminQuery = `
-		INSERT INTO admins 
-			(uuid, realm_id, login, name, email, password) 
-		VALUES 
-			(:uuid, :realm_id, :login, :name, :email, :password);
-	`
-
 	getAdminByEmailQuery = `
 		SELECT 
 			uuid,
@@ -83,7 +60,16 @@ func (a *Admin) HashPassword() {
 
 // Insert user in DB
 func (a *Admin) Insert() error {
-	a.UUID = NewUUID()
+	a.ID = NewUUID()
+
+	q, args, err := psql.Insert("admins").
+		Columns("id", "realm_id", "login", "name", "email", "password").
+		Values(a.ID, a.RealmID, a.Login, a.Name, a.Email, a.Password).
+		ToSql()
+
+	if err != nil {
+		return err
+	}
 
 	tx, err := db.DB.Beginx()
 	if err != nil {
@@ -92,7 +78,7 @@ func (a *Admin) Insert() error {
 
 	defer checkErr(tx, err)
 
-	_, err = tx.NamedExec(insertAdminQuery, a)
+	_, err = tx.Exec(q, args...)
 	if err != nil {
 		return err
 	}
@@ -103,7 +89,17 @@ func (a *Admin) Insert() error {
 
 // GetAdminByEmail retrieves admin by email
 func GetAdminByEmail(email string) (*Admin, error) {
+	q, args, err := psql.Select("a.*").
+		From("admins AS a").
+		Where("email = ?", email).
+		ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+
 	tx, err := db.DB.Beginx()
+
 	if err != nil {
 		return nil, err
 	}
@@ -111,9 +107,32 @@ func GetAdminByEmail(email string) (*Admin, error) {
 	defer checkErr(tx, err)
 
 	var admin Admin
-	err = tx.Get(&admin, getAdminByEmailQuery, email)
+	err = tx.Get(&admin, q, args...)
+
+	return &admin, err
+}
+
+// GetAdmin retrieves admin by uuid
+func GetAdmin(id UUID) (*Admin, error) {
+	q, args, err := psql.Select("a.*").
+		From("admins AS a").
+		Where("id = ?", id).
+		ToSql()
+
 	if err != nil {
-		return nil, errors.New("not found")
+		return nil, err
 	}
+
+	tx, err := db.DB.Beginx()
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer checkErr(tx, err)
+
+	var admin Admin
+	err = tx.Get(&admin, q, args...)
+
 	return &admin, err
 }

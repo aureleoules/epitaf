@@ -1,0 +1,25 @@
+.navbar {
+	width: 300px;
+    position: relative;
+
+	.header {
+		svg {
+			width: 100px;
+		}
+
+		height: 300px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-direction: column;
+
+		h3 {
+			font-weight: 400;
+			margin: 0;
+		}
+		h2 {
+			margin: 0;
+			margin-top: 10px;
+		}
+	}
+}

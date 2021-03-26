@@ -1,10 +1,17 @@
 package models
 
 import (
+	"github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 	"github.com/mattn/go-nulltype"
 	"go.uber.org/zap"
 )
+
+var psql squirrel.StatementBuilderType
+
+func init() {
+	psql = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+}
 
 func checkErr(tx *sqlx.Tx, err error) {
 	if err != nil {

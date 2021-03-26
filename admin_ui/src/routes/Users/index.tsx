@@ -1,93 +1,135 @@
-import React, { useEffect } from 'react';
-import { AddIcon, DataGrid } from '@material-ui/data-grid';
-import Client from '../../services/client';
-import { Fab, makeStyles } from '@material-ui/core';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import history from '../../history';
+import { useState } from 'reactn';
+import { Button, ControlLabel, Form, FormControl, FormGroup, HelpBlock, Modal, Table } from 'rsuite';
+import Client from '../../services/client';
+import { User } from '../../types/user';
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        backgroundColor: theme.palette.background.paper,
-        width: 500,
-        position: 'relative',
-        minHeight: 200,
-    },
-    fab: {
-        position: 'absolute',
-        bottom: theme.spacing(2),
-        right: theme.spacing(2),
-    }
-}));
+const { Column, HeaderCell, Cell, Pagination } = Table;
 
 export default function Users(props: any) {
-    
-    const classes = useStyles();
-    const {t} = useTranslation();
-    
-    const columns = [
-        { field: 'id', headerName: 'ID', width: 70 },
-        { field: 'firstName', headerName: 'First name', width: 130 },
-        { field: 'lastName', headerName: 'Last name', width: 130 },
-        {
-            field: 'age',
-            headerName: 'Age',
-            type: 'number',
-            width: 90,
-        },
-        {
-            field: 'fullName',
-            headerName: 'Full name',
-            description: 'This column has a value getter and is not sortable.',
-            sortable: false,
-            width: 160,
-            valueGetter: (params: any) =>
-                `${params.getValue('firstName') || ''} ${params.getValue('lastName') || ''}`,
-        },
-    ];
+	const { t } = useTranslation();
 
-    useEffect(() => {
-        Client.Users.list().then(users => {
+	const [users, setUsers] = useState<Array<User>>(new Array<User>());
+	const [user, setUser] = useState<User>({});
+	const [createUserModal, setCreateUserModal] = useState<boolean>(false);
+	
+	useEffect(() => {
+		Client.Users.list().then(u => {
+			setUsers(u);
+		}).catch(err => {
+			if (err) throw err;
+		});
+	}, []);
 
-        }).catch(err => {
-            if (err) throw err;
-        });
-    }, []);
+	function createUser() {
 
-    const rows = [
-        { id: 1, lastName: 'Snow', firstName: 'Jon', age: 35 },
-        { id: 2, lastName: 'Lannister', firstName: 'Cersei', age: 42 },
-        { id: 3, lastName: 'Lannister', firstName: 'Jaime', age: 45 },
-        { id: 4, lastName: 'Stark', firstName: 'Arya', age: 16 },
-        { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', age: null },
-        { id: 6, lastName: 'Melisandre', firstName: null, age: 150 },
-        { id: 7, lastName: 'Clifford', firstName: 'Ferrara', age: 44 },
-        { id: 8, lastName: 'Frances', firstName: 'Rossini', age: 36 },
-        { id: 19, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-        { id: 911, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-        { id: 9984, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-        { id: 9897, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-        { id: 994, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-        { id: 9654, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-        { id: 9321, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-        { id: 987, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-        { id: 97, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-        { id: 99, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-        { id: 859, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-        { id: 99827, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-        { id: 91111, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-    ];
+	}
+	
+	return (
+		<div className='page'>
+			<div className='header-action'>
+				<h1>{t('Users')}</h1>
+				<Button onClick={() => setCreateUserModal(true)} appearance="primary">
+					{t('Create user')}
+				</Button>
+			</div>
+			<Table
+				height={400}
+				data={users}
+				onRowClick={data => {
+					console.log(data);
+				}}
+			>
+				<Column width={200}>
+					<HeaderCell>{t('Name')}</HeaderCell>
+					<Cell dataKey="name" />
+				</Column>
 
+				<Column width={200}>
+					<HeaderCell>{t('Email')}</HeaderCell>
+					<Cell dataKey="name" />
+				</Column>
+				{/* <Column width={120} fixed="right">
+					<HeaderCell>Action</HeaderCell>
 
-    return (
-        <>
-            <h1>Users</h1>
-            <div style={{ height: 800, width: "100%" }}>
-                <DataGrid rows={rows} columns={columns} pageSize={15} checkboxSelection />
-            </div>
+					<Cell>
+						{rowData => {
+							function handleAction() {
+								alert(`id:${rowData.id}`);
+							}
+							return (
+								<span>
+								</span>
+							);
+						}}
+					</Cell>
+				</Column> */}
+			</Table>
 
-            <Fab aria-label={t('Add user')} className={classes.fab} color="primary">
-                <AddIcon onClick={() => history.push('/users/new')}/>
-            </Fab>
-        </>
-    );
+			<Modal
+				show={createUserModal}
+				close={() => setCreateUserModal(false)}
+				width={500}
+				onHide={() => setCreateUserModal(false)} 
+			>
+				<Modal.Header>
+					<Modal.Title>{t('Create user')}</Modal.Title>
+				</Modal.Header>
+				<Modal.Body>
+					<Form fluid onSubmit={createUser}>
+						<FormGroup>
+							<ControlLabel>{t('Name')}</ControlLabel>
+							<FormControl
+								autoFocus
+								required
+								value={user.name}
+								onChange={(v) => setUser(u => ({...u, name: v}))}
+								placeholder={t('Name')}
+							/>
+							<HelpBlock>{t('Required')}</HelpBlock>
+						</FormGroup>
+						<FormGroup>
+							<ControlLabel>{t('Login')}</ControlLabel>
+							<FormControl
+								required
+								value={user.login}
+								onChange={(v) => setUser(u => ({...u, login: v}))}
+								placeholder={t('Login')}
+							/>
+							<HelpBlock>{t('Required')}</HelpBlock>
+						</FormGroup>
+						<FormGroup>
+							<ControlLabel>{t('Email')}</ControlLabel>
+							<FormControl
+								value={user.email}
+								onChange={(v) => setUser(u => ({...u, email: v}))}
+								placeholder={t('Email')}
+							/>
+						</FormGroup>
+						<FormGroup>
+							<ControlLabel>{t('Password')}</ControlLabel>
+							<FormControl
+								value={user.password}
+								onChange={(v) => setUser(u => ({...u, password: v}))}
+								type='password'
+								placeholder={t('Leave empty for a random password')}
+							/>
+						</FormGroup>
+					</Form>
+				</Modal.Body>
+				<Modal.Footer>
+					<Button
+						appearance="primary"
+						type="submit"
+						onClick={createUser}
+						disabled={!user.name || !user.login}
+					>
+						{t('Create user')}
+					</Button>
+					<Button onClick={() => setCreateUserModal(false)} appearance="subtle">{t('Cancel')}</Button>
+				</Modal.Footer>
+			</Modal>
+		</div>
+	);
 }

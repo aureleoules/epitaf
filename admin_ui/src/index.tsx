@@ -1,16 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Router from './Router';
 import reportWebVitals from './reportWebVitals';
-import './i18n';
+import Router from './Router';
 
-import './styles/index.scss';
+import './i18n';
+import './styles/styles.scss';
+import 'animate.css';
+import 'react-toastify/dist/ReactToastify.css';
+import 'rsuite-table/dist/css/rsuite-table.css';
+import 'rsuite/dist/styles/rsuite-dark.css';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <Router />
-  </React.StrictMode>,
-  document.getElementById('root')
+	<React.StrictMode>
+		<Router />
+	</React.StrictMode>,
+	document.getElementById('root')
 );
 
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();

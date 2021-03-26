@@ -3,33 +3,32 @@ package adminapi
 import (
 	"net/http"
 
-	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/aureleoules/epitaf/models"
-	"github.com/gin-gonic/gin"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/labstack/echo/v4"
 )
 
 func handleUsers() {
 	router.GET("/users", getUsersHandler)
 }
 
-func getUsersHandler(c *gin.Context) {
-	claims := jwt.ExtractClaims(c)
-	userID, err := models.FromUUID(claims["uuid"].(string))
+func getUsersHandler(c echo.Context) error {
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	userID, err := models.FromUUID(claims["id"].(string))
 	if err != nil {
-		c.AbortWithStatus(http.StatusNotAcceptable)
-		return
+		return c.JSON(http.StatusNotAcceptable, resp{"error": "invalid jwt"})
 	}
 
-	r, err := models.GetRealmOfUser(userID)
+	r, err := models.GetRealmOfAdmin(userID)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
+		return c.JSON(http.StatusInternalServerError, resp{"error": err.Error()})
 	}
 
-	users, err := models.GetRealmUsers(r.UUID)
+	users, err := models.GetRealmUsers(r.ID)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
+		return c.JSON(http.StatusInternalServerError, resp{"error": err.Error()})
 	}
-	c.JSON(http.StatusOK, users)
+
+	return c.JSON(http.StatusOK, users)
 }

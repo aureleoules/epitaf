@@ -5,99 +5,14 @@ import (
 
 	"github.com/aureleoules/epitaf/db"
 	"github.com/mattn/go-nulltype"
-	"go.uber.org/zap"
-)
-
-const (
-	groupSchema = `
-		CREATE TABLE groups (
-			uuid BINARY(16) NOT NULL UNIQUE,
-			realm_id BINARY(16) NOT NULL,
-			usable BOOLEAN NOT NULL DEFAULT 1,
-			slug VARCHAR(256) NOT NULL,
-			name VARCHAR(256) NOT NULL,
-
-			parent_id BINARY(16),
-			active_at TIMESTAMP,
-			archived BOOLEAN NOT NULL DEFAULT 0,
-			archived_at TIMESTAMP,
-			
-			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
-			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
-			PRIMARY KEY (uuid),
-			FOREIGN KEY (realm_id) REFERENCES realms (uuid),
-			FOREIGN KEY (parent_id) REFERENCES groups (uuid)
-		);
-	`
-
-	getRealmGroupsQuery = `
-		SELECT 
-			uuid,
-			realm_id,
-			usable,
-			slug, 
-			name, 
-			parent_id,
-			active_at,
-			archived,
-			archived_at
-			created_at,
-			updated_at
-		FROM groups
-		WHERE 
-			realm_id=? AND parent_id=?;
-	`
-
-	getRootGroupQuery = `
-		SELECT 
-			uuid,
-			realm_id,
-			usable,
-			slug, 
-			name, 
-			parent_id,
-			active_at,
-			archived,
-			archived_at
-			created_at,
-			updated_at
-		FROM groups
-		WHERE 
-			realm_id=? AND parent_id IS NULL;
-	`
-
-	getGroupQuery = `
-		SELECT 
-			uuid,
-			realm_id,
-			usable,
-			slug, 
-			name, 
-			parent_id,
-			active_at,
-			archived,
-			archived_at
-			created_at,
-			updated_at
-		FROM groups
-		WHERE 
-			realm_id=? AND uuid=?;
-	`
-
-	insertGroupQuery = `
-		INSERT INTO groups 
-			(uuid, realm_id, name, slug, parent_id, active_at, archived, archived_at) 
-		VALUES 
-			(:uuid, :realm_id, :name, :slug, :parent_id, :active_at, archived, archived_at);
-	`
 )
 
 // Group struct
 type Group struct {
 	base
 
+	ID      UUID `json:"id" db:"id"`
 	RealmID UUID `json:"realm_id" db:"realm_id"`
-	UUID    UUID `json:"uuid" db:"uuid"`
 
 	// Can add tasks to this group
 	Usable nulltype.NullBool `json:"usable" db:"usable"`
@@ -105,19 +20,30 @@ type Group struct {
 	Name string `json:"name" db:"name"`
 	Slug string `json:"slug" db:"slug"`
 
-	Users []*User `json:"users,omitempty" db:"-"`
+	Users []User `json:"users,omitempty" db:"-"`
 
-	ParentID  *UUID    `json:"parent_id" db:"parent_id"`
-	Subgroups []*Group `json:"subgroups,omitempty" db:"-"`
+	ParentID  *UUID   `json:"parent_id" db:"parent_id"`
+	Subgroups []Group `json:"subgroups" db:"-"`
 
 	Archived   bool       `json:"archived" db:"archived"`
-	ActiveAt   time.Time  `json:"active_at" db:"active_at"`
 	ArchivedAt *time.Time `json:"archived_at" db:"archived_at"`
+
+	Active   bool      `json:"active" db:"active"`
+	ActiveAt time.Time `json:"active_at" db:"active_at"`
 }
 
 // Insert group in DB
 func (g *Group) Insert() error {
-	g.UUID = NewUUID()
+	g.ID = NewUUID()
+
+	q, args, err := psql.Insert("groups").
+		Columns("id", "realm_id", "name", "slug", "parent_id", "active", "active_at", "archived", "archived_at").
+		Values(g.ID, g.RealmID, g.Name, g.Slug, g.ParentID, g.Active, g.ActiveAt, g.Archived, g.ArchivedAt).
+		ToSql()
+
+	if err != nil {
+		return err
+	}
 
 	tx, err := db.DB.Beginx()
 	if err != nil {
@@ -126,7 +52,7 @@ func (g *Group) Insert() error {
 
 	defer checkErr(tx, err)
 
-	_, err = tx.NamedExec(insertGroupQuery, g)
+	_, err = tx.Exec(q, args...)
 	if err != nil {
 		return err
 	}
@@ -134,9 +60,18 @@ func (g *Group) Insert() error {
 	return nil
 }
 
-// GetGroup returns group by uuid
-func GetGroup(realmID UUID, groupID UUID) (*Group, error) {
+func getGroup(realmID UUID, id UUID) (*Group, error) {
+	q, args, err := psql.Select("g.*").
+		From("groups AS g").
+		Where("realm_id = ? AND id = ?", realmID, id).
+		ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+
 	tx, err := db.DB.Beginx()
+
 	if err != nil {
 		return nil, err
 	}
@@ -144,41 +79,51 @@ func GetGroup(realmID UUID, groupID UUID) (*Group, error) {
 	defer checkErr(tx, err)
 
 	var group Group
-
-	err = tx.Get(&group, getGroupQuery, realmID, groupID)
-	if err != nil {
-		zap.S().Error(err)
-	}
+	err = tx.Get(&group, q, args...)
 
 	return &group, err
+}
+
+// GetGroup returns group by uuid
+func GetGroup(realmID, id UUID) (*Group, error) {
+	group, err := getGroup(realmID, id)
+	if err != nil {
+		return nil, err
+	}
+	group.Users, err = GetGroupUsers(realmID, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return group, nil
 }
 
 // GetGroupTree returns group tree of a realm
 func GetGroupTree(realmID UUID) (*Group, error) {
 	group, err := getRootGroup(realmID)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
-	group.Subgroups, err = getSubGroupsRec(realmID, group.UUID)
+	group.Subgroups, err = getSubGroupsRec(realmID, group.ID)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	return group, err
 }
 
 // GetSubGroupsRec finds groups of subgroups in a realm
-func getSubGroupsRec(realmID UUID, parentID UUID) ([]*Group, error) {
+func getSubGroupsRec(realmID UUID, parentID UUID) ([]Group, error) {
 	groups, err := GetSubGroups(realmID, parentID)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
-	for _, g := range groups {
-		g.Subgroups, err = getSubGroupsRec(realmID, g.UUID)
+	for i, g := range groups {
+		groups[i].Subgroups, err = getSubGroupsRec(realmID, g.ID)
 		if err != nil {
-			return nil, nil
+			return nil, err
 		}
 	}
 
@@ -186,7 +131,17 @@ func getSubGroupsRec(realmID UUID, parentID UUID) ([]*Group, error) {
 }
 
 func getRootGroup(realmID UUID) (*Group, error) {
+	q, args, err := psql.Select("g.*").
+		From("groups AS g").
+		Where("realm_id = ? AND parent_id IS NULL", realmID).
+		ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+
 	tx, err := db.DB.Beginx()
+
 	if err != nil {
 		return nil, err
 	}
@@ -194,30 +149,75 @@ func getRootGroup(realmID UUID) (*Group, error) {
 	defer checkErr(tx, err)
 
 	var group Group
-
-	err = tx.Get(&group, getRootGroupQuery, realmID)
-	if err != nil {
-		zap.S().Error(err)
-	}
+	err = tx.Get(&group, q, args...)
 
 	return &group, err
 }
 
 // GetSubGroups retrieves subgroups of groups
-func GetSubGroups(realmID UUID, parentID UUID) ([]*Group, error) {
+func GetSubGroups(realmID UUID, parentID UUID) ([]Group, error) {
+	q, args, err := psql.Select("g.*").
+		From("groups AS g").
+		Where("realm_id = ? AND parent_id = ?", realmID, parentID).
+		ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+
 	tx, err := db.DB.Beginx()
+
 	if err != nil {
 		return nil, err
 	}
 
 	defer checkErr(tx, err)
 
-	var groups []*Group
-
-	err = tx.Select(&groups, getRealmGroupsQuery, realmID, parentID)
-	if err != nil {
-		zap.S().Error(err)
-	}
+	var groups []Group
+	err = tx.Select(&groups, q, args...)
 
 	return groups, err
+}
+
+// DeleteGroup removes a group from db
+func DeleteGroup(realmID UUID, id UUID) error {
+	return deleteSubGroupsRec(realmID, id)
+}
+
+// GetSubGroupsRec finds groups of subgroups in a realm
+func deleteSubGroupsRec(realmID UUID, parentID UUID) error {
+	groups, err := GetSubGroups(realmID, parentID)
+	if err != nil {
+		return err
+	}
+
+	for _, g := range groups {
+		err = deleteSubGroupsRec(realmID, g.ID)
+		if err != nil {
+			return err
+		}
+	}
+
+	return deleteGroup(realmID, parentID)
+}
+
+func deleteGroup(realmID, id UUID) error {
+	q, args, err := psql.Delete("groups").
+		Where("realm_id = ? AND id = ?", realmID, id).
+		ToSql()
+
+	if err != nil {
+		return err
+	}
+
+	tx, err := db.DB.Beginx()
+
+	if err != nil {
+		return err
+	}
+
+	defer checkErr(tx, err)
+
+	_, err = tx.Exec(q, args...)
+	return err
 }

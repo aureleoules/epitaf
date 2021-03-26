@@ -37,7 +37,7 @@ export default withRouter((props: Props) => {
 			name: t('Users'),
 			path: '/users',
 			icon: <Icon icon="user" />,
-		},
+		}
 	];
 
 	const [user, setUser] = useGlobal<GlobalState>('user');

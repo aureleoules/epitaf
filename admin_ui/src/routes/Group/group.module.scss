@@ -1,0 +1,23 @@
+.group {
+  .tabs {
+    display: flex;
+    flex-direction: row;
+    margin-top: 15px;
+    .tab {
+      cursor: pointer;
+      margin-right: 25px;
+      margin-bottom: 15px;
+      outline: none;
+      border-bottom: solid 2px transparent;
+      &.active {
+        border-color: white;
+      }
+
+      transition: border-color 0.15s;
+
+      p {
+        margin-bottom: 8px;
+      }
+    }
+  }
+}

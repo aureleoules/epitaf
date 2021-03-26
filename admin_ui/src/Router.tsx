@@ -31,6 +31,11 @@ export default function Router() {
 							path="/groups/:id"
 							component={Group}
 						/>
+						<Route
+							exact
+							path="/groups/:id/:tab"
+							component={Group}
+						/>
 
 						<Route
 							exact

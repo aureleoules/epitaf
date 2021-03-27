@@ -8,7 +8,7 @@ import './styles/styles.scss';
 import 'animate.css';
 import 'react-toastify/dist/ReactToastify.css';
 import 'rsuite-table/dist/css/rsuite-table.css';
-import 'rsuite/dist/styles/rsuite-dark.css';
+import 'rsuite/lib/styles/themes/dark/index.less';
 
 ReactDOM.render(
 	<React.StrictMode>

@@ -1,0 +1,16 @@
+.filter {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	margin-bottom: 12px;
+
+	> :first-child {
+		margin-left: 0;
+	}
+	
+	> div {
+		margin-left: auto;
+		min-width: 15%;
+		margin-left: 10px;
+	}
+}

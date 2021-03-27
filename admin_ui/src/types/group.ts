@@ -1,4 +1,5 @@
 import { User } from './user';
+import { Subject } from './subject';
 
 export type Group = {
 	id?: string,
@@ -12,6 +13,7 @@ export type Group = {
 	active_at?: Date,
 	subgroups?: Array<Group>,
 	users?: Array<User>,
+	subjects?: Array<Subject>,
 	created_at?: Date,
 	updated_at?: Date,
 };

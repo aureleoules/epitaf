@@ -39,7 +39,7 @@ export default function Users(props: any) {
 	return (
 		<div className='page'>
 			<div className='header-action'>
-				<h1>{t('Users')}</h1>
+				<h3>{t('Users')}</h3>
 				<Button onClick={() => setCreateUserModal(true)} appearance="primary">
 					{t('Create user')}
 				</Button>

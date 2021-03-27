@@ -105,5 +105,21 @@ CREATE TABLE group_users (
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
+CREATE TABLE group_subjects (
+    id bytea NOT NULL UNIQUE,
+    group_id bytea NOT NULL,
+    title VARCHAR(256) NOT NULL,
+    color VARCHAR(256),
+    icon_url VARCHAR(1024),
+    archived BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (group_id) REFERENCES groups (id)
+);
+
+CREATE TRIGGER update_group_subjects_update_at BEFORE UPDATE
+ON group_subjects FOR EACH ROW EXECUTE PROCEDURE 
+update_updated_at();
+
 -- Enable function `unaccent` (removes accents)
 CREATE EXTENSION unaccent;

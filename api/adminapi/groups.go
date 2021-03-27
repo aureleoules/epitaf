@@ -16,8 +16,53 @@ func handleGroups() {
 	router.GET("/groups", getGroupsHandler)
 	router.GET("/groups/:id", getGroupHandler)
 	router.POST("/groups/:id", createSubGroupHandler)
+
+	router.POST("/groups/:id/subjects", addGroupSubjectHandler)
+	router.DELETE("/groups/:id/subjects/:subject_id", archiveGroupSubjectHandler)
+
 	router.POST("/groups/:id/users", addGroupUsersHandler)
 	router.DELETE("/groups/:id", deleteGroupHandler)
+}
+
+func archiveGroupSubjectHandler(c echo.Context) error {
+	subjectID, err := models.FromUUID(c.Param("subject_id"))
+	if err != nil {
+		zap.S().Warn(err)
+		return c.JSON(http.StatusNotAcceptable, resp{"error": err.Error()})
+	}
+
+	err = models.ArchiveSubject(subjectID)
+	if err != nil {
+		zap.S().Warn(err)
+		return c.JSON(http.StatusInternalServerError, resp{"error": err.Error()})
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
+func addGroupSubjectHandler(c echo.Context) error {
+	groupID, err := models.FromUUID(c.Param("id"))
+	if err != nil {
+		zap.S().Warn(err)
+		return c.JSON(http.StatusNotAcceptable, resp{"error": err.Error()})
+	}
+
+	var subject models.Subject
+	err = c.Bind(&subject)
+	if err != nil {
+		zap.S().Warn(err)
+		return c.JSON(http.StatusNotAcceptable, resp{"error": err.Error()})
+	}
+
+	subject.GroupID = groupID
+
+	err = subject.Insert()
+	if err != nil {
+		zap.S().Warn(err)
+		return c.JSON(http.StatusInternalServerError, resp{"error": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, subject.ID)
 }
 
 func addGroupUsersHandler(c echo.Context) error {

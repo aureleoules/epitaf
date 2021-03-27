@@ -20,10 +20,12 @@ type Group struct {
 	Name string `json:"name" db:"name"`
 	Slug string `json:"slug" db:"slug"`
 
-	Users []User `json:"users,omitempty" db:"-"`
+	// Dynamic fields
+	Users     []User    `json:"users,omitempty" db:"-"`
+	Subjects  []Subject `json:"subjects,omitempty" db:"-"`
+	Subgroups []Group   `json:"subgroups,omitempty" db:"-"`
 
-	ParentID  *UUID   `json:"parent_id" db:"parent_id"`
-	Subgroups []Group `json:"subgroups" db:"-"`
+	ParentID *UUID `json:"parent_id" db:"parent_id"`
 
 	Archived   bool       `json:"archived" db:"archived"`
 	ArchivedAt *time.Time `json:"archived_at" db:"archived_at"`
@@ -91,6 +93,10 @@ func GetGroup(realmID, id UUID) (*Group, error) {
 		return nil, err
 	}
 	group.Users, err = GetGroupUsers(realmID, id)
+	if err != nil {
+		return nil, err
+	}
+	group.Subjects, err = GetGroupSubjects(id)
 	if err != nil {
 		return nil, err
 	}

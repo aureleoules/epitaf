@@ -12,10 +12,7 @@ import {logout} from '../../utils';
 type Props = {};
 export default withRouter((props: Props) => {
 	const { t } = useTranslation();
-
 	const { pathname } = useLocation();
-
-	const slug = pathname.split('/')[1];
 
 	const routes = [
 		{
@@ -29,15 +26,15 @@ export default withRouter((props: Props) => {
 			icon: <Icon icon="task" />,
 		},
 		{
+			name: t('Users'),
+			path: '/users',
+			icon: <Icon icon="user" />,
+		},
+		{
 			name: t('Groups'),
 			path: '/groups',
 			icon: <Icon icon="group" />,
 		},
-		{
-			name: t('Users'),
-			path: '/users',
-			icon: <Icon icon="user" />,
-		}
 	];
 
 	const [user, setUser] = useGlobal<GlobalState>('user');

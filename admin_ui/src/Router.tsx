@@ -7,6 +7,7 @@ import Groups from './routes/Groups';
 import Login from './routes/Login';
 import Group from './routes/Group';
 import Users from './routes/Users';
+import Tasks from './routes/Tasks';
 
 import { isLoggedIn } from './utils';
 
@@ -41,6 +42,11 @@ export default function Router() {
 							exact
 							path="/users"
 							component={Users}
+						/>
+						<Route
+							exact
+							path="/tasks"
+							component={Tasks}
 						/>
 					</Switch>
 				</div>

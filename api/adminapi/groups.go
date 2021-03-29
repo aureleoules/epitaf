@@ -17,11 +17,30 @@ func handleGroups() {
 	router.GET("/groups/:id", getGroupHandler)
 	router.POST("/groups/:id", createSubGroupHandler)
 
+	router.POST("/groups/:id/tasks", handleCreateTask)
+
 	router.POST("/groups/:id/subjects", addGroupSubjectHandler)
+	router.GET("/groups/:id/subjects", getGroupSubjectsHandler)
 	router.DELETE("/groups/:id/subjects/:subject_id", archiveGroupSubjectHandler)
 
 	router.POST("/groups/:id/users", addGroupUsersHandler)
 	router.DELETE("/groups/:id", deleteGroupHandler)
+}
+
+func getGroupSubjectsHandler(c echo.Context) error {
+	groupID, err := models.FromUUID(c.Param("id"))
+	if err != nil {
+		zap.S().Warn(err)
+		return c.JSON(http.StatusNotAcceptable, resp{"error": err.Error()})
+	}
+
+	subjects, err := models.GetGroupSubjects(groupID, true)
+	if err != nil {
+		zap.S().Error(err)
+		return c.JSON(http.StatusInternalServerError, resp{"error": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, subjects)
 }
 
 func archiveGroupSubjectHandler(c echo.Context) error {

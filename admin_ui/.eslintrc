@@ -21,6 +21,8 @@
       }
     },
     "rules": {
+      "jsx-a11y/interactive-supports-focus": "off",
+      "react/jsx-closing-tag-location": "off",
       "import/no-dynamtic-require": "off",
       "no-shadow": "off",
       "no-continue": "off",

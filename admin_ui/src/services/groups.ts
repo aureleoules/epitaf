@@ -37,28 +37,7 @@ const groups = {
 		}).catch(err => {
 			reject(err);
 		});
-	}),
-	addSubject: (id: string, subject: Subject) => new Promise<string>((resolve, reject) => {
-		client.post(`/groups/${id}/subjects`, subject).then(response => {
-			resolve(response.data);
-		}).catch(err => {
-			reject(err);
-		});
-	}),
-	updateSubject: (group_id: string, id: string, subject: Subject) => new Promise<string>((resolve, reject) => {
-		client.put(`/groups/${group_id}/subjects/${id}`, subject).then(response => {
-			resolve(response.data);
-		}).catch(err => {
-			reject(err);
-		});
-	}),
-	archiveSubject: (group_id: string, id: string) => new Promise<string>((resolve, reject) => {
-		client.delete(`/groups/${group_id}/subjects/${id}`).then(response => {
-			resolve(response.data);
-		}).catch(err => {
-			reject(err);
-		});
-	}),
+	})
 };
 
 export default groups;

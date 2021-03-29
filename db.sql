@@ -33,32 +33,6 @@ CREATE TABLE users (
     FOREIGN KEY (realm_id) REFERENCES realms (id)
 );
 
-CREATE TRIGGER update_users_update_at BEFORE UPDATE
-ON users FOR EACH ROW EXECUTE PROCEDURE 
-update_updated_at();
-
-CREATE TABLE tasks (
-    id bytea NOT NULL UNIQUE,
-    short_id VARCHAR(16) NOT NULL UNIQUE,
-    title VARCHAR(256) NOT NULL,
-    content TEXT NOT NULL,
-    due_date TIMESTAMP NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id)
-);
-
-CREATE TRIGGER update_tasks_update_at BEFORE UPDATE
-ON tasks FOR EACH ROW EXECUTE PROCEDURE 
-update_updated_at();
-
-CREATE TABLE completed_tasks (
-    task_id bytea NOT NULL,
-    user_id VARCHAR(256) NOT NULL,
-    completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (task_id) REFERENCES tasks (id)
-);
-
 CREATE TABLE groups (
     id bytea NOT NULL UNIQUE,
     realm_id bytea NOT NULL,
@@ -108,7 +82,7 @@ CREATE TABLE group_users (
 CREATE TABLE group_subjects (
     id bytea NOT NULL UNIQUE,
     group_id bytea NOT NULL,
-    title VARCHAR(256) NOT NULL,
+    name VARCHAR(256) NOT NULL,
     color VARCHAR(256),
     icon_url VARCHAR(1024),
     archived BOOLEAN NOT NULL DEFAULT false,
@@ -120,6 +94,38 @@ CREATE TABLE group_subjects (
 CREATE TRIGGER update_group_subjects_update_at BEFORE UPDATE
 ON group_subjects FOR EACH ROW EXECUTE PROCEDURE 
 update_updated_at();
+
+CREATE TABLE tasks (
+    id bytea NOT NULL UNIQUE,
+    short_id VARCHAR(16) NOT NULL UNIQUE,
+    group_id bytea NOT NULL,
+    subject_id bytea,
+    title VARCHAR(256) NOT NULL,
+    content TEXT NOT NULL,
+    due_date_start TIMESTAMP,
+    due_date_end TIMESTAMP NOT NULL,
+    archived BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    FOREIGN KEY (group_id) REFERENCES groups (id),
+    FOREIGN KEY (subject_id) REFERENCES group_subjects (id)
+);
+
+CREATE TRIGGER update_tasks_update_at BEFORE UPDATE
+ON tasks FOR EACH ROW EXECUTE PROCEDURE 
+update_updated_at();
+
+CREATE TRIGGER update_users_update_at BEFORE UPDATE
+ON users FOR EACH ROW EXECUTE PROCEDURE 
+update_updated_at();
+
+CREATE TABLE completed_tasks (
+    task_id bytea NOT NULL,
+    user_id VARCHAR(256) NOT NULL,
+    completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (task_id) REFERENCES tasks (id)
+);
 
 -- Enable function `unaccent` (removes accents)
 CREATE EXTENSION unaccent;

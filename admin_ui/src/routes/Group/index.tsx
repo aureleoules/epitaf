@@ -120,14 +120,14 @@ function SubjectsTab(props: {subjects: Array<Subject>, fetchGroup: () => void}) 
 
 	function addSubject() {
 		if (subject.id) {
-			Client.Groups.updateSubject(id, subject.id, subject).then(() => {
+			Client.Subjects.update(id, subject.id, subject).then(() => {
 				props.fetchGroup();
 				setCreateModal(false);	
 			}).catch(err => {
 				if (err) throw err;
 			});
 		} else {
-			Client.Groups.addSubject(id, subject).then(() => {
+			Client.Subjects.create(id, subject).then(() => {
 				props.fetchGroup();
 				setCreateModal(false);
 			}).catch(err => {
@@ -137,7 +137,7 @@ function SubjectsTab(props: {subjects: Array<Subject>, fetchGroup: () => void}) 
 	}
 
 	function archiveSubject() {
-		Client.Groups.archiveSubject(id, subjectToArchive!).then(() => {
+		Client.Subjects.archive(id, subjectToArchive!).then(() => {
 			console.log('ok');
 			props.fetchGroup();
 			setConfirmArchive(false);
@@ -267,7 +267,7 @@ function SubjectsTab(props: {subjects: Array<Subject>, fetchGroup: () => void}) 
 							<FormControl 
 								name="name"
 								placeholder={t('Name')} 
-								onChange={v => setSubject(s => ({...s, title: v}))}
+								onChange={v => setSubject(s => ({...s, name: v}))}
 								value={subject.name}
 							/>
 							<HelpBlock>{t('Required')}</HelpBlock>

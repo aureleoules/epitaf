@@ -62,10 +62,10 @@ func (g *Group) Insert() error {
 	return nil
 }
 
-func getGroup(realmID UUID, id UUID) (*Group, error) {
+func getGroup(id UUID) (*Group, error) {
 	q, args, err := psql.Select("g.*").
 		From("groups AS g").
-		Where("realm_id = ? AND id = ?", realmID, id).
+		Where("id = ?", id).
 		ToSql()
 
 	if err != nil {
@@ -88,7 +88,7 @@ func getGroup(realmID UUID, id UUID) (*Group, error) {
 
 // GetGroup returns group by uuid
 func GetGroup(realmID, id UUID) (*Group, error) {
-	group, err := getGroup(realmID, id)
+	group, err := getGroup(id)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func GetGroup(realmID, id UUID) (*Group, error) {
 	if err != nil {
 		return nil, err
 	}
-	group.Subjects, err = GetGroupSubjects(id)
+	group.Subjects, err = GetGroupSubjects(id, false)
 	if err != nil {
 		return nil, err
 	}

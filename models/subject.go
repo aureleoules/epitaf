@@ -14,6 +14,8 @@ type Subject struct {
 	Color    nulltype.NullString `json:"color" db:"color"`
 	IconURL  nulltype.NullString `json:"icon_url" db:"icon_url"`
 	Archived bool                `json:"archived" db:"archived"`
+
+	Inherited bool `json:"inherited,omitempty" db:"-"`
 }
 
 // Insert subject into db
@@ -68,8 +70,7 @@ func ArchiveSubject(id UUID) error {
 	return err
 }
 
-// GetGroupSubjects returns a group's subjects
-func GetGroupSubjects(groupID UUID) ([]Subject, error) {
+func getGroupSubjects(groupID UUID) ([]Subject, error) {
 	q, args, err := psql.
 		Select("gs.*").
 		From("group_subjects AS gs").
@@ -92,4 +93,35 @@ func GetGroupSubjects(groupID UUID) ([]Subject, error) {
 	err = tx.Select(&subjects, q, args...)
 
 	return subjects, err
+}
+
+// GetGroupSubjects returns a group's subjects
+func GetGroupSubjects(groupID UUID, inheritance bool) ([]Subject, error) {
+	if !inheritance {
+		return getGroupSubjects(groupID)
+	}
+
+	var subjects []Subject
+
+	var id *UUID = &groupID
+
+	for id != nil {
+		s, err := getGroupSubjects(*id)
+		if err != nil {
+			return nil, err
+		}
+		subjects = append(subjects, s...)
+
+		g, err := getGroup(*id)
+		if err != nil {
+			return nil, err
+		}
+		if g.ParentID == nil {
+			break
+		}
+
+		id = g.ParentID
+	}
+
+	return subjects, nil
 }

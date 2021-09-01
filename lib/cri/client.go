@@ -3,6 +3,8 @@ package cri
 import (
 	"encoding/json"
 	"errors"
+	"strings"
+	"time"
 
 	"go.uber.org/zap"
 	"gopkg.in/resty.v1"
@@ -32,6 +34,12 @@ func (c *Client) SearchUser(email string) (*ProfileResult, error) {
 	if err != nil {
 		zap.S().Error(err)
 		return nil, err
+	}
+
+	if strings.Contains(result.Detail, "Request was throttled") {
+		time.Sleep(time.Second * 10)
+		// Retry
+		return c.SearchUser(email)
 	}
 
 	zap.S().Info("Fetched CRI user.")

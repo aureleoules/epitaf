@@ -268,8 +268,12 @@ func PrepareUser(email string) (User, error) {
 	}
 
 	g := strings.Split(group.Name, " ")
-	user.Semester.Set(g[0])
-	user.Region.Set(g[1])
+	if len(g) > 0 {
+		user.Semester.Set(g[0])
+	}
+	if len(g) > 1 {
+		user.Region.Set(g[1])
+	}
 	if len(g) > 2 {
 		user.Class.Set(g[2])
 	}

@@ -18,7 +18,7 @@ type Client struct {
 }
 
 // SearchUser in CRI
-func (c *Client) SearchUser(email string) (*ProfileSearchReq, error) {
+func (c *Client) SearchUser(email string) (*ProfileResult, error) {
 	zap.S().Info("Searching CRI user...")
 
 	resp, err := c.httpClient.R().
@@ -27,17 +27,17 @@ func (c *Client) SearchUser(email string) (*ProfileSearchReq, error) {
 	if err != nil {
 		return nil, err
 	}
-	var result []ProfileSearchReq
+	var result ProfileSearchReq
 	err = json.Unmarshal([]byte(resp.Body()), &result)
 	if err != nil {
 		return nil, err
 	}
 
 	zap.S().Info("Fetched CRI user.")
-	if len(result) == 0 {
+	if len(result.Results) == 0 {
 		return nil, errors.New("not found")
 	}
-	return &result[0], err
+	return &result.Results[0], err
 }
 
 // GetGroup from CRI

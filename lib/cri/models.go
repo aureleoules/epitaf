@@ -1,7 +1,13 @@
 package cri
 
-// ProfileSearchReq is the response from CRI /users/search
 type ProfileSearchReq struct {
+	Count    int             `json:"count"`
+	Next     interface{}     `json:"next"`
+	Previous interface{}     `json:"previous"`
+	Results  []ProfileResult `json:"results"`
+}
+
+type ProfileResult struct {
 	URL          string `json:"url"`
 	Login        string `json:"login"`
 	UID          int    `json:"uid"`
@@ -19,7 +25,7 @@ type ProfileSearchReq struct {
 		} `json:"group"`
 		BeginAt        string `json:"begin_at"`
 		EndAt          string `json:"end_at"`
-		GraduationYear int64  `json:"graduation_year"`
+		GraduationYear int    `json:"graduation_year"`
 		IsCurrent      bool   `json:"is_current"`
 	} `json:"groups_history"`
 	CurrentGroups []struct {

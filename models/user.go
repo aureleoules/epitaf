@@ -198,7 +198,7 @@ func PrepareUser(email string) (User, error) {
 		g := r.GroupsHistory[i]
 		if g.IsCurrent {
 			slug = g.Group.Slug
-			user.Promotion.Set(g.GraduationYear)
+			user.Promotion.Set(int64(g.GraduationYear))
 			break
 		}
 	}

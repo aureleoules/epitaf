@@ -3,6 +3,7 @@ package cri
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"go.uber.org/zap"
 	"gopkg.in/resty.v1"
@@ -19,7 +20,7 @@ type Client struct {
 
 // SearchUser in CRI
 func (c *Client) SearchUser(email string) (*ProfileResult, error) {
-	zap.S().Info("Searching CRI user...")
+	zap.S().Info("Searching CRI user: ", email)
 
 	resp, err := c.httpClient.R().
 		Get(endpoint + "/users/search/?emails=" + email)
@@ -30,10 +31,13 @@ func (c *Client) SearchUser(email string) (*ProfileResult, error) {
 	var result ProfileSearchReq
 	err = json.Unmarshal([]byte(resp.Body()), &result)
 	if err != nil {
+		zap.S().Error(err)
 		return nil, err
 	}
 
 	zap.S().Info("Fetched CRI user.")
+	zap.S().Info(result)
+	zap.S().Warn(string(resp.Body()))
 	if len(result.Results) == 0 {
 		return nil, errors.New("not found")
 	}
@@ -64,6 +68,7 @@ func (c *Client) GetGroup(groupSlug string) (*Group, error) {
 
 // NewClient constructor
 func NewClient(username string, password string, url *string) *Client {
+	fmt.Println(username, password)
 	var e string
 	if url == nil {
 		e = endpoint

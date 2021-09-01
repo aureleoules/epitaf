@@ -38,6 +38,16 @@ const (
 			(:login, :name, :email, :promotion, :class, :region, :semester, :teacher);
 	`
 
+	updateUserQuery = `
+		UPDATE users
+			SET 
+				promotion = :promotion,
+				class = :class,
+				region = :region,
+				semester = :semester
+		WHERE login = :login;
+	`
+
 	getUserByEmailQuery = `
 		SELECT 
 			login,
@@ -70,6 +80,9 @@ const (
 		WHERE login = ?;
 	`
 
+	getUsersQuery = `
+		SELECT * FROM users;
+	`
 	searchUserQuery = `
 		SELECT 
 			login,
@@ -103,6 +116,14 @@ type User struct {
 	Teacher   bool                `json:"teacher" db:"teacher"`
 }
 
+type UpdateUserReq struct {
+	Promotion int    `db:"promotion"`
+	Class     string `db:"class"`
+	Region    string `db:"region"`
+	Semester  string `db:"semester"`
+	Login     string `db:"login"`
+}
+
 // GetUserByEmail retrives user by email
 func GetUserByEmail(email string) (*User, error) {
 	zap.S().Info("Retrieving user by email...")
@@ -134,6 +155,20 @@ func GetUser(login string) (*User, error) {
 	var user User
 	err = tx.Get(&user, getUserQuery, login)
 	return &user, err
+}
+
+// GetUser retrives user by login
+func GetUsers() ([]*User, error) {
+	tx, err := db.DB.Beginx()
+	if err != nil {
+		return nil, err
+	}
+
+	defer checkErr(tx, err)
+
+	var users []*User
+	err = tx.Select(&users, getUsersQuery)
+	return users, err
 }
 
 // SearchUser returns slice of users
@@ -173,6 +208,23 @@ func (u *User) Insert() error {
 	return nil
 }
 
+// Update user in DB
+func UpdateUser(update *UpdateUserReq) error {
+	tx, err := db.DB.Beginx()
+	if err != nil {
+		return err
+	}
+
+	defer checkErr(tx, err)
+
+	_, err = tx.NamedExec(updateUserQuery, update)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // PrepareUser data
 func PrepareUser(email string) (User, error) {
 	zap.S().Info("Preparing user data...")
@@ -193,23 +245,26 @@ func PrepareUser(email string) (User, error) {
 		user.Teacher = true
 	}
 
-	var slug string
+	var group *cri.Group
 	for i := len(r.GroupsHistory) - 1; i >= 0; i-- {
 		g := r.GroupsHistory[i]
 		if g.IsCurrent {
-			slug = g.Group.Slug
+			group, err = client.GetGroup(g.Group.Slug)
+			if err != nil {
+				return user, jwt.ErrFailedAuthentication
+			}
+
+			if group.Kind != "class" {
+				continue
+			}
+
 			user.Promotion.Set(int64(g.GraduationYear))
 			break
 		}
 	}
 
-	if slug == "" {
+	if group == nil {
 		return user, nil
-	}
-
-	group, err := client.GetGroup(slug)
-	if err != nil {
-		return user, jwt.ErrFailedAuthentication
 	}
 
 	g := strings.Split(group.Name, " ")

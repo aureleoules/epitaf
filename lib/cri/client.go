@@ -3,7 +3,6 @@ package cri
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 
 	"go.uber.org/zap"
 	"gopkg.in/resty.v1"
@@ -68,7 +67,6 @@ func (c *Client) GetGroup(groupSlug string) (*Group, error) {
 
 // NewClient constructor
 func NewClient(username string, password string, url *string) *Client {
-	fmt.Println(username, password)
 	var e string
 	if url == nil {
 		e = endpoint

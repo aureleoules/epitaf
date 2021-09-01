@@ -64,5 +64,17 @@
         "display_name": "Other",
         "icon": "document.svg",
         "classes": ["SUP", "SPE", "ING"]
+    },
+    {
+        "name": "ts",
+        "display_name": "TD",
+        "icon": "programming.svg",
+        "classes": ["ING"]
+    },
+    {
+        "name": "organization_personnal_dev",
+        "display_name": "Organisation et développement personnels",
+        "icon": "te.svg",
+        "classes": ["ING"]
     }
 ]

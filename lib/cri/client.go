@@ -3,6 +3,7 @@ package cri
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -37,6 +38,7 @@ func (c *Client) SearchUser(email string) (*ProfileResult, error) {
 	}
 
 	if strings.Contains(result.Detail, "Request was throttled") {
+		fmt.Println(result.Detail)
 		time.Sleep(time.Second * 10)
 		// Retry
 		return c.SearchUser(email)
@@ -67,6 +69,13 @@ func (c *Client) GetGroup(groupSlug string) (*Group, error) {
 	err = json.Unmarshal(resp.Body(), &result)
 	if err != nil {
 		return nil, err
+	}
+
+	if strings.Contains(result.Detail, "Request was throttled") {
+		fmt.Println(result.Detail)
+		time.Sleep(time.Second * 10)
+		// Retry
+		return c.GetGroup(groupSlug)
 	}
 
 	zap.S().Info("Fetched CRI group.")

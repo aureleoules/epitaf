@@ -39,6 +39,7 @@ type ProfileResult struct {
 
 // Group struct
 type Group struct {
+	Detail     string        `json:"detail"`
 	URL        string        `json:"url"`
 	Slug       string        `json:"slug"`
 	Gid        int           `json:"gid"`

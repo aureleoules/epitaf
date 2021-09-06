@@ -66,7 +66,6 @@ export default function(props: Props) {
                 <div className={[styles.classes].join(" ")}>
                     {Object.keys(getDays()).map((d: any, i: number) => {
                         const day = (getDays() as any)[d];
-
                         return (
                             <div key={i} className={styles.day}>
                                 <h2>{dayjs(new Date(parseInt(d))).format("DD MMMM")}</h2>
@@ -86,7 +85,7 @@ export default function(props: Props) {
                                                className={styles.separator}
                                            />
                                            <div className={styles.content}>
-                                               <span>{c.rooms ? c.rooms[0].name : ""}</span>
+                                               <span>{(c.rooms && c.rooms.length > 0) ? c.rooms[0].name : ""}</span>
                                                <p>{c.name ? c.name : ""}</p>
                                            </div>
                                        </div>

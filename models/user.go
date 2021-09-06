@@ -253,12 +253,12 @@ func PrepareUser(email string) (User, error) {
 			if err != nil {
 				return user, jwt.ErrFailedAuthentication
 			}
+			user.Promotion.Set(int64(g.GraduationYear))
 
 			if group.Kind != "class" {
 				continue
 			}
 
-			user.Promotion.Set(int64(g.GraduationYear))
 			break
 		}
 	}

@@ -7,6 +7,7 @@ import (
 
 	"github.com/aureleoules/epitaf/api"
 	"github.com/aureleoules/epitaf/db"
+	"github.com/aureleoules/epitaf/lib/zeus"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )
@@ -37,6 +38,8 @@ var startCmd = &cobra.Command{
 
 		db.Connect()
 		defer db.Close()
+
+		go zeus.TokenFetcher()
 
 		api.Serve()
 	},

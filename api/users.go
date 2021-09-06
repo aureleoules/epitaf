@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
-	"github.com/aureleoules/epitaf/lib/chronos"
+	"github.com/aureleoules/epitaf/lib/zeus"
 	"github.com/aureleoules/epitaf/models"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
@@ -66,33 +66,25 @@ func getCalendarHandler(c *gin.Context) {
 		return
 	}
 
-	client := chronos.NewClient(os.Getenv("CHRONOS_TOKEN"), nil)
+	client := zeus.NewClient(os.Getenv("ZEUS_TOKEN"), nil)
 
 	// Class mapping
 	// TODO clean
-	var slug string
-	if strings.HasPrefix(u.Semester.String(), "S1") || strings.HasPrefix(u.Semester.String(), "S2") || strings.HasPrefix(u.Semester.String(), "S3") || strings.HasPrefix(u.Semester.String(), "S4") {
-		slug = "INFO" + strings.ReplaceAll(u.Semester.String(), "#", "%23") + u.Class.String()
-	} else {
-		if u.Class.String() == "BING" {
-			slug = "BING B"
-		} else if strings.HasPrefix(u.Class.String(), "A") {
-			slug = "RIEMANN " + u.Class.String()
-		} else if strings.HasPrefix(u.Class.String(), "C") {
-			slug = "SHANNON " + u.Class.String()
-		} else if strings.HasPrefix(u.Class.String(), "D") {
-			slug = "TANENBAUM " + u.Class.String()
-		}
+	var id int
+	if strings.HasPrefix(u.Semester.String(), "S1") || strings.HasPrefix(u.Semester.String(), "S2") {
+		id = zeus.Groups["sup-"+strings.ToLower(u.Class.String())]
+	} else if strings.HasPrefix(u.Semester.String(), "S5") || strings.HasPrefix(u.Semester.String(), "S6") {
+		id = zeus.Groups["ing1-"+strings.ToLower(u.Class.String())]
 	}
 
-	cal, err := client.GetGroupPlanning(slug)
+	cal, err := client.GetGroupPlanning(id)
 	if err != nil {
 		zap.S().Error(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, models.FormatCalendar(*cal))
+	c.JSON(http.StatusOK, cal)
 }
 
 // @Summary Get self

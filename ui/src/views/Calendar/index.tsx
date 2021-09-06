@@ -32,7 +32,7 @@ export default function(props: Props) {
 
     function getDays() {
         const map = new Map();
-        calendar!.forEach((item) => {
+        calendar?.forEach((item) => {
              const key = new Date(item.startDate).setHours(0, 0, 0, 0);
              const collection = map.get(key);
              if (!collection) {

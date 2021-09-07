@@ -69,7 +69,7 @@ export default function(props: Props) {
                         return (
                             <div key={i} className={styles.day}>
                                 <h2>{dayjs(new Date(parseInt(d))).format("DD MMMM")}</h2>
-                                {day.sort((a: any, b: any) => new Date(a.startDate).getTime() - new Date(b.startTime).getTime() > 0 ? 1 : -1).map((c: any, i: number) => {
+                                {day.sort((a: any, b: any) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime() > 0 ? 1 : -1).map((c: any, i: number) => {
                                     const duration = (new Date(c.endDate).getTime() - new Date(c.startDate).getTime()) / 1000 / 60;
 
                                     return (

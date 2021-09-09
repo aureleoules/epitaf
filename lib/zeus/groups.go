@@ -1,16 +1,17 @@
 package zeus
 
 var Groups = map[string]int{
-	"ing1-a1":  8,
-	"ing1-a2":  10,
-	"ing1-a3":  11,
-	"ing1-a4":  12,
-	"ing1-a5":  13,
-	"ing1-b6":  14,
-	"ing1-b7":  15,
-	"ing1-b8":  17,
-	"ing1-b9":  18,
-	"ing1-b10": 19,
+	"ing1-arcs": 133,
+	"ing1-a1":   8,
+	"ing1-a2":   10,
+	"ing1-a3":   11,
+	"ing1-a4":   12,
+	"ing1-a5":   13,
+	"ing1-b6":   14,
+	"ing1-b7":   15,
+	"ing1-b8":   17,
+	"ing1-b9":   18,
+	"ing1-b10":  19,
 
 	"sup-a1": 54,
 	"sup-a2": 55,

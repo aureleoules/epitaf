@@ -24,6 +24,7 @@ func handleZeus() {
 // @Router /zeus/feed/{slug} [GET]
 func getZeusFeed(c *gin.Context) {
 	client := zeus.NewClient(nil)
+
 	id, ok := zeus.Groups[c.Param("slug")]
 	if !ok {
 		c.JSON(http.StatusNotAcceptable, "invalid group slug")

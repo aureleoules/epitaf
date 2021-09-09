@@ -39,5 +39,5 @@ func getZeusFeed(c *gin.Context) {
 	}
 
 	zap.S().Info("Fetched ICS Feed")
-	c.String(http.StatusOK, ics)
+	c.Data(http.StatusOK, "text/calendar; charset=utf-8", []byte(ics))
 }

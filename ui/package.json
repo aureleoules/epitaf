@@ -17,7 +17,7 @@
     "@types/react-dom": "^16.9.0",
     "@types/react-router-dom": "^5.1.6",
     "@types/react-tagsinput": "^3.19.7",
-    "axios": "^0.20.0",
+    "axios": "^0.21.2",
     "axios-cache-adapter": "^2.5.0",
     "dayjs": "^1.9.3",
     "i18next": "^19.8.3",

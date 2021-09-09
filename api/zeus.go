@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -25,8 +24,6 @@ func handleZeus() {
 // @Router /zeus/feed/{slug} [GET]
 func getZeusFeed(c *gin.Context) {
 	client := zeus.NewClient(nil)
-
-	fmt.Println(c.Param("slug"))
 	id, ok := zeus.Groups[c.Param("slug")]
 	if !ok {
 		c.JSON(http.StatusNotAcceptable, "invalid group slug")
@@ -39,6 +36,7 @@ func getZeusFeed(c *gin.Context) {
 		c.JSON(http.StatusNotAcceptable, err)
 		return
 	}
-	c.String(http.StatusOK, ics)
 
+	zap.S().Info("Fetched ICS Feed")
+	c.String(http.StatusOK, ics)
 }

@@ -15,6 +15,8 @@ import (
 
 func handleUsers() {
 	users := router.Group("/users")
+	users.POST("/refresh", auth.RefreshHandler)
+
 	users.GET("/me", getUserHandler)
 	users.GET("/calendar", getCalendarHandler)
 	users.GET("/search", searchUserHandler)

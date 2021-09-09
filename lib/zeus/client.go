@@ -54,8 +54,22 @@ func (c *Client) GetGroupPlanning(groupId int) ([]Calendar, error) {
 	return result, err
 }
 
+// GetGroupPlanning from Chronos
+func (c *Client) GetICS(groupId string) (string, error) {
+	c.httpClient.Header.Set("Authorization", "Bearer "+token)
+
+	resp, err := c.httpClient.R().
+		Get("/group/" + groupId + "/ics")
+
+	if err != nil {
+		return "", err
+	}
+
+	return resp.String(), nil
+}
+
 // NewClient constructor
-func NewClient(token string, url *string) *Client {
+func NewClient(url *string) *Client {
 	var e string
 	if url == nil {
 		e = endpoint

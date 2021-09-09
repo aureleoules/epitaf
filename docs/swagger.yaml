@@ -327,4 +327,22 @@ paths:
       summary: Get self
       tags:
       - users
+  /zeus/feed/{group_id}:
+    get:
+      description: Get Zeus ICS feed
+      parameters:
+      - description: group_id
+        in: body
+        name: group_id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+        "406":
+          description: Not acceptable
+      summary: Get Zeus ICS feed
+      tags:
+      - zeus
 swagger: "2.0"

@@ -2,7 +2,6 @@ package api
 
 import (
 	"net/http"
-	"os"
 	"strings"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
@@ -68,7 +67,7 @@ func getCalendarHandler(c *gin.Context) {
 		return
 	}
 
-	client := zeus.NewClient(os.Getenv("ZEUS_TOKEN"), nil)
+	client := zeus.NewClient(nil)
 
 	// Class mapping
 	// TODO clean

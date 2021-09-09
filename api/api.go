@@ -38,6 +38,7 @@ func createRouter() *gin.Engine {
 
 	// Do not apply auth middleware here
 	handleAuth()
+	handleZeus()
 
 	// Apply auth middleware on these routes
 	router.Use(auth.MiddlewareFunc())

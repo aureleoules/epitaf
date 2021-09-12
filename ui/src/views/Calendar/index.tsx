@@ -85,7 +85,7 @@ export default function(props: Props) {
                                                className={styles.separator}
                                            />
                                            <div className={styles.content}>
-                                               <span>{(c.rooms && c.rooms.length > 0) ? c.rooms[0].name : ""}</span>
+                                               <span>{(c.rooms && c.rooms.length > 0) ? c.rooms.map((x: any) => x.name).join(', ') : ""}</span>
                                                <p>{c.name ? c.name : ""}</p>
                                            </div>
                                        </div>

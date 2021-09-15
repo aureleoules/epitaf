@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	endpoint = "https://zeus.3ie.fr/api"
+	endpoint = "https://zeus.ionis-it.com/api"
 )
 
 var (

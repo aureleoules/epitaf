@@ -76,5 +76,41 @@
         "display_name": "Organisation et développement personnels",
         "icon": "te.svg",
         "classes": ["ING"]
-    }
+    },
+    {
+        "name": "apfx",
+        "display_name": "Approximation de fonctions",
+        "icon": "mathematics.svg",
+        "classes": ["ING"]
+    },
+    {
+        "name": "cpxa",
+        "display_name": "Complexité des Algorithmes ",
+        "icon": "algo.svg",
+        "classes": ["ING"]
+    },
+    {
+        "name": "systems",
+        "display_name": "Systèmes",
+        "icon": "programming.svg",
+        "classes": ["ING"]
+    },
+    {
+        "name": "mob",
+        "display_name": "Modélisation objets",
+        "icon": "programming.svg",
+        "classes": ["ING"]
+    },
+    {
+        "name": "droit_general",
+        "display_name": "Droit général",
+        "icon": "te.svg",
+        "classes": ["ING"]
+    },
+    {
+        "name": "thl",
+        "display_name": "Théorie des Langages",
+        "icon": "mathematics.svg",
+        "classes": ["ING"]
+    }   
 ]

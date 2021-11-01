@@ -1,12 +1,12 @@
+import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { RotateSpinner } from "react-spinners-kit";
+import chronosMapping from '../../assets/data/chronos_mapping.json';
 import Client from '../../services/client';
 import { Calendar } from '../../types/calendar';
-import styles from './calendar.module.scss';
-import dayjs from 'dayjs';
-import chronosMapping from '../../assets/data/chronos_mapping.json';
 import { IDictionary } from '../../types/dictionnary';
-import { RotateSpinner   } from "react-spinners-kit";
-import { useTranslation } from 'react-i18next';
+import styles from './calendar.module.scss';
 
 
 const colors: IDictionary<string> = chronosMapping;
@@ -68,7 +68,7 @@ export default function(props: Props) {
                         const day = (getDays() as any)[d];
                         return (
                             <div key={i} className={styles.day}>
-                                <h2>{dayjs(new Date(parseInt(d))).format("DD MMMM")}</h2>
+                                <h2>{dayjs(new Date(parseInt(d))).format("dddd DD MMMM")}</h2>
                                 {day.sort((a: any, b: any) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime() > 0 ? 1 : -1).map((c: any, i: number) => {
                                     const duration = (new Date(c.endDate).getTime() - new Date(c.startDate).getTime()) / 1000 / 60;
 

@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/aureleoules/epitaf/api"
 	"github.com/aureleoules/epitaf/db"
 	"github.com/aureleoules/epitaf/models"
@@ -13,9 +15,8 @@ func init() {
 }
 
 var tokenCmd = &cobra.Command{
-	Use:   "token",
-	Short: "token of user",
-	Args:  cobra.ExactArgs(1),
+	Use:  "login",
+	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		db.Connect()
 
@@ -25,12 +26,12 @@ var tokenCmd = &cobra.Command{
 			return
 		}
 
-		token, t, err := api.AuthMiddleware().TokenGenerator(user)
+		token, _, err := api.AuthMiddleware().TokenGenerator(user)
 		if err != nil {
 			zap.S().Error(err)
 			return
 		}
-		zap.S().Info("Generated JWT: ", token)
-		zap.S().Info("Expires at", t.String())
+
+		fmt.Printf("\033[32mhttp://localhost:3000/login?token=%s\033[0m\n", token)
 	},
 }

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from '../../components/Button';
 import styles from './signin.module.scss';
 
+import history from '../../history';
 import {ReactComponent as MicrosoftIcon} from '../../assets/svg/microsoft.svg';
 import {ReactComponent as GitHubIcon} from '../../assets/svg/github.svg';
 import {ReactComponent as Heart} from '../../assets/svg/heart.svg';
@@ -22,6 +23,14 @@ export default function(props: any) {
             window.location.replace(url);
         });
     }
+
+    useEffect(() => {
+        if (window.location.search.includes('token')) {
+            const token = window.location.search.split('token=')[1];
+            localStorage.setItem('jwt', token);
+            window.location.replace('/');
+        }
+    }, []);
 
     return (
         <div className={["route " + styles.signin].join(" ")}>

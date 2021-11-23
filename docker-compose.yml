@@ -1,7 +1,7 @@
 version: "3.1"
 services:
   db:
-    container_name: mariadb
+    container_name: epitafdb
     image: mariadb
     ports:
       - 3306:3306
@@ -10,25 +10,3 @@ services:
       - TZ=Europe/Paris
     volumes:
       - ./tmp:/var/lib/mysql
-  epitaf:
-    container_name: epitaf
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    ports:
-      - 8080:8080
-    links:
-      - db:db
-    environment:
-      - DB_HOST=db:3306
-      - DB_USER=X
-      - DB_PASS=X
-      - DB_NAME=X
-      - CLIENT_ID=X
-      - CLIENT_SECRET=X
-      - SECRET=X
-      - DEV=false
-      - CRI_USERNAME=X
-      - CRI_PASSWORD=X
-      - CHRONOS_TOKEN=X
-      - LOGS_PATH=X

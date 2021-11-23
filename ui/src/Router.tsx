@@ -65,9 +65,9 @@ export default function(props: any) {
                         <Route exact path="/login" component={SignIn}/>
                         <Route exact path="/callback" component={Callback}/>
                         <Route render={() => {
-                            if(!history.location.pathname.startsWith("/callback")) {
+                            if(!history.location.pathname.startsWith('/login') && !history.location.pathname.startsWith("/callback")) {
                                 const path = history.location.pathname;
-                                if(path && path !== "/login" && path !== "/") {
+                                if(path && !path.startsWith('/login') && path !== "/") {
                                     localStorage.setItem("redirect_url", history.location.pathname);
                                 }
                                 return <Redirect to="/login"/>

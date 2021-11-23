@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import Button from '../../components/Button';
 import styles from './signin.module.scss';
 
-import history from '../../history';
 import {ReactComponent as MicrosoftIcon} from '../../assets/svg/microsoft.svg';
 import {ReactComponent as GitHubIcon} from '../../assets/svg/github.svg';
 import {ReactComponent as Heart} from '../../assets/svg/heart.svg';

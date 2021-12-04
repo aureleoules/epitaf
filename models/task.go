@@ -551,6 +551,20 @@ func GetUserTask(id, login string) (*Task, error) {
 }
 
 // GetTasksRange returns list of tasks in a time for a specific class promotion
+// func GetAllTasks(filters Filters) ([]Task, error) {
+// 	tx, err := db.DB.Beginx()
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	defer checkErr(tx, err)
+
+// 	var tasks []Task
+// 	err = tx.Select(&tasks, getTasksRangeQuery, user.Login, filters.Visibility, filters.Subject, filters.Completed, user.Login, user.Promotion, user.Class, user.Region, user.Semester, user.Promotion, user.Semester, "%"+user.Login+"%", user.Login, filters.StartDate, filters.EndDate)
+// 	return tasks, err
+// }
+
+// GetTasksRange returns list of tasks in a time for a specific class promotion
 func GetTasksRange(user User, filters Filters) ([]Task, error) {
 	tx, err := db.DB.Beginx()
 	if err != nil {

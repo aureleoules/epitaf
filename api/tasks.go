@@ -294,7 +294,11 @@ func getTasksHandler(c *gin.Context) {
 	if u.Teacher {
 		tasks, err = models.GetTeacherTasksRange(query.StartDate, query.EndDate)
 	} else {
-		tasks, err = models.GetTasksRange(*u, query)
+		if u.Login != "api_key" {
+			tasks, err = models.GetTasksRange(*u, query)
+		} else {
+			tasks, err = models.GetAllTasks(query.StartDate, query.EndDate)
+		}
 	}
 
 	if err != nil {

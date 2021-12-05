@@ -123,6 +123,15 @@ func insertTestUser2024Lyon() (models.User, string) {
 	return u, token
 }
 
+func insertTestAPIKeyUser() (models.User, string) {
+	u := models.User{
+		Login: "api_key",
+	}
+
+	token, _, _ := AuthMiddleware().TokenGenerator(&u)
+	return u, token
+}
+
 func insertTestTeacher() (models.User, string) {
 	u := models.User{
 		Name:    "Teacher",

@@ -145,6 +145,10 @@ func GetUserByEmail(email string) (*User, error) {
 
 // GetUser retrives user by login
 func GetUser(login string) (*User, error) {
+	if login == "api_key" {
+		return &User{Login: "api_key"}, nil
+	}
+
 	tx, err := db.DB.Beginx()
 	if err != nil {
 		return nil, err

@@ -57,7 +57,7 @@ func callbackHandler(c *gin.Context) (interface{}, error) {
 	auth := c.Request.Header.Get("Authorization")
 	if auth != "" {
 		token := strings.TrimPrefix(auth, "Bearer ")
-		if models.IsApiKeyCorrect(token) {
+		if models.IsAPIKeyCorrect(token) {
 			return &models.User{
 				Login: "api_key",
 			}, nil

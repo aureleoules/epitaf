@@ -20,18 +20,18 @@ var apiKeyCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		db.Connect()
 
-		newApiKey := ""
+		newAPIKey := ""
 		for i := 0; i < 8; i++ {
-			newApiKey += shortid.MustGenerate()
+			newAPIKey += shortid.MustGenerate()
 		}
-		newApiKey = newApiKey[:64]
+		newAPIKey = newAPIKey[:64]
 
-		err := models.InsertApiKey(newApiKey)
+		err := models.InsertAPIKey(newAPIKey)
 		if err != nil {
 			zap.S().Error(err)
 			return
 		}
 
-		fmt.Printf("\033[32m%s\033[0m\n", newApiKey)
+		fmt.Printf("\033[32m%s\033[0m\n", newAPIKey)
 	},
 }

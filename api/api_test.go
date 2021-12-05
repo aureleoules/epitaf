@@ -123,7 +123,7 @@ func insertTestUser2024Lyon() (models.User, string) {
 	return u, token
 }
 
-func insertTestApiKeyUser() (models.User, string) {
+func insertTestAPIKeyUser() (models.User, string) {
 	u := models.User{
 		Login: "api_key",
 	}

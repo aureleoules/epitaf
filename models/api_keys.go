@@ -16,14 +16,14 @@ const (
 		);
 	`
 
-	getApiKey = `
+	getAPIKey = `
 		SELECT 
 			api_key
 		FROM api_keys
 		WHERE api_key = ?;
 	`
 
-	insertApiKey = `
+	insertAPIKey = `
 		INSERT INTO api_keys
 			(api_key)
 		VALUES
@@ -31,8 +31,8 @@ const (
 	`
 )
 
-// Insert task in DB
-func InsertApiKey(api_key string) error {
+// InsertAPIKey inserts API key in DB
+func InsertAPIKey(apiKey string) error {
 	tx, err := db.DB.Beginx()
 	if err != nil {
 		return err
@@ -40,12 +40,12 @@ func InsertApiKey(api_key string) error {
 
 	defer checkErr(tx, err)
 
-	_, err = tx.Exec(insertApiKey, api_key)
+	_, err = tx.Exec(insertAPIKey, apiKey)
 	return err
 }
 
-// IsApiKeyCorrect checks if the api key is registered
-func IsApiKeyCorrect(api_key string) bool {
+// IsAPIKeyCorrect checks if the API key is registered
+func IsAPIKeyCorrect(apiKey string) bool {
 	zap.S().Info("Retrieving api key...")
 	tx, err := db.DB.Beginx()
 	if err != nil {
@@ -56,10 +56,10 @@ func IsApiKeyCorrect(api_key string) bool {
 
 	var exists *[]uint8
 
-	err = tx.Get(&exists, getApiKey, api_key)
+	err = tx.Get(&exists, getAPIKey, apiKey)
 	if err != nil {
 		zap.S().Error(err)
-		zap.S().Info("Api key '", api_key, "' does not exists")
+		zap.S().Info("Api key '", apiKey, "' does not exists")
 		return false
 	}
 	zap.S().Info("Retrieved api key.")

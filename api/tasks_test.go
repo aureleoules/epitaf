@@ -682,7 +682,7 @@ func Test_getTasksHandler(t *testing.T) {
 	refreshDB()
 	u1, token1 := insertTestUser2024C1()
 	u2, _ := insertTestUser2025C1()
-	_, tokenApi := insertTestApiKeyUser()
+	_, tokenAPI := insertTestAPIKeyUser()
 
 	// Check unauthorized
 	apitest.New().
@@ -762,7 +762,7 @@ func Test_getTasksHandler(t *testing.T) {
 	r = apitest.New().
 		Handler(createRouter()).
 		Get("/v1/tasks").
-		Header("Authorization", "Bearer "+tokenApi).
+		Header("Authorization", "Bearer "+tokenAPI).
 		Expect(t).
 		Status(http.StatusOK).
 		End()

@@ -123,7 +123,9 @@ const (
 			updated_user.login = tasks.updated_by_login
 		WHERE 
 			tasks.visibility='promotion'
-			AND deleted=0;
+			AND deleted=0
+			AND due_date >= ? 
+			AND due_date <= ?;
 	`
 
 	getTasksRangeQuery = `
@@ -582,7 +584,7 @@ func GetUserTask(id, login string) (*Task, error) {
 }
 
 // GetAllTasks returns list of tasks in some timeframe for all promotions
-func GetAllTasks() ([]Task, error) {
+func GetAllTasks(start, end time.Time) ([]Task, error) {
 	tx, err := db.DB.Beginx()
 	if err != nil {
 		return nil, err
@@ -591,7 +593,7 @@ func GetAllTasks() ([]Task, error) {
 	defer checkErr(tx, err)
 
 	var tasks []Task
-	err = tx.Select(&tasks, getAllTasksQuery)
+	err = tx.Select(&tasks, getAllTasksQuery, start, end)
 	return tasks, err
 }
 

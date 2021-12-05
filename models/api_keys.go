@@ -22,7 +22,27 @@ const (
 		FROM api_keys
 		WHERE api_key = ?;
 	`
+
+	insertApiKey = `
+		INSERT INTO api_keys
+			(api_key)
+		VALUES
+			(?);
+	`
 )
+
+// Insert task in DB
+func InsertApiKey(api_key string) error {
+	tx, err := db.DB.Beginx()
+	if err != nil {
+		return err
+	}
+
+	defer checkErr(tx, err)
+
+	_, err = tx.Exec(insertApiKey, api_key)
+	return err
+}
 
 // IsApiKeyCorrect checks if the api key is registered
 func IsApiKeyCorrect(api_key string) bool {

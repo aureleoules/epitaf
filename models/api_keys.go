@@ -40,7 +40,7 @@ type APIKey struct {
 	Label string
 }
 
-// InsertAPIKey inserts API key in DB
+// APIKey.Insert inserts API key in DB
 func (a *APIKey) Insert() error {
 	tx, err := db.DB.Beginx()
 	if err != nil {

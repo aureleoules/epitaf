@@ -122,7 +122,7 @@ const (
 		ON
 			updated_user.login = tasks.updated_by_login
 		WHERE 
-			tasks.visibility='promotion'
+			tasks.visibility IN ('promotion', 'class')
 			AND deleted=0
 			AND due_date >= ? 
 			AND due_date <= ?;

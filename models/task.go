@@ -95,6 +95,37 @@ const (
 		WHERE short_id = ? AND deleted=0;
 	`
 
+	getAllTasksQuery = `
+		SELECT
+			tasks.short_id,
+			tasks.promotion,
+			tasks.visibility,
+			tasks.members,
+			tasks.class,
+			tasks.title,
+			tasks.subject,
+			tasks.semester,
+			tasks.content,
+			tasks.region,
+			tasks.due_date,
+			users.name as created_by,
+			updated_user.name as updated_by,
+			tasks.created_by_login,
+			tasks.updated_by_login,
+			tasks.created_at,
+			tasks.updated_at
+		FROM tasks
+		LEFT JOIN users
+		ON 
+			users.login = tasks.created_by_login
+		LEFT JOIN users as updated_user
+		ON
+			updated_user.login = tasks.updated_by_login
+		WHERE 
+			tasks.visibility='promotion'
+			AND deleted=0;
+	`
+
 	getTasksRangeQuery = `
 		SELECT
 			tasks.short_id,
@@ -550,19 +581,19 @@ func GetUserTask(id, login string) (*Task, error) {
 	return &task, err
 }
 
-// GetTasksRange returns list of tasks in a time for a specific class promotion
-// func GetAllTasks(filters Filters) ([]Task, error) {
-// 	tx, err := db.DB.Beginx()
-// 	if err != nil {
-// 		return nil, err
-// 	}
+// GetAllTasks returns list of tasks in some timeframe for all promotions
+func GetAllTasks() ([]Task, error) {
+	tx, err := db.DB.Beginx()
+	if err != nil {
+		return nil, err
+	}
 
-// 	defer checkErr(tx, err)
+	defer checkErr(tx, err)
 
-// 	var tasks []Task
-// 	err = tx.Select(&tasks, getTasksRangeQuery, user.Login, filters.Visibility, filters.Subject, filters.Completed, user.Login, user.Promotion, user.Class, user.Region, user.Semester, user.Promotion, user.Semester, "%"+user.Login+"%", user.Login, filters.StartDate, filters.EndDate)
-// 	return tasks, err
-// }
+	var tasks []Task
+	err = tx.Select(&tasks, getAllTasksQuery)
+	return tasks, err
+}
 
 // GetTasksRange returns list of tasks in a time for a specific class promotion
 func GetTasksRange(user User, filters Filters) ([]Task, error) {

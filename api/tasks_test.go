@@ -680,7 +680,9 @@ func Test_getTaskHandler(t *testing.T) {
 
 func Test_getTasksHandler(t *testing.T) {
 	refreshDB()
-	u, token := insertTestUser2024C1()
+	u1, token1 := insertTestUser2024C1()
+	u2, _ := insertTestUser2025C1()
+	_, tokenApi := insertTestApiKeyUser()
 
 	// Check unauthorized
 	apitest.New().
@@ -694,7 +696,7 @@ func Test_getTasksHandler(t *testing.T) {
 	apitest.New().
 		Handler(createRouter()).
 		Get("/v1/tasks").
-		Header("Authorization", "Bearer "+token).
+		Header("Authorization", "Bearer "+token1).
 		Expect(t).
 		Body("null").
 		Status(http.StatusOK).
@@ -706,8 +708,8 @@ func Test_getTasksHandler(t *testing.T) {
 		Title:          "Thing to do",
 		Content:        "This is a test",
 		DueDate:        utils.TruncateDate(time.Now().Add(time.Hour * 72)),
-		CreatedByLogin: u.Login,
-		UpdatedByLogin: u.Login,
+		CreatedByLogin: u1.Login,
+		UpdatedByLogin: u1.Login,
 		Visibility:     models.PromotionVisibility,
 		Semester:       nulltype.NullStringOf("S3"),
 		Promotion:      nulltype.NullInt64Of(2024),
@@ -718,7 +720,7 @@ func Test_getTasksHandler(t *testing.T) {
 	r := apitest.New().
 		Handler(createRouter()).
 		Get("/v1/tasks").
-		Header("Authorization", "Bearer "+token).
+		Header("Authorization", "Bearer "+token1).
 		Expect(t).
 		Status(http.StatusOK).
 		End()
@@ -743,13 +745,30 @@ func Test_getTasksHandler(t *testing.T) {
 	r = apitest.New().
 		Handler(createRouter()).
 		Get("/v1/tasks").
-		Header("Authorization", "Bearer "+token).
+		Header("Authorization", "Bearer "+token1).
 		Expect(t).
 		Status(http.StatusOK).
 		End()
 
 	r.JSON(&tasks)
 	assert.Equal(t, 20, len(tasks))
+
+	// Check if api key user can fetch tasks from all promotions
+	task.Promotion = nulltype.NullInt64Of(2025)
+	task.CreatedByLogin = u2.Login
+	task.UpdatedByLogin = u2.Login
+	task.Insert()
+
+	r = apitest.New().
+		Handler(createRouter()).
+		Get("/v1/tasks").
+		Header("Authorization", "Bearer "+tokenApi).
+		Expect(t).
+		Status(http.StatusOK).
+		End()
+
+	r.JSON(&tasks)
+	assert.Equal(t, 21, len(tasks))
 }
 
 func Test_createTaskHandler(t *testing.T) {

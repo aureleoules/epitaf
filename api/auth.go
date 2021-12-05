@@ -3,6 +3,7 @@ package api
 import (
 	"errors"
 	"net/http"
+	"strings"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/aureleoules/epitaf/lib/microsoft"
@@ -52,6 +53,17 @@ func authenticateHandler(c *gin.Context) {
 // @Failure 500 "Server error"
 // @Router /users/callback [POST]
 func callbackHandler(c *gin.Context) (interface{}, error) {
+	// Check if the request is using an API KEY
+	auth := c.Request.Header.Get("Authorization")
+	if auth != "" {
+		token := strings.TrimPrefix(auth, "Bearer ")
+		if models.IsApiKeyCorrect(token) {
+			return &models.User{
+				Login: "api_key",
+			}, nil
+		}
+	}
+
 	var m map[string]string
 	err := c.Bind(&m)
 	if err != nil {

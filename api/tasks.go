@@ -294,7 +294,11 @@ func getTasksHandler(c *gin.Context) {
 	if u.Teacher {
 		tasks, err = models.GetTeacherTasksRange(query.StartDate, query.EndDate)
 	} else {
-		tasks, err = models.GetTasksRange(*u, query)
+		if u.Login != "api_key" {
+			tasks, err = models.GetTasksRange(*u, query)
+		} else {
+			tasks, err = models.GetAllTasks()
+		}
 	}
 
 	if err != nil {
@@ -306,44 +310,6 @@ func getTasksHandler(c *gin.Context) {
 	zap.S().Info(u.Name + " fetched tasks.")
 	c.JSON(http.StatusOK, tasks)
 }
-
-// @Summary Gets all tasks
-// @Tags tasks
-// @Description Get tasks
-// @Success 200	"OK"
-// @Failure 401	"Unauthorized"
-// @Failure 404	"Not found"
-// @Failure 406	"Not acceptable"
-// @Failure 500 "Server error" "Server error"
-// @Router /tasks/all [GET]
-// func getAllTasksHandler(c *gin.Context) {
-// 	var tasks []models.Task
-
-// 	var query models.Filters
-// 	err := c.BindQuery(&query)
-// 	if err != nil {
-// 		zap.S().Error(err)
-// 		c.AbortWithStatus(http.StatusNotAcceptable)
-// 		return
-// 	}
-// 	err = query.Validate()
-// 	if err != nil {
-// 		zap.S().Error(err)
-// 		c.AbortWithStatus(http.StatusNotAcceptable)
-// 		return
-// 	}
-
-// 	tasks, err = models.GetTasksRange(*u, query)
-
-// 	if err != nil {
-// 		zap.S().Error(err)
-// 		c.AbortWithStatus(http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	zap.S().Info("Fetched all tasks.")
-// 	c.JSON(http.StatusOK, tasks)
-// }
 
 // @Summary Create task
 // @Tags tasks

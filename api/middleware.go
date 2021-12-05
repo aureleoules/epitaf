@@ -34,7 +34,12 @@ func AuthMiddleware() *jwt.GinJWTMiddleware {
 		},
 		Authenticator: callbackHandler,
 		Authorizator: func(data interface{}, c *gin.Context) bool {
-			return true
+			// Authorize api key user only on /v1/tasks route
+			if v, ok := data.(*models.User); ok && v.Login == "api_key" {
+				return c.FullPath() == "/v1/tasks"
+			} else {
+				return true
+			}
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
 			_ = c.AbortWithError(code, errors.New(message))

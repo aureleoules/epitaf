@@ -8,31 +8,40 @@ import (
 const (
 	apiKeySchema = `
 		CREATE TABLE api_keys (
-			api_key VARCHAR(64) NOT NULL UNIQUE,
+			token VARCHAR(64) NOT NULL UNIQUE,
+			label VARCHAR(64) NOT NULL UNIQUE,
 
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
 
-			PRIMARY KEY (api_key)
+			PRIMARY KEY (token)
 		);
 	`
 
 	getAPIKey = `
 		SELECT 
-			api_key
+			token
 		FROM api_keys
-		WHERE api_key = ?;
+		WHERE token = ?;
 	`
 
 	insertAPIKey = `
 		INSERT INTO api_keys
-			(api_key)
+			(token, label)
 		VALUES
-			(?);
+			(:token, :label);
 	`
 )
 
+// APIKey struct
+type APIKey struct {
+	base
+
+	Token string
+	Label string
+}
+
 // InsertAPIKey inserts API key in DB
-func InsertAPIKey(apiKey string) error {
+func (a *APIKey) Insert() error {
 	tx, err := db.DB.Beginx()
 	if err != nil {
 		return err
@@ -40,12 +49,12 @@ func InsertAPIKey(apiKey string) error {
 
 	defer checkErr(tx, err)
 
-	_, err = tx.Exec(insertAPIKey, apiKey)
+	_, err = tx.NamedExec(insertAPIKey, a)
 	return err
 }
 
 // IsAPIKeyCorrect checks if the API key is registered
-func IsAPIKeyCorrect(apiKey string) bool {
+func IsAPIKeyCorrect(token string) bool {
 	zap.S().Info("Retrieving api key...")
 	tx, err := db.DB.Beginx()
 	if err != nil {
@@ -56,10 +65,10 @@ func IsAPIKeyCorrect(apiKey string) bool {
 
 	var exists *[]uint8
 
-	err = tx.Get(&exists, getAPIKey, apiKey)
+	err = tx.Get(&exists, getAPIKey, token)
 	if err != nil {
 		zap.S().Error(err)
-		zap.S().Info("Api key '", apiKey, "' does not exists")
+		zap.S().Info("Api key '", token, "' does not exists")
 		return false
 	}
 	zap.S().Info("Retrieved api key.")

@@ -10,6 +10,7 @@ import {ReactComponent as MoonIcon} from '../../assets/svg/moon.svg';
 import {ReactComponent as FranceIcon} from '../../assets/svg/france.svg';
 import {ReactComponent as USAIcon} from '../../assets/svg/usa.svg';
 import {ReactComponent as HelpIcon} from '../../assets/svg/help.svg';
+import {ReactComponent as ExternalLinkIcon} from '../../assets/svg/external-link.svg';
 
 import styles from './sidebar.module.scss';
 import history from '../../history';
@@ -151,6 +152,14 @@ export default function(props: Props) {
                                         </Link>
                                     </li>
                                 ))}
+                                <hr />
+                                <li>
+                                    <a target="_blank" href="https://epitar.aureleoules.com">
+                                        <ExternalLinkIcon/>
+                                        epitar.gz
+                                        <span className={styles.new}>NEW</span>
+                                    </a>
+                                </li>
                             </ul>
                             <ul className={styles.bottom}>
                                 {bottom_routes.map((r, i) => (

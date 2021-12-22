@@ -15,23 +15,29 @@ func init() {
 }
 
 var apiKeyCmd = &cobra.Command{
-	Use:   "apikey",
-	Short: "Generates a new api key",
+	Use:     "apikey",
+	Example: "epitaf apikey <label>",
+	Short:   "Generates a new api key",
+	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		db.Connect()
 
-		newAPIKey := ""
-		for i := 0; i < 8; i++ {
-			newAPIKey += shortid.MustGenerate()
+		newAPIKey := models.APIKey{
+			Token: "",
+			Label: args[0],
 		}
-		newAPIKey = newAPIKey[:64]
 
-		err := models.InsertAPIKey(newAPIKey)
+		for i := 0; i < 8; i++ {
+			newAPIKey.Token += shortid.MustGenerate()
+		}
+		newAPIKey.Token = newAPIKey.Token[:64]
+
+		err := newAPIKey.Insert()
 		if err != nil {
 			zap.S().Error(err)
 			return
 		}
 
-		fmt.Printf("\033[32m%s\033[0m\n", newAPIKey)
+		fmt.Printf("\033[32m%s => %s\033[0m\n", newAPIKey.Label, newAPIKey.Token)
 	},
 }

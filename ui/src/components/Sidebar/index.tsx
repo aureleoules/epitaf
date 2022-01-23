@@ -157,7 +157,6 @@ export default function(props: Props) {
                                     <a target="_blank" rel="noopener noreferrer" href="https://epitar.aureleoules.com">
                                         <ExternalLinkIcon/>
                                         epitar.gz
-                                        <span className={styles.new}>NEW</span>
                                     </a>
                                 </li>
                             </ul>

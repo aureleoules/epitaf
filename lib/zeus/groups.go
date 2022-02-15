@@ -12,6 +12,7 @@ var Groups = map[string]int{
 	"ing1-b8":   17,
 	"ing1-b9":   18,
 	"ing1-b10":  19,
+	"ing1-b11": 389,
 
 	"sup-a1": 54,
 	"sup-a2": 55,

@@ -45,7 +45,7 @@
         "name": "programming",
         "display_name": "Programming",
         "icon": "programming.svg",
-        "classes": ["SUP", "SPE"]
+        "classes": ["SUP", "SPE", "ING"]
     },
     {
         "name": "oc",
@@ -112,5 +112,29 @@
         "display_name": "Théorie des Langages",
         "icon": "mathematics.svg",
         "classes": ["ING"]
-    }   
+    },
+    {
+        "name": "graphs",
+        "display_name": "Théorie des graphes",
+        "icon": "algo.svg",
+        "classes": ["ING"]
+    },
+    {
+        "name": "comm",
+        "display_name": "COMM",
+        "icon": "te.svg",
+        "classes": ["ING"]
+    },
+    {
+        "name": "cama",
+        "display_name": "Calcul Matriciel et Analyse Numérique",
+        "icon": "mathematics.svg",
+        "classes": ["ING"]
+    },
+    {
+        "name": "sst",
+        "display_name": "Santé et sécurité au travail pour les ingénieurs",
+        "icon": "te.svg",
+        "classes": ["ING"]
+    }
 ]

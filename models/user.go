@@ -229,6 +229,8 @@ func UpdateUser(update *UpdateUserReq) error {
 	return nil
 }
 
+var groupCache = make(map[string]*cri.Group)
+
 // PrepareUser data
 func PrepareUser(email string) (User, error) {
 	zap.S().Info("Preparing user data...")
@@ -253,9 +255,15 @@ func PrepareUser(email string) (User, error) {
 	for i := len(r.GroupsHistory) - 1; i >= 0; i-- {
 		g := r.GroupsHistory[i]
 		if g.IsCurrent {
-			group, err = client.GetGroup(g.Group.Slug)
-			if err != nil {
-				return user, jwt.ErrFailedAuthentication
+			if gr, ok := groupCache[g.Group.Slug]; ok {
+				group = gr
+			} else {
+				group, err = client.GetGroup(g.Group.Slug)
+				if err != nil {
+					return user, jwt.ErrFailedAuthentication
+				}
+
+				groupCache[g.Group.Slug] = group
 			}
 
 			if group.Kind == "year" {
@@ -271,7 +279,7 @@ func PrepareUser(email string) (User, error) {
 				user.Semester.Set(group.Name)
 			}
 
-			if group.Kind == "region" {
+			if group.Kind == "campus" {
 				user.Region.Set(group.Name)
 			}
 		}

@@ -257,29 +257,23 @@ func PrepareUser(email string) (User, error) {
 			if err != nil {
 				return user, jwt.ErrFailedAuthentication
 			}
-			user.Promotion.Set(int64(g.GraduationYear))
-
-			if group.Kind != "class" {
-				continue
+			
+			if group.Kind == "year" {
+				user.Promotion.Set(int64(g.GraduationYear))
 			}
 
-			break
+			if group.Kind == "class" {
+				user.Class.Set(group.Name)
+			}
+
+			if group.Kind == "semester" {
+				user.Semester.Set(group.Name)
+			}
+
+			if group.Kind == "region" {
+				user.Region.Set(group.Name)
+			}
 		}
-	}
-
-	if group == nil {
-		return user, nil
-	}
-
-	g := strings.Split(group.Name, " ")
-	if len(g) > 0 {
-		user.Semester.Set(g[0])
-	}
-	if len(g) > 1 {
-		user.Region.Set(g[1])
-	}
-	if len(g) > 2 {
-		user.Class.Set(g[2])
 	}
 
 	zap.S().Info("Prepared user data.")

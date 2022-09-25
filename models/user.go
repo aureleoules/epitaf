@@ -117,11 +117,11 @@ type User struct {
 }
 
 type UpdateUserReq struct {
-	Promotion int    `db:"promotion"`
-	Class     string `db:"class"`
-	Region    string `db:"region"`
-	Semester  string `db:"semester"`
-	Login     string `db:"login"`
+	Promotion int                 `db:"promotion"`
+	Class     nulltype.NullString `db:"class"`
+	Region    nulltype.NullString `db:"region"`
+	Semester  nulltype.NullString `db:"semester"`
+	Login     string              `db:"login"`
 }
 
 // GetUserByEmail retrives user by email

@@ -33,9 +33,9 @@ var updateClassesCmd = &cobra.Command{
 			err = models.UpdateUser(&models.UpdateUserReq{
 				Login:     u.Login,
 				Promotion: int(user.Promotion.Int64Value()),
-				Class:     user.Class.String(),
-				Region:    user.Region.String(),
-				Semester:  user.Semester.String(),
+				Class:     user.Class,
+				Region:    user.Region,
+				Semester:  user.Semester,
 			})
 
 			if err != nil {

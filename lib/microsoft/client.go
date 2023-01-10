@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	jwt "github.com/appleboy/gin-jwt"
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"go.uber.org/zap"
 	"gopkg.in/resty.v1"
 )

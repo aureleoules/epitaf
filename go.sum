@@ -26,8 +26,6 @@ github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuy
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 h1:JYp7IbQjafoB+tBA3gMyHYHrpOtNuDiK/uB5uXxq5wM=
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
-github.com/appleboy/gin-jwt v2.5.0+incompatible h1:oLQTP1fiGDoDKoC2UDqXD9iqCP44ABIZMMenfH/xCqw=
-github.com/appleboy/gin-jwt v2.5.0+incompatible/go.mod h1:pG7tv32IEe5wEh1NSQzcyD02ZZAqZWp07RdGiIhgaRQ=
 github.com/appleboy/gin-jwt/v2 v2.6.4 h1:4YlMh3AjCFnuIRiL27b7TXns7nLx8tU/TiSgh40RRUI=
 github.com/appleboy/gin-jwt/v2 v2.6.4/go.mod h1:CZpq1cRw+kqi0+yD2CwVw7VGXrrx4AqBdeZnwxVmoAs=
 github.com/appleboy/gofight/v2 v2.1.2 h1:VOy3jow4vIK8BRQJoC/I9muxyYlJ2yb9ht2hZoS3rf4=
@@ -483,8 +481,6 @@ gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8
 gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f h1:BLraFXnmrev5lT+xlilqcH8XK9/i0At2xKjWk4p6zsU=
 gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
-gopkg.in/dgrijalva/jwt-go.v3 v3.2.0 h1:N46iQqOtHry7Hxzb9PGrP68oovQmj7EhudNoKHvbOvI=
-gopkg.in/dgrijalva/jwt-go.v3 v3.2.0/go.mod h1:hdNXC2Z9yC029rvsQ/on2ZNQ44Z2XToVhpXXbR+J05A=
 gopkg.in/errgo.v2 v2.1.0/go.mod h1:hNsd1EY+bozCKY1Ytp96fpM3vjJbqLJn88ws8XvfDNI=
 gopkg.in/go-playground/assert.v1 v1.2.1/go.mod h1:9RXL0bg/zibRAgZUYszZSwO/z8Y/a8bDuhia5mkpMnE=
 gopkg.in/go-playground/validator.v8 v8.18.2/go.mod h1:RX2a/7Ha8BgOhfk7j780h4/u/RRjR0eouCJSH80/M2Y=

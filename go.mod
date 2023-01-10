@@ -3,7 +3,6 @@ module github.com/aureleoules/epitaf
 go 1.15
 
 require (
-	github.com/appleboy/gin-jwt v2.5.0+incompatible
 	github.com/appleboy/gin-jwt/v2 v2.6.4
 	github.com/davecgh/go-spew v1.1.1
 	github.com/gin-gonic/gin v1.7.0
@@ -23,6 +22,5 @@ require (
 	go.uber.org/zap v1.16.0
 	golang.org/x/crypto v0.0.0-20201117144127-c1f2f97bffc9 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
-	gopkg.in/dgrijalva/jwt-go.v3 v3.2.0 // indirect
 	gopkg.in/resty.v1 v1.12.0
 )

@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	jwt "github.com/appleboy/gin-jwt"
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/aureleoules/epitaf/db"
 	"github.com/aureleoules/epitaf/lib/cri"
 	"github.com/mattn/go-nulltype"
